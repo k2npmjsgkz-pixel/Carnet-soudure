@@ -1,0 +1,49 @@
+CARNET SOUDEUR — VERSION HORS LIGNE
+====================================
+
+Ce dossier contient l'appli complète. Une fois mise en ligne et ajoutée à
+l'écran d'accueil de ton iPhone, elle s'ouvre et calcule sans réseau
+(mode avion compris).
+
+Fichiers à mettre en ligne (tous, sans les renommer) :
+  index.html, sw.js, manifest.webmanifest,
+  icon-192.png, icon-512.png, apple-touch-icon.png
+
+
+1. METTRE EN LIGNE (gratuit, avec GitHub Pages) — à faire sur l'ordinateur
+---------------------------------------------------------------------------
+  1. Crée un compte gratuit sur github.com.
+  2. Clique sur « New repository ». Nom : carnet-soudeur. Coche « Public ».
+     Clique sur « Create repository ».
+  3. Clique sur le lien « uploading an existing file ». Glisse les 6 fichiers
+     (pas le dossier), puis clique sur « Commit changes ».
+  4. Va dans « Settings » puis « Pages ».
+     Source : « Deploy from a branch ». Branch : « main », dossier « / (root) ».
+     Clique sur « Save ».
+  5. Après une ou deux minutes, l'adresse s'affiche en haut de la page Pages :
+     https://TON-PSEUDO.github.io/carnet-soudeur/
+
+
+2. INSTALLER SUR L'IPHONE
+-------------------------
+  1. Avec du réseau, ouvre l'adresse dans Safari.
+  2. Touche le bouton Partager, puis « Sur l'écran d'accueil », puis « Ajouter ».
+  3. Ouvre l'appli une première fois depuis l'icône, avec du réseau.
+     Ensuite, elle fonctionne sans réseau.
+
+
+3. BON À SAVOIR
+---------------
+  - Tes chantiers, plans iso et l'historique restent dans le téléphone.
+    Fais régulièrement « Chantiers > Exporter (.json) » : c'est ta sauvegarde,
+    et elle sert à passer sur un autre téléphone (« Importer… »).
+  - Pour récupérer les chantiers de la version Claude : dans la version Claude,
+    « Chantiers > Exporter (.json) », puis « Importer… » dans cette version.
+  - Les PDF et rapports s'ouvrent dans le menu de partage de l'iPhone :
+    « Enregistrer dans Fichiers », Mail, WhatsApp…
+  - Mise à jour : remplace index.html sur GitHub (« Add file > Upload files »).
+    La nouvelle version arrive à la deuxième ouverture de l'appli avec réseau.
+  - Le dépôt est public : quelqu'un qui a l'adresse peut ouvrir l'appli, mais
+    il ne voit pas tes données (elles restent dans ton téléphone).
+  - Les valeurs sont indicatives : elles ne remplacent ni les normes ni un
+    DMOS qualifié.

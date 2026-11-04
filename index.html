@@ -1,0 +1,1828 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#111518">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Carnet Soudeur">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<title>Carnet Soudeur</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* Atelier : acier bleuté + orange de chauffe. Accueil = grille d'outils ; outil = dessin → saisie → résultats → enregistrer */
+  --bg:#edf0f2; --surface:#ffffff; --ink:#1a2026; --muted:#5b6670; --line:#d2d8dd; --fill:#dfe5ea;
+  --accent:#b9500c; --accent-soft:#f7e6d9; --on-accent:#ffffff;
+  --ok:#2f7d4f; --warn:#8a5f00; --warn-soft:#fbf0d2; --bad:#b3261e;
+  --c-chaud:#2f6fa8; --c-tuy:#2b8460; --c-ref:#9a7420;
+  --display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --body:"Barlow",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#111518; --surface:#1a1f24; --ink:#e8ecef; --muted:#97a3ad; --line:#2b333a; --fill:#2a3239;
+    --accent:#ff8a3d; --accent-soft:#3a2617; --on-accent:#1a0f06;
+    --ok:#5cc58a; --warn:#e6bd4a; --warn-soft:#33290f; --bad:#ff6b5e; color-scheme:dark;
+    --c-chaud:#6aa6dc; --c-tuy:#5cc38f; --c-ref:#d4a94a;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#111518; --surface:#1a1f24; --ink:#e8ecef; --muted:#97a3ad; --line:#2b333a; --fill:#2a3239;
+  --accent:#ff8a3d; --accent-soft:#3a2617; --on-accent:#1a0f06;
+  --ok:#5cc58a; --warn:#e6bd4a; --warn-soft:#33290f; --bad:#ff6b5e; color-scheme:dark;
+  --c-chaud:#6aa6dc; --c-tuy:#5cc38f; --c-ref:#d4a94a;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.4;-webkit-text-size-adjust:100%}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.wrap{max-width:760px;margin:0 auto;padding:0 max(16px,env(safe-area-inset-left)) calc(96px + env(safe-area-inset-bottom))}
+header.top{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top)}
+.top-in{max-width:760px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:10px}
+.brand{font-family:var(--display);font-weight:700;font-size:24px;letter-spacing:.02em;text-transform:uppercase;line-height:1}
+.brand span{color:var(--accent)}
+.top-in .sp{flex:1}
+.iconbtn{min-width:48px;height:44px;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:0 12px;font-size:14px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+#favBtn[aria-pressed="true"]{color:var(--accent);border-color:var(--accent)}
+.back{display:inline-flex;align-items:center;gap:6px;text-decoration:none;color:var(--ink);font-weight:600;height:44px;padding:0 12px 0 8px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.back svg{width:18px;height:18px}
+h1,h2,h3{font-family:var(--display);font-weight:700;margin:0;text-wrap:balance;line-height:1.1}
+h1{font-size:30px;text-transform:uppercase;letter-spacing:.01em}
+h2{font-size:22px;text-transform:uppercase;letter-spacing:.02em}
+h3{font-size:18px;text-transform:uppercase;letter-spacing:.03em}
+.lede{color:var(--muted);margin:4px 0 0}
+.search{margin:16px 0 10px;position:relative}
+.search input{width:100%;height:52px;border-radius:12px;border:1px solid var(--line);background:var(--surface);padding:0 14px 0 44px;font-size:17px}
+.search svg{position:absolute;left:14px;top:15px;width:22px;height:22px;color:var(--muted)}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:2px 0 12px;scrollbar-width:none}
+.chip{flex:none;height:40px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-weight:600;font-size:15px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
+.tcard{display:flex;flex-direction:column;gap:4px;text-decoration:none;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--cat,var(--accent));border-radius:12px;padding:12px 12px 14px;min-height:96px}
+.tcard b{font-family:var(--display);font-size:20px;font-weight:600;line-height:1.1}
+.tcard small{color:var(--muted);font-size:13.5px;line-height:1.3}
+.tcard .cat{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.sec-title{margin:22px 0 10px;display:flex;align-items:baseline;gap:8px}
+.sec-title .n{color:var(--muted);font-size:14px}
+.empty{color:var(--muted);padding:24px 0;text-align:center}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;margin-top:12px}
+.tool-head{padding-top:14px}
+.drw{background:var(--surface);border:1px solid var(--line);border-radius:14px;margin-top:12px;padding:6px}
+.drw svg{display:block;width:100%;height:auto}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:10px 10px}
+.fld{display:flex;flex-direction:column;gap:4px;min-width:0}
+.fld.wide{grid-column:1/-1}
+.fld>span{font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.fld>span em{font-style:normal;text-transform:none;letter-spacing:0;font-weight:500}
+.fld input,.fld select,.inp{height:52px;border-radius:10px;border:1px solid var(--line);background:var(--bg);padding:0 12px;font-size:20px;font-variant-numeric:tabular-nums;width:100%;min-width:0}
+.fld select{font-size:17px;padding-right:6px}
+.fld input:focus,.fld select:focus,.inp:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px var(--accent-soft)}
+.fld[hidden]{display:none}
+.rows{grid-column:1/-1;display:flex;flex-direction:column;gap:8px}
+.rows .rh,.rows .rw{display:grid;grid-template-columns:1fr 92px 48px;gap:8px;align-items:center}
+.rows .rh span{font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.rows .rw button{height:52px;border-radius:10px;border:1px solid var(--line);background:var(--surface);font-size:22px;cursor:pointer;color:var(--muted)}
+.btn{height:50px;border-radius:12px;border:1px solid var(--line);background:var(--surface);padding:0 16px;font-weight:600;font-size:16px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.btn.danger{color:var(--bad);border-color:var(--bad)}
+.btn.small{height:40px;font-size:14px;padding:0 12px;border-radius:10px}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.tile{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:12px;padding:10px 12px}
+.tile .l{font-size:12.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.tile .v{font-family:var(--display);font-size:32px;font-weight:700;line-height:1.05;font-variant-numeric:tabular-nums;margin-top:2px}
+.tile .v small{font-family:var(--body);font-size:15px;font-weight:600;color:var(--muted);margin-left:3px}
+.rlist{margin:0;display:flex;flex-direction:column}
+.rlist div{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--line)}
+.rlist div:last-child{border-bottom:0}
+.rlist dt{color:var(--muted);font-size:15px}
+.rlist dd{margin:0;text-align:right;font-weight:600;font-variant-numeric:tabular-nums}
+.rlist dd small{color:var(--muted);font-weight:500}
+.msg{border-radius:12px;padding:10px 12px;margin-top:10px;font-size:15px}
+.msg.warn{background:var(--warn-soft);color:var(--ink);border-left:4px solid var(--warn)}
+.msg.err{background:var(--warn-soft);border-left:4px solid var(--bad)}
+.notes{color:var(--muted);font-size:14px;margin:10px 2px 0;padding-left:18px}
+.notes li{margin:3px 0}
+table.t{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;font-size:15px}
+table.t th{text-align:left;font-size:12.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:600;padding:6px 6px;border-bottom:1px solid var(--line)}
+table.t td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+table.t tr:last-child td{border-bottom:0}
+.tscroll{overflow-x:auto}
+details.acc{border-bottom:1px solid var(--line)}
+details.acc:last-child{border-bottom:0}
+details.acc summary{padding:12px 2px;font-weight:600;cursor:pointer;font-size:17px;list-style:none;display:flex;justify-content:space-between}
+details.acc summary::after{content:"+";color:var(--accent);font-size:22px;line-height:1}
+details.acc[open] summary::after{content:"–"}
+details.acc .bd{padding:0 2px 12px;color:var(--ink)}
+details.acc .bd p{margin:4px 0}
+details.acc .bd b{color:var(--muted);font-size:13px;text-transform:uppercase;letter-spacing:.05em}
+.sym{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.sym figure{margin:0;background:var(--bg);border-radius:10px;padding:8px;display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center}
+.sym svg{width:100%;max-width:130px;height:56px}
+.sym figcaption{font-size:14px;font-weight:600}
+.sym figcaption small{display:block;font-weight:400;color:var(--muted);font-size:12.5px}
+.save .row{display:grid;grid-template-columns:1fr;gap:8px;margin:10px 0}
+.savemsg{color:var(--ok);font-weight:600;margin:8px 0 0}
+.timer{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.timer-v{font-family:var(--display);font-size:44px;font-weight:700;font-variant-numeric:tabular-nums;min-width:120px}
+.timer-v.done{color:var(--accent);animation:blink 1s steps(2) infinite}
+@keyframes blink{50%{opacity:.35}}
+@media (prefers-reduced-motion:reduce){.timer-v.done{animation:none}}
+nav.bottom{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);z-index:6;padding-bottom:env(safe-area-inset-bottom)}
+nav.bottom .in{max-width:760px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr}
+nav.bottom a{height:60px;display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;color:var(--muted);font-weight:600;font-size:16px;border-top:3px solid transparent}
+nav.bottom a[aria-current="page"]{color:var(--ink);border-top-color:var(--accent)}
+nav.bottom svg{width:22px;height:22px}
+.job{display:flex;flex-direction:column;gap:6px}
+.job-h{display:flex;align-items:center;gap:10px;justify-content:space-between}
+.job-h b{font-family:var(--display);font-size:22px;font-weight:600}
+.pill{display:inline-flex;align-items:center;height:26px;padding:0 10px;border-radius:999px;font-size:12.5px;font-weight:600;background:var(--bg);border:1px solid var(--line);color:var(--muted)}
+.pill.on{background:var(--accent-soft);border-color:var(--accent);color:var(--ink)}
+.item{border-top:1px solid var(--line);padding:10px 0}
+.item-h{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.item-h b{font-size:16px}
+.item-h time{color:var(--muted);font-size:13px;flex:none}
+.item .kv{color:var(--muted);font-size:14.5px;margin-top:2px}
+.item .kv strong{color:var(--ink);font-weight:600}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.toast{position:fixed;left:50%;bottom:calc(76px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-weight:600;z-index:9;max-width:90vw;text-align:center}
+.foot{color:var(--muted);font-size:13px;margin:22px 2px 0}
+.ico{fill:none;stroke:var(--ink);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.ico .h{stroke:var(--cat,var(--accent))}
+.ico .hf,.ico .hf circle{fill:var(--cat,var(--accent));stroke:none}
+.tl{display:flex;flex-direction:column;gap:10px;text-decoration:none;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px 12px 14px;min-height:124px;-webkit-tap-highlight-color:transparent}
+.tl:active{transform:scale(.98)}
+.ib{width:58px;height:58px;border-radius:15px;display:grid;place-items:center;background:var(--bg);background:color-mix(in srgb,var(--cat) 14%,var(--surface));flex:none}
+.ib svg{width:42px;height:42px}
+.tl b{font-family:var(--display);font-size:19px;font-weight:600;line-height:1.1}
+.grid{grid-template-columns:repeat(auto-fill,minmax(148px,1fr))}
+.recents{display:flex;gap:8px;overflow-x:auto;padding:2px 0 4px;scrollbar-width:none}
+.rc{flex:none;display:flex;align-items:center;gap:8px;height:52px;padding:0 14px 0 6px;border-radius:14px;border:1px solid var(--line);background:var(--surface);color:var(--ink);text-decoration:none;font-weight:600;font-size:15px}
+.rc .ib{width:40px;height:40px;border-radius:10px}.rc .ib svg{width:30px;height:30px}
+.sec-title .dot{width:10px;height:10px;border-radius:3px;background:var(--cat);align-self:center}
+.th{display:flex;align-items:center;gap:12px}
+.th .ib{width:64px;height:64px;border-radius:16px}.th .ib svg{width:46px;height:46px}
+.rbar{position:fixed;left:0;right:0;bottom:calc(60px + env(safe-area-inset-bottom));z-index:5;pointer-events:none}
+.rbar .in{max-width:760px;margin:0 auto;padding:0 12px 8px}
+.rbar button{pointer-events:auto;width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:54px;padding:6px 16px;border-radius:14px;border:0;background:var(--ink);color:var(--bg);box-shadow:0 6px 20px rgba(0,0,0,.25);cursor:pointer;text-align:left}
+.rbar .l{font-size:13px;opacity:.75;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.rbar .v{font-family:var(--display);font-size:26px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.rbar .v small{font-family:var(--body);font-size:14px;opacity:.75;margin-left:3px}
+.rbar[hidden]{display:none}
+.wrap.tool{padding-bottom:150px}
+details.save>summary{list-style:none;display:flex;align-items:center;justify-content:center;gap:8px;height:50px;border-radius:12px;background:var(--accent);color:var(--on-accent);font-weight:600;cursor:pointer}
+details.save>summary::-webkit-details-marker{display:none}
+details.save[open]>summary{background:var(--bg);color:var(--ink);border:1px solid var(--line)}
+nav.bottom .in{grid-template-columns:1fr 1fr 1fr}
+.iso-stage{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:14px;margin-top:12px;overflow:hidden;touch-action:none;height:52vh;min-height:300px;max-height:560px;user-select:none;-webkit-user-select:none}
+.iso-stage>svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.iso-ctrl{position:absolute;top:8px;right:8px;display:flex;gap:6px;z-index:2}
+.iso-ctrl button,.iso-start{height:40px;min-width:42px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-weight:700;font-size:14px;padding:0 10px;cursor:pointer}
+.iso-ctrl button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.iso-start{position:absolute;left:8px;bottom:8px;z-index:2;border-color:var(--accent);background:var(--accent-soft)}
+.iso-empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;color:var(--muted);padding:40px;pointer-events:none}
+.iso-empty[hidden]{display:none}
+.dpad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.dpad button{height:62px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font-weight:700;font-size:15px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer}
+.dpad button svg{width:24px;height:24px}
+.dpad button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.sublbl{font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin:12px 0 6px}
+.selbar{border-left:4px solid var(--accent)}
+.isocard{display:grid;grid-template-columns:112px 1fr;gap:12px;align-items:center;text-decoration:none;color:var(--ink)}
+.isocard .thumb{background:var(--bg);border-radius:10px;height:84px;overflow:hidden}
+.isocard .thumb svg{width:100%;height:100%;display:block}
+.fld.wide[hidden],.fld[hidden]{display:none}
+svg .i-pipe{stroke:var(--ink);stroke-width:3.2;stroke-linecap:round;fill:none}
+svg .i-pipeSel{stroke:var(--accent);stroke-width:5;stroke-linecap:round;fill:none}
+svg .i-hit{stroke:transparent;stroke-width:26;fill:none;cursor:pointer}
+svg .i-dim,svg .i-ext{stroke:var(--muted);stroke-width:1;fill:none}
+svg .i-sym{stroke:var(--ink);stroke-width:1.6}
+svg .i-north{stroke:var(--muted);stroke-width:1.4}
+svg .i-start{stroke:var(--accent);stroke-width:2.5}
+svg .f-none{fill:none}svg .f-ink{fill:var(--ink)}svg .f-paper{fill:var(--surface)}svg .f-muted{fill:var(--muted)}svg .f-accent{fill:var(--accent)}
+svg .i-t{font-family:var(--body);paint-order:stroke;stroke:var(--surface);stroke-width:3px;stroke-linejoin:round}
+svg .i-t.b{font-weight:700}
+svg .c-ink{fill:var(--ink)}svg .c-muted{fill:var(--muted)}svg .c-accent{fill:var(--accent)}
+svg .sh{fill:var(--fill);stroke:var(--ink);stroke-width:1.4;stroke-linejoin:round}
+svg .wd{fill:var(--accent);fill-opacity:.85;stroke:var(--accent);stroke-width:1.2;stroke-linejoin:round}
+svg .cut{fill:var(--accent);fill-opacity:.18;stroke:none}
+svg .hole{fill:var(--surface);stroke:var(--ink);stroke-width:1.4}
+svg .ln{fill:none;stroke:var(--ink);stroke-width:1.6;stroke-linejoin:round;stroke-linecap:round}
+svg .ac{fill:none;stroke:var(--accent);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+svg .tube{fill:none;stroke:var(--fill);stroke-width:14;stroke-linecap:butt;stroke-linejoin:round}
+svg .tubeo{fill:none;stroke:var(--ink);stroke-width:16;stroke-linecap:butt;stroke-linejoin:round}
+svg .cn{fill:none;stroke:var(--muted);stroke-width:1;stroke-dasharray:5 4}
+svg .dm,svg .ext{fill:none;stroke:var(--muted);stroke-width:1}
+svg .arw{fill:var(--muted)}
+svg .tx,svg .td,svg .tm{font-family:var(--body);font-size:12.5px;paint-order:stroke;stroke:var(--surface);stroke-width:4px;stroke-linejoin:round}
+svg .tx{fill:var(--ink);font-weight:600}
+svg .td{fill:var(--accent);font-weight:700}
+svg .tm{fill:var(--muted);font-size:11px}
+svg .bar{fill:var(--fill);stroke:var(--line)}
+svg .pc{fill:var(--accent);fill-opacity:.25;stroke:var(--accent);stroke-width:1}
+svg .seg{fill:var(--accent)}
+</style>
+</head>
+<body>
+<header class="top"><div class="top-in" id="topbar"></div></header>
+<main class="wrap" id="app"></main>
+<nav class="bottom" aria-label="Navigation"><div class="in">
+  <a href="#" id="navTools"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Outils</a>
+  <a href="#iso" id="navIso"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 16l6-3.5v-7l6 3.5"/><path d="M16 9v7l4 2.3"/><circle cx="4" cy="16" r="1.6"/></svg>Plans iso</a>
+  <a href="#chantiers" id="navJobs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 7h18v13H3z"/><path d="M8 7V4h8v3"/><path d="M3 12h18"/></svg>Chantiers</a>
+</div></nav>
+<script>
+"use strict";
+/* ---------- utilitaires ---------- */
+const rad=d=>d*Math.PI/180, deg=r=>r*180/Math.PI;
+const clamp=(x,a,b)=>Math.min(b,Math.max(a,x));
+function fmt(x,d=1){ if(typeof x!=="number"||!isFinite(x)) return "—"; return x.toLocaleString("fr-BE",{maximumFractionDigits:d,minimumFractionDigits:0}); }
+function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function parseNum(s){
+  if(s==null) return NaN; s=String(s).trim().replace(/,/g,"."); if(!s) return NaN;
+  let m=s.match(/^(-?\d+(?:\.\d+)?)\s+(\d+)\/(\d+)$/); if(m){const w=+m[1]; return w+(w<0?-1:1)*(+m[2])/(+m[3]);}
+  m=s.match(/^(-?\d+(?:\.\d+)?)\/(\d+(?:\.\d+)?)$/); if(m) return (+m[1])/(+m[2]);
+  const v=Number(s); return isFinite(v)?v:NaN;
+}
+const norm=s=>String(s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
+const ls={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+let toastT; function toast(t){let el=document.querySelector(".toast"); if(!el){el=document.createElement("div");el.className="toast";el.setAttribute("role","status");document.body.appendChild(el);} el.textContent=t; el.hidden=false; clearTimeout(toastT); toastT=setTimeout(()=>{el.hidden=true},2600);}
+
+/* ---------- dessin SVG à l'échelle ---------- */
+function drawing(bb,opt={}){
+  const W=opt.W||360,pad=opt.pad==null?30:opt.pad;
+  const [x0,y0,x1,y1]=bb, w=Math.max(x1-x0,1e-9), h=Math.max(y1-y0,1e-9);
+  const H=Math.round(Math.max(opt.minH||130,Math.min(opt.H||210,(W-2*pad)*(h/w)+2*pad)));
+  const s=Math.min((W-2*pad)/w,(H-2*pad)/h);
+  const ox=(W-w*s)/2-x0*s, oy=(H+h*s)/2+y0*s;
+  const X=x=>+(ox+x*s).toFixed(1), Y=y=>+(oy-y*s).toFixed(1);
+  const o=[]; const P=pts=>pts.map(p=>X(p[0])+","+Y(p[1])).join(" ");
+  const D={X,Y,s,
+    poly(pts,cls="sh"){o.push(`<polygon class="${cls}" points="${P(pts)}"/>`);return D},
+    pl(pts,cls="ln"){o.push(`<polyline class="${cls}" points="${P(pts)}"/>`);return D},
+    line(a,b,cls="ln"){o.push(`<line class="${cls}" x1="${X(a[0])}" y1="${Y(a[1])}" x2="${X(b[0])}" y2="${Y(b[1])}"/>`);return D},
+    circle(c,r,cls="sh"){o.push(`<circle class="${cls}" cx="${X(c[0])}" cy="${Y(c[1])}" r="${(r*s).toFixed(1)}"/>`);return D},
+    text(p,t,cls="tx",anc="middle",dx=0,dy=0){o.push(`<text class="${cls}" x="${(X(p[0])+dx).toFixed(1)}" y="${(Y(p[1])+dy).toFixed(1)}" text-anchor="${anc}" dominant-baseline="middle">${esc(t)}</text>`);return D},
+    dim(a,b,label,off=16){
+      const ax=X(a[0]),ay=Y(a[1]),bx=X(b[0]),by=Y(b[1]);
+      const L=Math.hypot(bx-ax,by-ay)||1,ux=(bx-ax)/L,uy=(by-ay)/L,nx=uy,ny=-ux;
+      const A2=[ax+nx*off,ay+ny*off],B2=[bx+nx*off,by+ny*off],sg=off>=0?1:-1;
+      o.push(`<line class="ext" x1="${(ax+nx*3*sg).toFixed(1)}" y1="${(ay+ny*3*sg).toFixed(1)}" x2="${(A2[0]+nx*4*sg).toFixed(1)}" y2="${(A2[1]+ny*4*sg).toFixed(1)}"/>`);
+      o.push(`<line class="ext" x1="${(bx+nx*3*sg).toFixed(1)}" y1="${(by+ny*3*sg).toFixed(1)}" x2="${(B2[0]+nx*4*sg).toFixed(1)}" y2="${(B2[1]+ny*4*sg).toFixed(1)}"/>`);
+      o.push(`<line class="dm" x1="${A2[0].toFixed(1)}" y1="${A2[1].toFixed(1)}" x2="${B2[0].toFixed(1)}" y2="${B2[1].toFixed(1)}"/>`);
+      const ar=(T,dir)=>{const bxp=T[0]+ux*7*dir,byp=T[1]+uy*7*dir;o.push(`<polygon class="arw" points="${T[0].toFixed(1)},${T[1].toFixed(1)} ${(bxp+nx*2.6).toFixed(1)},${(byp+ny*2.6).toFixed(1)} ${(bxp-nx*2.6).toFixed(1)},${(byp-ny*2.6).toFixed(1)}"/>`)};
+      if(L>18){ar(A2,1);ar(B2,-1);}
+      const mx=(A2[0]+B2[0])/2+nx*10*sg,my=(A2[1]+B2[1])/2+ny*10*sg;
+      const anc=Math.abs(nx)>0.7?(nx*sg>0?"start":"end"):"middle";
+      o.push(`<text class="tx" x="${mx.toFixed(1)}" y="${my.toFixed(1)}" text-anchor="${anc}" dominant-baseline="middle">${esc(label)}</text>`);
+      return D},
+    raw(str){o.push(str);return D},
+    svg(lbl){return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(lbl||"Schéma")}">${o.join("")}</svg>`}
+  };
+  return D;
+}
+function arcPts(c,r,a0,a1,n=40){const p=[];for(let i=0;i<=n;i++){const a=rad(a0+(a1-a0)*i/n);p.push([c[0]+r*Math.cos(a),c[1]+r*Math.sin(a)]);}return p;}
+function capPts(x0,x1,y,hgt,n=10){const p=[],xm=(x0+x1)/2,hw=(x1-x0)/2;for(let i=0;i<=n;i++){const x=x0+(x1-x0)*i/n;p.push([x,y+hgt*(1-((x-xm)/hw)**2)]);}return p;}
+function bbox(pts){let a=[Infinity,Infinity,-Infinity,-Infinity];pts.forEach(p=>{a[0]=Math.min(a[0],p[0]);a[1]=Math.min(a[1],p[1]);a[2]=Math.max(a[2],p[0]);a[3]=Math.max(a[3],p[1]);});return a;}
+
+/* coupe de joint soudé */
+function drawJoint(o){
+  const t=o.t;
+  if(o.type==="angle"||o.type==="t"){
+    const z=o.a*Math.SQRT2, w=Math.max(3*t,2.6*z+t,24), hh=Math.max(2.4*t,2*z+10,22);
+    const D=drawing([-w,-2,w,t+hh],{H:200,pad:40});
+    if(o.deform){const dd=o.deform;D.pl([[-w,t+dd],[-t/2,t],[t/2,t],[w,t+dd]],"cn");}
+    D.poly([[-w,0],[w,0],[w,t],[-w,t]]);
+    D.poly([[-t/2,t],[t/2,t],[t/2,t+hh],[-t/2,t+hh]]);
+    D.poly([[t/2,t],[t/2+z,t],[t/2,t+z]],"wd"); D.poly([[-t/2,t],[-t/2-z,t],[-t/2,t+z]],"wd");
+    D.line([t/2,t],[t/2+z/2,t+z/2],"ln");
+    D.text([t/2+z/2,t+z/2],"a "+fmt(o.a,1),"td","start",8,-6);
+    D.dim([-w,t],[-w,0],"t "+fmt(t,1),-14);
+    if(o.W) D.dim([-w,0],[w,0],"semelle "+fmt(o.W,0),-16);
+    return D.svg("Coupe d'une soudure d'angle en T");
+  }
+  const g=o.g||0,c=o.c||0,w=Math.max(2.4*t,22),cap=Math.max(1,0.12*t),rp=Math.max(.6,.07*t);
+  const pts=[[-w,-cap-2],[w,t+cap+2]];
+  const D=drawing(pts[0].concat(pts[1]),{H:190,pad:40,minH:140});
+  let wd;
+  if(o.type==="v"){
+    const b=(t-c)*Math.tan(rad(o.ang/2));
+    D.poly([[-w,0],[-g/2,0],[-g/2,c],[-g/2-b,t],[-w,t]]);
+    D.poly([[w,0],[g/2,0],[g/2,c],[g/2+b,t],[w,t]]);
+    wd=[...capPts(-g/2-b-.8,g/2+b+.8,t,cap),[g/2+b,t],[g/2,c],[g/2,0],...capPts(g/2+.4,-g/2-.4,0,-rp),[-g/2,0],[-g/2,c],[-g/2-b,t]];
+    D.poly(wd,"wd");
+    D.text([0,t],fmt(o.ang,0)+"°","td","middle",0,-18);
+  } else if(o.type==="x"){
+    const hh=(t-c)/2,b=hh*Math.tan(rad(o.ang/2));
+    D.poly([[-w,0],[-g/2-b,0],[-g/2,hh],[-g/2,hh+c],[-g/2-b,t],[-w,t]]);
+    D.poly([[w,0],[g/2+b,0],[g/2,hh],[g/2,hh+c],[g/2+b,t],[w,t]]);
+    wd=[...capPts(-g/2-b-.8,g/2+b+.8,t,cap),[g/2+b,t],[g/2,hh+c],[g/2,hh],[g/2+b,0],...capPts(g/2+b+.8,-g/2-b-.8,0,-cap),[-g/2-b,0],[-g/2,hh],[-g/2,hh+c],[-g/2-b,t]];
+    D.poly(wd,"wd");
+    D.text([0,t],fmt(o.ang,0)+"°","td","middle",0,-18);
+  } else {
+    D.poly([[-w,0],[-g/2,0],[-g/2,t],[-w,t]]); D.poly([[w,0],[g/2,0],[g/2,t],[w,t]]);
+    wd=[...capPts(-g/2-1.5,g/2+1.5,t,cap),[g/2,t],[g/2,0],...capPts(g/2+.5,-g/2-.5,0,-rp),[-g/2,0],[-g/2,t]];
+    D.poly(wd,"wd");
+  }
+  D.dim([-w,t],[-w,0],"t "+fmt(t,1),-14);
+  if(g>0) D.text([0,0],"écart "+fmt(g,1),"tm","middle",0,20);
+  if(o.shrink) {D.text([w,t/2],"← "+fmt(o.shrink,1)+" mm →","td","end",-4,0);}
+  return D.svg("Coupe du joint bout à bout");
+}
+
+/* ---------- données ---------- */
+const PROFILS={
+  IPE:{rho:"acier",b:{80:46,100:55,120:64,140:73,160:82,180:91,200:100,220:110,240:120,270:135,300:150,330:160,360:170,400:180,450:190,500:200},h:null,
+       kg:{80:6.0,100:8.1,120:10.4,140:12.9,160:15.8,180:18.8,200:22.4,220:26.2,240:30.7,270:36.1,300:42.2,330:49.1,360:57.1,400:66.3,450:77.6,500:90.7}},
+  HEA:{h:{100:96,120:114,140:133,160:152,180:171,200:190,220:210,240:230,260:250,280:270,300:290},b:null,
+       kg:{100:16.7,120:19.9,140:24.7,160:30.4,180:35.5,200:42.3,220:50.5,240:60.3,260:68.2,280:76.4,300:88.3}},
+  HEB:{h:null,b:null,kg:{100:20.4,120:26.7,140:33.7,160:42.6,180:51.2,200:61.3,220:71.5,240:83.2,260:93.0,280:103,300:117}},
+  UPN:{h:null,b:{80:45,100:50,120:55,140:60,160:65,180:70,200:75,220:80,240:85,260:90,280:95,300:100},
+       kg:{80:8.64,100:10.6,120:13.4,140:16.0,160:18.8,180:22.0,200:25.3,220:29.4,240:33.2,260:37.9,280:41.8,300:46.2}}
+};
+const VIS=[["M3",.5,2.5,3.4,5.5],["M4",.7,3.3,4.5,7],["M5",.8,4.2,5.5,8],["M6",1,5,6.6,10],["M8",1.25,6.8,9,13],["M10",1.5,8.5,11,16],["M12",1.75,10.2,13.5,18],["M14",2,12,15.5,21],["M16",2,14,17.5,24],["M18",2.5,15.5,20,27],["M20",2.5,17.5,22,30],["M22",2.5,19.5,24,34],["M24",3,21,26,36],["M27",3,24,30,41],["M30",3.5,26.5,33,46]];
+const RHO={acier:7.85,inox:7.95,alu:2.70};
+const MATS=[["acier","Acier (7,85)"],["inox","Inox (7,95)"],["alu","Alu (2,70)"]];
+
+/* ===================== PICTOS (dessins originaux, grille 48) ===================== */
+const ICONS={
+ reglages:'<circle cx="24" cy="27" r="11"/><circle cx="24" cy="27" r="2.5" class="hf"/><path class="h" d="M24 27l7-7"/><path d="M10 34l-3 2M8 24H5M13 14l-2-2M24 10V6M35 14l2-2M40 24h3M38 34l3 2"/>',
+ retrait:'<path d="M4 30h17v8H4zM27 30h17v8H27z"/><path class="hf" d="M21 30l3 6 3-6z"/><path class="h" d="M7 20h11m-3-3l3 3-3 3M41 20H30m3-3l-3 3 3 3"/>',
+ gaz:'<path d="M16 19a8 8 0 0 1 16 0v23H16z"/><path d="M21 11h6M24 11V6M20 6h8"/><path class="h" d="M16 27h16M16 33h16"/>',
+ discontinue:'<path d="M4 33h40"/><path class="h" stroke-width="5" d="M7 27h7M20 27h7M33 27h7"/>',
+ compatibilite:'<path d="M4 22h17v14H4z"/><path d="M27 22h17v14H27zM31 22l-4 6M38 22l-10 14M44 24l-8 12"/><path class="hf" d="M21 22l3 8 3-8z"/>',
+ defauts:'<circle cx="21" cy="21" r="12"/><path d="M30 30l11 11" stroke-width="3"/><circle class="hf" cx="17" cy="19" r="2.2"/><circle class="hf" cx="25" cy="24" r="1.7"/><circle class="hf" cx="23" cy="15" r="1.4"/>',
+ tracabilite:'<path d="M6 12h24l12 12-12 12H6z"/><circle cx="31" cy="24" r="2.2"/><path class="h" d="M12 18v12M15 18v12M19 18v12M22 18v12"/>',
+ pliage:'<path d="M6 41h20a12 12 0 0 0 12-12V6"/><path d="M6 35h20a6 6 0 0 0 6-6V6"/><path class="h" d="M26 41a12 12 0 0 0 12-12" stroke-width="3"/>',
+ cone:'<ellipse cx="24" cy="11" rx="8" ry="3"/><path d="M16 11L7 37M32 11l9 26"/><path d="M7 37a17 4.5 0 0 0 34 0"/><path class="h" d="M7 37a17 4.5 0 0 1 34 0" stroke-dasharray="2 3"/>',
+ virole:'<ellipse cx="24" cy="10" rx="13" ry="4"/><path d="M11 10v27a13 4 0 0 0 26 0V10"/><path class="h" d="M24 14v27" stroke-dasharray="3 3"/>',
+ tremie:'<path d="M4 10h40L31 29H17z"/><path d="M17 29v10h14V29"/><path class="h" d="M4 10l13 19M44 10L31 29"/>',
+ debit:'<rect x="4" y="21" width="40" height="8" rx="1"/><path class="h" d="M17 14v22M32 14v22"/><path d="M14 14h6M29 14h6"/>',
+ onglet:'<path d="M8 41V7h10v24h23v10z"/><path class="h" d="M8 41l10-10" stroke-width="3"/>',
+ trigo:'<path d="M6 40h36V11z"/><path class="h" d="M17 40a11 11 0 0 0-1.6-6.4"/><path d="M37 40v-5h5"/>',
+ percage:'<path d="M24 3v6M20 9h8v17l-4 7-4-7z"/><path class="h" d="M20 14l8 4M20 20l8 4"/><path d="M4 39h14M30 39h14M4 44h40"/>',
+ reduction:'<path d="M4 12h12l18 9h10v14H4z"/><path class="h" d="M16 12v23" stroke-dasharray="3 3"/>',
+ cadre:'<rect x="9" y="5" width="30" height="38" rx="1"/><rect x="14" y="10" width="20" height="28"/><path class="h" d="M14 24h20" stroke-width="3"/>',
+ generatrices:'<circle cx="24" cy="24" r="17"/><path class="h" d="M24 7v34M7 24h34M12 12l24 24M36 12L12 36"/>',
+ barreaux:'<path stroke-width="4" d="M6 7v35M42 7v35"/><path d="M6 11h36"/><path class="h" d="M14 11v29M21 11v29M28 11v29M35 11v29"/>',
+ piquage:'<path d="M4 27h40M4 41h40"/><path d="M17 27V5M31 27V5"/><path class="h" d="M17 27c2-5 12-5 14 0" stroke-width="3"/>',
+ decalage:'<path stroke-width="5" d="M4 35h11M33 13h11"/><path class="h" stroke-width="5" d="M15 35l18-22"/>',
+ cintrage:'<path stroke-width="5" d="M8 43V25M23 10h20"/><path class="h" stroke-width="5" d="M8 25a15 15 0 0 1 15-15"/>',
+ coudecoupe:'<path d="M4 44a40 40 0 0 1 40-40M16 44a28 28 0 0 1 28-28M4 44h12M44 4v12"/><path class="h" d="M24.2 24.2L15.7 15.7" stroke-width="3"/>',
+ segments:'<path d="M5 44V31l4-11 10-9 13-5h11"/><path d="M16 44V33l3-7 7-7 8-3h9"/><path class="h" d="M5 31h11M9 20l10 6M19 11l7 8M32 6l2 10"/>',
+ nappe:'<path d="M4 10h22v32M4 18h14v24M4 26h6v16"/><path class="h" d="M28 8L8 28" stroke-dasharray="3 3"/>',
+ brides:'<circle cx="24" cy="24" r="18"/><circle cx="24" cy="24" r="7"/><g class="hf"><circle cx="15" cy="15" r="2.6"/><circle cx="33" cy="15" r="2.6"/><circle cx="15" cy="33" r="2.6"/><circle cx="33" cy="33" r="2.6"/></g>',
+ epreuve:'<circle cx="21" cy="21" r="14"/><path class="h" d="M21 21l7-7" stroke-width="3"/><path d="M21 35v6M15 43h12M10 21h3M21 10v3"/><path class="hf" d="M40 29s-4 5-4 8a4 4 0 0 0 8 0c0-3-4-8-4-8z"/>',
+ poidsligne:'<path d="M24 3v9"/><path d="M15 12h18"/><circle cx="24" cy="25" r="10"/><circle cx="24" cy="25" r="5"/><path class="h" d="M24 37v8m-4-4l4 4 4-4"/>',
+ poids:'<path d="M9 7h30v7H28v20h11v7H9v-7h11V14H9z"/><path class="h" d="M28 14v20M20 14v20"/>',
+ visserie:'<path d="M14 5h20l4 7-4 7H14l-4-7z"/><path d="M19 19v24h10V19"/><path class="h" d="M19 25l10 3M19 31l10 3M19 37l10 3"/>',
+ symboles:'<path d="M5 38l13-13h25"/><path d="M5 38l1-6M5 38l6-1"/><path class="h" d="M26 25V13l12 12" stroke-width="2.6"/>',
+ polarite:'<circle cx="14" cy="24" r="10"/><circle cx="34" cy="24" r="10"/><path class="h" d="M14 19v10M9 24h10" stroke-width="3"/><path d="M29 24h10" stroke-width="3"/>',
+ convertisseur:'<rect x="4" y="28" width="40" height="12" rx="1"/><path d="M10 28v6M16 28v4M22 28v6M28 28v4M34 28v6M40 28v4"/><path class="h" d="M8 15h32m-5-5l5 5-5 5M13 10l-5 5 5 5"/>',
+ historique:'<path d="M8 24a16 16 0 1 0 5-11.6"/><path d="M8 7v6h6"/><path class="h" d="M24 15v10l7 4" stroke-width="3"/>',
+ iso:'<path d="M5 36l13-7.5V13l13 7.5 12-7"/><g class="hf"><circle cx="5" cy="36" r="3"/><circle cx="18" cy="13" r="3"/><circle cx="31" cy="20.5" r="3"/><circle cx="43" cy="13.5" r="3"/></g>'
+};
+function ico(id){return `<svg class="ico" viewBox="0 0 48 48" aria-hidden="true">${ICONS[id]||'<circle cx="24" cy="24" r="16"/>'}</svg>`;}
+
+/* ---------- définition des outils ---------- */
+const CATS=[["all","Tout"],["soud","Soudure"],["chaud","Chaudronnerie"],["tuy","Tube & tuyauterie"],["ref","Références"]];
+const CATCOL={soud:"var(--accent)",chaud:"var(--c-chaud)",tuy:"var(--c-tuy)",ref:"var(--c-ref)"};
+const T=[];
+const N=(k,l,u,d,o={})=>Object.assign({k,l,u,d:String(d),t:"n"},o);
+const S=(k,l,opts,d,o={})=>Object.assign({k,l,opts,d,t:"s"},o);
+const R=(l,v,u,big)=>({l,v,u,big:!!big});
+
+/* 1. Réglages du poste */
+T.push({id:"reglages",cat:"soud",name:"Réglages du poste",desc:"Intensité, tension, fil, gaz, préparation et passes",
+kw:"amperage intensite tension vitesse fil mig mag tig electrode mma baguette tungstene reglage passes chanfrein preparation",
+inputs:[
+  S("proc","Procédé",[["mag","MIG / MAG"],["tig","TIG"],["mma","Électrode (MMA)"]],"mag"),
+  S("mat","Matière",[["acier","Acier"],["inox","Inox"],["alu","Alu"]],"acier"),
+  S("joint","Assemblage",[["bout","Bout à bout"],["angle","En angle (T)"]],"bout"),
+  S("pos","Position",[["PA","PA à plat"],["PB","PB angle à plat"],["PC","PC corniche"],["PF","PF montant"],["PG","PG descendant"],["PE","PE plafond"]],"PA"),
+  N("t","Épaisseur","mm",6),
+  N("a","Gorge a","mm",4,{show:v=>v.joint==="angle"})
+],
+calc(v){
+  const t=v.t; if(!(t>0)) return {err:"Indique l'épaisseur."};
+  const isA=v.joint==="angle"; if(isA&&!(v.a>0)) return {err:"Indique la gorge a."};
+  const te=isA?Math.min(t,2*v.a):t;
+  const pf={PA:1,PB:1,PC:.9,PF:.85,PG:.95,PE:.85}[v.pos]||1;
+  const res=[],notes=[],warn=[]; let perPass,gas="",flow="";
+  if(v.proc==="mag"){
+    const alu=v.mat==="alu";
+    const d=alu?(te<=4?1.0:1.2):(te<=2?0.8:te<=8?1.0:1.2);
+    const rng=alu?{1:[80,190],1.2:[110,250]}[d]:{0.8:[50,150],1:[80,220],1.2:[120,280]}[d];
+    let I=35*te+20; if(v.mat==="inox") I*=0.9; if(alu) I*=1.15;
+    I=clamp(I,rng[0],rng[1])*pf;
+    const U=14+0.05*I+(alu?1:0);
+    let wfs=d===0.8?.08*I-2.5:d===1?.055*I-2:.045*I-2.75; if(alu) wfs*=1.8; wfs=Math.max(1.5,wfs);
+    res.push(R("Intensité",`${fmt(I*.92,0)} – ${fmt(I*1.08,0)}`,"A",1),R("Tension",fmt(U,1),"V",1),R("Vitesse fil",fmt(wfs,1),"m/min"),R("Ø fil",fmt(d,1),"mm"),R("Polarité","Torche au +"));
+    gas=v.mat==="acier"?"Ar + 18 % CO₂ (M21)":v.mat==="inox"?"Ar + 2 % CO₂ (M12)":"Argon (I1)";
+    flow=alu?"15 – 18":`${Math.round(10*d+1)} – ${Math.round(10*d+4)}`;
+    perPass={0.8:15,1:25,1.2:35}[d];
+    if(alu&&v.pos==="PG") warn.push("En alu, évite la position descendante (risque de collage).");
+    if(t<=1) notes.push("Sous 1 mm, travaille par points ou en pulsé.");
+  } else if(v.proc==="tig"){
+    const k={acier:35,inox:30,alu:45}[v.mat];
+    const I=clamp(k*te,10,v.mat==="alu"?300:250)*pf;
+    const w=I<=70?1.0:I<=150?1.6:I<=250?2.4:3.2, rod=te<=1.5?1.0:te<=3?1.6:te<=5?2.4:3.2;
+    res.push(R("Intensité",`${fmt(I*.9,0)} – ${fmt(I*1.1,0)}`,"A",1),R("Ø tungstène",fmt(w,1),"mm",1),R("Ø baguette",fmt(rod,1),"mm"),R("Courant",v.mat==="alu"?"Alternatif (AC)":"Continu, électrode au −"));
+    gas="Argon (I1)"; const q=Math.round(6+I/50+(v.mat==="alu"?2:0)); flow=`${q} – ${q+2}`; perPass=12;
+    if(te>6) notes.push("Au-delà de 6 mm, le TIG se fait en plusieurs passes ; le MAG ira plus vite.");
+    if(v.mat==="inox") notes.push("Gaze l'envers à l'argon pour garder une racine propre.");
+  } else {
+    if(v.mat==="alu") warn.push("L'électrode enrobée convient mal à l'alu : préfère le TIG ou le MIG.");
+    let d=te<=2?2.0:te<=4?2.5:te<=6?3.2:te<=12?4.0:5.0;
+    if(!["PA","PB"].includes(v.pos)&&d>4) d=4.0;
+    if(v.pos==="PE"&&d>3.2) d=3.2;
+    const rng={2:[45,75],2.5:[60,95],3.2:[90,140],4:[130,190],5:[180,250]}[d], f=(v.mat==="inox"?.9:1)*pf;
+    res.push(R("Intensité",`${fmt(rng[0]*f,0)} – ${fmt(rng[1]*f,0)}`,"A",1),R("Ø électrode",fmt(d,1),"mm",1),R("Polarité","Basique : électrode au + · Rutile : AC ou DC"));
+    perPass={2:7,2.5:10,3.2:18,4:28,5:40}[d];
+    notes.push("Électrodes basiques : étuvées et gardées au sec.");
+    if(v.pos==="PG") warn.push("Pas de descendant avec une électrode basique.");
+  }
+  let A,prep,jt,J={};
+  if(isA){ A=v.a*v.a*1.1; prep="Sans chanfrein, pièces bien jointives"; jt="angle";
+    if(v.a>0.7*t) warn.push("Gorge supérieure à 0,7 × épaisseur : vérifie le dimensionnement."); }
+  else{
+    const lim={mag:3,tig:3,mma:4}[v.proc], an=v.mat==="alu"?70:60;
+    if(t<=lim){ const g=Math.min(t/2,1.5); A=g*t+(g+4); jt="i"; prep=`Bord à bord, écart 0 – ${fmt(g,1)} mm`; J={g}; }
+    else if(t<=20){ const c=v.proc==="tig"?1:1.5,g=v.proc==="tig"?1.5:2; A=((t-c)**2*Math.tan(rad(an/2))+g*t)*1.1; jt="v"; prep=`V à ${an}°, talon ${fmt(c,1)} mm, écart ${fmt(g,1)} mm`; J={g,c,ang:an}; }
+    else { const c=2,g=2; A=(2*((t-c)/2)**2*Math.tan(rad(an/2))+g*t)*1.1; jt="x"; prep=`X (double V) à ${an}°, talon ${c} mm, écart ${g} mm`; J={g,c,ang:an}; }
+  }
+  const n=Math.max(1,Math.ceil(A/perPass));
+  const seq=n===1?"Une passe":n===2?"Racine + finition":`Racine, ${n-2} remplissage${n>3?"s":""}, finition`;
+  res.push(R("Passes","≈ "+n,"",1),R("Préparation",prep),R("Séquence",seq+(jt==="x"?", en alternant les côtés":"")),R("Section à remplir",fmt(A,0),"mm²"));
+  if(v.proc!=="mma") res.push(R("Gaz",gas),R("Débit de gaz",flow,"l/min"));
+  notes.push("Valeurs de départ : affine toujours sur une chute de la même tôle.");
+  return {res,notes,warn,svg:drawJoint(Object.assign({type:jt,t,a:v.a},J))};
+}});
+
+/* 2. Retrait et déformation */
+T.push({id:"retrait",cat:"soud",name:"Retrait",desc:"Retrait, tirage angulaire, cote de pointage",
+kw:"retrait deformation tirage angulaire contre fleche bridage shrinkage pointage",
+inputs:[
+  S("type","Assemblage",[["v","Bout à bout en V"],["x","Bout à bout en X"],["i","Bord à bord"],["t","En T (semelle + âme)"]],"v",{wide:1}),
+  N("t","Épaisseur","mm",10),
+  N("L","Longueur soudée","mm",1000),
+  N("ang","Angle du chanfrein","°",60,{show:v=>v.type==="v"||v.type==="x"}),
+  N("c","Talon","mm",1.5,{show:v=>v.type==="v"||v.type==="x"}),
+  N("g","Écart à la racine","mm",2,{show:v=>v.type!=="t"}),
+  N("b","Largeur des 2 tôles","mm",300,{show:v=>v.type!=="t"}),
+  N("a","Gorge a","mm",5,{show:v=>v.type==="t"}),
+  N("W","Largeur semelle","mm",200,{show:v=>v.type==="t"})
+],
+calc(v){
+  const t=v.t,L=v.L; if(!(t>0&&L>0)) return {err:"Indique l'épaisseur et la longueur soudée."};
+  const res=[],notes=[],warn=[];
+  if(v.type==="t"){
+    const a=v.a,W=v.W; if(!(a>0&&W>0)) return {err:"Indique la gorge et la largeur de semelle."};
+    const Aw=2*a*a*1.1, d=0.02*(W/25.4)*Math.pow(a*Math.SQRT2/25.4,1.3)/Math.pow(t/25.4,2)*25.4;
+    const an=deg(Math.atan(d/(W/2))), dL=0.025*Aw*L/(W*t);
+    res.push(R("Flèche au bord",fmt(d,1),"mm",1),R("Angle par aile",fmt(an,1),"°",1),R("Retrait longitudinal",fmt(dL,2),"mm"),R("Section des 2 cordons",fmt(Aw,0),"mm²"),R("Contre-déformation",`Pré-cintre la semelle de ≈ ${fmt(an,1)}° à l'opposé de l'âme`));
+    notes.push("Calcul pour un cordon de chaque côté de l'âme.");
+    return {res,notes,warn,svg:drawJoint({type:"t",t,a,W,deform:Math.min(d*3,t*1.5)})};
+  }
+  const g=v.g>=0?v.g:0,c=v.c>=0?v.c:0,an=v.ang>0?v.ang:60;
+  let Aw;
+  if(v.type==="v") Aw=((t-c)**2*Math.tan(rad(an/2))+g*t)*1.1;
+  else if(v.type==="x") Aw=(2*((t-c)/2)**2*Math.tan(rad(an/2))+g*t)*1.1;
+  else Aw=g*t+(g+4);
+  const Sx=0.2*Aw/t+0.05*g, dL=v.b>0?0.025*Aw*L/(v.b*t):NaN;
+  res.push(R("Retrait transversal",fmt(Sx,1),"mm",1),R("Cote de pointage",`+ ${fmt(Sx,1)}`,"mm",1),R("Retrait longitudinal",fmt(dL,2),"mm"),R("Section de soudure",fmt(Aw,0),"mm²"));
+  notes.push("Cote de pointage : ajoute ce retrait à la cote finie avant de souder.");
+  if(v.type==="v") notes.push("En V d'un seul côté, les tôles se relèvent côté cordon : donne 1 à 2° de contre-angle ou bride.");
+  if(v.type==="x") notes.push("En X, alterne les passes des deux côtés pour équilibrer.");
+  notes.push("Formules empiriques (Spraragen–Ettinger, Blodgett) : un ordre de grandeur, pas une garantie.");
+  return {res,notes,warn,svg:drawJoint({type:v.type,t,g,c,ang:an,shrink:Sx})};
+}});
+
+/* 3. Gaz et purge */
+let TIMER={end:0,iv:0,ctx:null,total:0};
+T.push({id:"gaz",cat:"soud",name:"Gaz et purge",desc:"Gaz conseillé, débit, temps de purge et minuteur",
+kw:"gaz argon co2 melange debit purge envers iso 14175 minuteur m21 m12",
+inputs:[
+  S("proc","Procédé",[["mag","MIG / MAG"],["tig","TIG"]],"mag"),
+  S("mat","Matière",[["acier","Acier"],["inox","Inox"],["alu","Alu"]],"acier"),
+  N("dfil","Ø fil","mm",1.0,{show:v=>v.proc==="mag"}),
+  N("buse","Ø buse","mm",10,{show:v=>v.proc==="tig"}),
+  N("pD","Ø intérieur à purger","mm",50),
+  N("pL","Longueur à purger","mm",500),
+  N("pQ","Débit de purge","l/min",10),
+  N("pn","Renouvellements","×",5)
+],
+calc(v){
+  const res=[],notes=[];
+  let gas,cls,flow;
+  if(v.proc==="mag"){
+    const d=v.dfil>0?v.dfil:1;
+    if(v.mat==="acier"){gas="Ar + 18 % CO₂";cls="M21";flow=[10*d+1,10*d+4];notes.push("Variante : Ar + 8 % CO₂ (M20) pour moins de projections, CO₂ pur (C1) pour plus de pénétration.");}
+    else if(v.mat==="inox"){gas="Ar + 2 % CO₂";cls="M12";flow=[10*d+1,10*d+4];}
+    else {gas="Argon pur";cls="I1";flow=[15,18];notes.push("Alu épais : Ar + hélium (I3) pour plus de chaleur.");}
+  } else {
+    const b=v.buse>0?v.buse:10; gas="Argon pur"; cls="I1"; flow=[0.7*b,0.9*b]; if(v.mat==="alu") flow=flow.map(x=>x*1.2);
+  }
+  res.push(R("Gaz",gas,"",1),R("Classe ISO 14175",cls,"",1),R("Débit torche",`${fmt(flow[0],0)} – ${fmt(flow[1],0)}`,"l/min"));
+  let sec=0;
+  if(v.pD>0&&v.pL>0&&v.pQ>0){
+    const V=Math.PI/4*v.pD**2*v.pL/1e6, n=v.pn>0?v.pn:5, mn=n*V/v.pQ; sec=Math.round(mn*60);
+    res.push(R("Volume à purger",fmt(V,2),"l"),R("Temps de purge",fmt(mn,1),"min",1));
+  }
+  if(v.mat==="inox") notes.push("Envers de l'inox : argon (I1) ou azote hydrogéné (N5) pour l'austénitique.");
+  notes.push("Repères ISO 14175 : I1 argon · I3 argon + hélium · M12 Ar + 0,5–5 % CO₂ · M13 Ar + O₂ · M20 Ar + 5–15 % CO₂ · M21 Ar + 15–25 % CO₂ · C1 CO₂.");
+  const running=TIMER.end>Date.now();
+  const extra=sec>0?`<div class="card"><h3>Minuteur de purge</h3><div class="timer" style="margin-top:8px"><div class="timer-v" id="tmv">${running?"":fmtClock(sec)}</div><button class="btn ${running?"":"primary"}" data-act="timer" data-sec="${sec}">${running?"Arrêter":"Lancer"}</button></div></div>`:"";
+  return {res,notes,extra};
+}});
+function fmtClock(s){s=Math.max(0,Math.ceil(s));return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0");}
+function beep(){try{const c=TIMER.ctx;if(!c)return;[0,.35,.7].forEach(dt=>{const o=c.createOscillator(),g=c.createGain();o.frequency.value=880;o.connect(g);g.connect(c.destination);g.gain.setValueAtTime(.25,c.currentTime+dt);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+dt+.3);o.start(c.currentTime+dt);o.stop(c.currentTime+dt+.32);});}catch(e){}}
+function timerTick(){
+  const el=document.getElementById("tmv"); const left=(TIMER.end-Date.now())/1000;
+  if(left<=0){clearInterval(TIMER.iv);TIMER.iv=0;TIMER.end=0;if(el){el.textContent="Terminé";el.classList.add("done");}beep();try{navigator.vibrate&&navigator.vibrate([300,150,300]);}catch(e){} const b=document.querySelector('[data-act="timer"]');if(b){b.textContent="Relancer";b.classList.add("primary");} return;}
+  if(el){el.textContent=fmtClock(left);el.classList.remove("done");}
+}
+function toggleTimer(btn){
+  if(TIMER.end>Date.now()){clearInterval(TIMER.iv);TIMER.end=0;btn.textContent="Lancer";btn.classList.add("primary");const el=document.getElementById("tmv");if(el)el.textContent=fmtClock(+btn.dataset.sec);return;}
+  try{TIMER.ctx=TIMER.ctx||new (window.AudioContext||window.webkitAudioContext)();TIMER.ctx.resume&&TIMER.ctx.resume();}catch(e){}
+  TIMER.end=Date.now()+(+btn.dataset.sec)*1000; btn.textContent="Arrêter"; btn.classList.remove("primary");
+  clearInterval(TIMER.iv); TIMER.iv=setInterval(timerTick,250); timerTick();
+}
+
+/* 4. Soudure discontinue */
+T.push({id:"discontinue",cat:"soud",name:"Soudure discontinue",desc:"Nombre de cordons, pas réel et positions",
+kw:"discontinue intermittente cordons espacement pas chaine alterne pointage",
+inputs:[
+  N("L","Longueur à souder","mm",2000),
+  N("w","Longueur d'un cordon","mm",50),
+  N("p","Pas visé (entraxe)","mm",150),
+  S("ends","Extrémités",[["oui","Cordon à chaque bout"],["non","Pas de cordon au bout"]],"oui")
+],
+calc(v){
+  const {L,w,p}=v; if(!(L>0&&w>0&&p>0)) return {err:"Remplis les trois longueurs."};
+  if(w>=p) return {err:"Le pas doit être plus grand que la longueur d'un cordon."};
+  if(w>L) return {err:"Le cordon est plus long que la pièce."};
+  let n,pr,starts=[];
+  if(v.ends==="oui"){n=Math.max(2,Math.round((L-w)/p)+1);pr=(L-w)/(n-1);for(let i=0;i<n;i++)starts.push(i*pr);}
+  else{n=Math.max(1,Math.round(L/p));pr=L/n;for(let i=0;i<n;i++)starts.push(pr/2-w/2+i*pr);}
+  const gap=pr-w;
+  if(gap<=0) return {err:"Avec ce pas, les cordons se touchent : augmente le pas ou réduis la longueur."};
+  const res=[R("Cordons",String(n),"",1),R("Pas réel",fmt(pr,1),"mm",1),R("Espace entre cordons",fmt(gap,1),"mm"),R("Longueur soudée",fmt(n*w,0),"mm"),R("Part soudée",fmt(n*w/L*100,0),"%")];
+  const W=360,H=96,x0=14,sc=(W-28)/L;
+  let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Implantation des cordons"><rect class="bar" x="${x0}" y="34" width="${(L*sc).toFixed(1)}" height="18" rx="2"/>`;
+  starts.forEach(st=>{s+=`<rect class="seg" x="${(x0+st*sc).toFixed(1)}" y="30" width="${Math.max(1.5,w*sc).toFixed(1)}" height="26" rx="1.5"/>`;});
+  s+=`<text class="tm" x="${x0}" y="74" dominant-baseline="middle">0</text><text class="tm" x="${x0+L*sc}" y="74" text-anchor="end" dominant-baseline="middle">${esc(fmt(L,0))}</text><text class="tx" x="${W/2}" y="16" text-anchor="middle" dominant-baseline="middle">${n} × ${esc(fmt(w,0))} mm, pas ${esc(fmt(pr,1))}</text></svg>`;
+  const rows=starts.slice(0,60).map((st,i)=>`<tr><td>${i+1}</td><td>${fmt(st,0)}</td><td>${fmt(st+w,0)}</td></tr>`).join("");
+  const extra=`<div class="card"><h3>Positions depuis le bout</h3><div class="tscroll" style="margin-top:6px"><table class="t"><thead><tr><th>Cordon</th><th>Début (mm)</th><th>Fin (mm)</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+  return {res,svg:s,extra,notes:[`Symbole ISO 2553 : ${n} × ${fmt(w,0)} (${fmt(gap,0)}), la valeur entre parenthèses est l'espace entre cordons.`]};
+}});
+
+/* 5. Compatibilité */
+const MLIST=[["acier","Acier S235 / S355"],["galva","Acier galvanisé"],["inox","Inox austénitique (304, 316)"],["ferr","Inox ferritique (430)"],["alu","Aluminium"],["fonte","Fonte"],["cuivre","Cuivre / laiton"]];
+function compat(a,b){
+  const k=[a,b].sort().join("|"), has=x=>a===x||b===x, other=x=>a===x?b:a;
+  if(has("alu")&&k!=="alu|alu") return {v:"Non par fusion",p:"Liaison mécanique (boulons, rivets avec isolant), collage, ou pièce de transition bimétal acier-alu.",f:"—",x:"Isole les deux métaux pour éviter la corrosion galvanique."};
+  const T={
+    "acier|acier":{v:"Oui",p:"MAG, électrode, TIG",f:"Fil G3Si1 (SG2), électrode E 7018 ou rutile",x:"Préchauffe si forte épaisseur (> 25 mm) ou S355 très bridé."},
+    "acier|galva":{v:"Oui, avec précautions",p:"MAG, électrode",f:"Comme l'acier (G3Si1)",x:"Meule le zinc sur 2–3 cm, ventile bien (fumées de zinc toxiques), retouche au zinc à froid."},
+    "galva|galva":{v:"Oui, avec précautions",p:"MAG, électrode",f:"G3Si1 ou électrode rutile",x:"Meule le zinc sur 2–3 cm, ventile bien (fumées de zinc toxiques), retouche au zinc à froid."},
+    "acier|inox":{v:"Oui",p:"MAG, TIG, électrode",f:"309L (fil ER309LSi, électrode E309L)",x:"N'utilise pas d'outils acier sur l'inox ensuite ; décape la zone inox."},
+    "galva|inox":{v:"Oui, avec précautions",p:"MAG, TIG, électrode",f:"309L",x:"Meule le zinc avant, ventile, décape l'inox après."},
+    "inox|inox":{v:"Oui",p:"TIG, MAG (M12), électrode",f:"308L pour 304, 316L pour 316",x:"Gaze l'envers, limite la chaleur, décape et passive."},
+    "ferr|ferr":{v:"Oui, avec précautions",p:"TIG, MAG",f:"430 ou 309L",x:"Faible apport de chaleur : le grain grossit et la soudure devient fragile."},
+    "acier|ferr":{v:"Oui",p:"TIG, MAG",f:"309L",x:"Faible apport de chaleur."},
+    "ferr|inox":{v:"Oui",p:"TIG, MAG",f:"309L",x:"Faible apport de chaleur."},
+    "ferr|galva":{v:"Oui, avec précautions",p:"MAG, TIG",f:"309L",x:"Meule le zinc, ventile."},
+    "alu|alu":{v:"Oui",p:"TIG en AC, MIG",f:"AlMg5 (5356) ou AlSi5 (4043) selon l'alliage",x:"Brosse inox réservée à l'alu, enlève l'oxyde, préchauffe 100–150 °C en forte épaisseur."},
+    "fonte|fonte":{v:"Oui, délicat",p:"Électrode",f:"Électrode base nickel (ENi)",x:"Cordons courts de 3–5 cm, martèle à chaud, refroidissement lent ; ou préchauffe 250–300 °C."},
+    "cuivre|cuivre":{v:"Oui",p:"TIG en DC",f:"Fil cuivre désoxydé ou CuSi3",x:"Préchauffe 200–400 °C selon l'épaisseur. Laiton : préfère le brasage (le zinc s'évapore)."}
+  };
+  if(T[k]) return T[k];
+  if(has("fonte")) return {v:"Oui, délicat",p:"Électrode",f:other("fonte")==="cuivre"?"Brasage conseillé":"Électrode nickel-fer (ENiFe)",x:"Cordons courts, martelage, refroidissement lent."+(other("fonte")==="galva"?" Meule le zinc avant.":"")};
+  if(has("cuivre")) return {v:"Brasage",p:"Soudo-brasage, MIG-brasage",f:"CuSi3 ou CuAl8",x:"On ne fond pas l'acier : le cuivre mouille la surface. Nettoie bien."+(has("galva")?" Le MIG-brasage convient bien au galva.":"")};
+  return {v:"À vérifier",p:"—",f:"—",x:"Cas non couvert."};
+}
+T.push({id:"compatibilite",cat:"soud",name:"Compatibilité",desc:"Soudable ? Procédé, métal d'apport, précautions",
+kw:"compatibilite metallurgique heterogene inox acier galva fonte cuivre alu metal apport 309",
+inputs:[S("m1","Métal 1",MLIST,"acier",{wide:1}),S("m2","Métal 2",MLIST,"inox",{wide:1})],
+calc(v){const c=compat(v.m1,v.m2);return {res:[R("Soudable",c.v,"",1),R("Procédé",c.p),R("Métal d'apport",c.f),R("Précautions",c.x)]};}});
+
+/* 6. Défauts */
+const DEF=[
+ ["Porosités / soufflures","Gaz insuffisant ou courant d'air, buse encrassée, pièce grasse, rouillée ou humide, zinc, électrodes humides.","Vérifie débit et fuites, abrite du vent, nettoie la buse et la pièce, étuve les électrodes basiques."],
+ ["Caniveaux","Intensité ou tension trop fortes, avance trop rapide, angle de torche.","Baisse le réglage, marque un temps sur les bords, corrige l'angle."],
+ ["Manque de pénétration","Intensité trop faible, écart trop petit, talon trop épais, avance trop rapide.","Ouvre l'écart, réduis le talon, monte l'intensité, ralentis."],
+ ["Collage (manque de fusion)","Le bain passe devant l'arc, énergie trop faible, mauvais angle, surface sale.","Garde l'arc en tête du bain, monte l'énergie, nettoie entre les passes."],
+ ["Fissures","Hydrogène (électrodes humides), refroidissement brutal, acier chargé en carbone, fort bridage, cratère non rempli.","Préchauffe, électrodes basiques étuvées, remplis le cratère, réduis le bridage."],
+ ["Projections","Tension trop basse ou intensité trop haute, CO₂ pur, mauvaise masse, fil sale.","Ajuste la tension, passe en M21, serre la masse près du joint, anti-adhérent sur la buse."],
+ ["Inclusions de laitier","Laitier mal enlevé entre les passes, mauvais angle d'électrode.","Pique, brosse ou meule chaque passe ; soigne l'angle."],
+ ["Excès de pénétration / percement","Intensité trop forte, écart trop grand, avance trop lente.","Baisse l'intensité, réduis l'écart, utilise un support envers."],
+ ["Déformation","Trop d'apport, séquence déséquilibrée, peu de bridage.","Pointe serré, soude en pas de pèlerin, alterne les côtés, bride, donne une contre-déformation."]
+];
+T.push({id:"defauts",cat:"soud",name:"Défauts",desc:"Causes et remèdes des défauts courants",
+kw:"defaut porosite soufflure caniveau penetration collage fissure projection inclusion laitier diagnostic",
+inputs:[],
+calc(){return {extra:`<div class="card">${DEF.map(d=>`<details class="acc"><summary>${esc(d[0])}</summary><div class="bd"><p><b>Causes</b><br>${esc(d[1])}</p><p><b>Remèdes</b><br>${esc(d[2])}</p></div></details>`).join("")}</div>`};}});
+
+/* 7. Pliage */
+const VSTD=[6,8,10,12,16,20,24,30,35,40,50,60,80,100,120,160,200,250];
+T.push({id:"pliage",cat:"chaud",name:"Pliage et développé",desc:"Longueur de flan, vé, force de presse",
+kw:"pli pliage developpe flan facteur k presse plieuse ve force tonnage rayon deduction",
+inputs:[
+  N("A","Aile A (cote ext.)","mm",50),N("B","Aile B (cote ext.)","mm",30),
+  N("t","Épaisseur","mm",3),N("Ri","Rayon intérieur","mm",3),
+  N("ang","Angle de pliage","°",90),N("K","Facteur K (vide = auto)","",""),
+  N("Rm","Résistance Rm","MPa",420),N("Lp","Longueur pliée","mm",1000)
+],
+calc(v){
+  const {A,B,t,Ri,ang}=v; if(!(A>0&&B>0&&t>0&&Ri>=0)) return {err:"Remplis les ailes, l'épaisseur et le rayon."};
+  if(!(ang>0&&ang<180)) return {err:"L'angle de pliage doit être entre 0 et 180° (90° = équerre)."};
+  let K=v.K; const auto=!(K>0);
+  if(auto){ const q=Ri/t; K=q>=5?0.5:clamp((0.65+0.5*Math.log10(Math.max(q,.05)))/2,0.2,0.5); }
+  const BA=rad(ang)*(Ri+K*t), OS=Math.tan(rad(ang)/2)*(Ri+t), flat=A+B-2*OS+BA, BD=2*OS-BA;
+  const Vt=t<=8?8*t:t<=20?10*t:12*t; const V=VSTD.find(x=>x>=Vt*0.9)||Math.round(Vt);
+  const F=v.Rm>0&&v.Lp>0?1.33*v.Rm*v.Lp*t*t/V/9810:NaN;
+  const res=[R("Longueur de flan",fmt(flat,1),"mm",1),R("Ligne de pli depuis le bord A",fmt(A-OS+BA/2,1),"mm",1),R("Déduction de pli",fmt(BD,2),"mm"),R("Facteur K"+(auto?" (auto)":""),fmt(K,3)),R("Vé conseillé",String(V),"mm"),R("Force de presse",fmt(F,1),"t"),R("Rayon obtenu en l'air",`≈ ${fmt(0.16*V,1)}`,"mm"),R("Aile mini",`≈ ${fmt(0.7*V,0)}`,"mm")];
+  const warn=[]; if(Math.min(A,B)<0.7*V+t) warn.push("Une aile est trop courte pour ce vé : prends un vé plus petit.");
+  const Ro=Ri+t, c=[-OS,Ro], d=[Math.cos(rad(ang)),Math.sin(rad(ang))], n=[-d[1],d[0]];
+  const out=[[-A,0],[-OS,0],...arcPts(c,Ro,-90,-90+ang,24),[d[0]*B,d[1]*B]];
+  const inn=[[d[0]*B+n[0]*t,d[1]*B+n[1]*t],...arcPts(c,Ri,-90+ang,-90,24),[-OS,t],[-A,t]];
+  const pts=out.concat(inn); const D=drawing(bbox(pts),{H:220,pad:46});
+  D.poly(pts);
+  D.dim([-A,0],[0,0],"A "+fmt(A,0),-16);
+  D.dim([0,0],[d[0]*B,d[1]*B],"B "+fmt(B,0),-16);
+  D.text([c[0],c[1]],"R"+fmt(Ri,1),"tm","middle",0,0);
+  return {res,warn,svg:D.svg("Profil plié"),notes:["Cotes A et B mesurées à l'extérieur, jusqu'au sommet de l'angle.","Force calculée pour un pliage en l'air à 90° ; compare avec l'abaque de ta presse."]};
+}});
+
+/* 8. Cône */
+T.push({id:"cone",cat:"chaud",name:"Développé de cône",desc:"Rayons de traçage, angle du secteur, cordes",
+kw:"cone tronc de cone developpe reduction entonnoir secteur rayon corde trace",
+inputs:[
+  N("D","Grand Ø","mm",600),N("d","Petit Ø (0 = pointe)","mm",300),
+  N("H","Hauteur","mm",400),N("t","Épaisseur","mm",3),
+  S("ref","Ø mesurés",[["ext","À l'extérieur"],["int","À l'intérieur"],["moy","À la fibre moyenne"]],"ext"),
+  N("n","Nombre de parties","",1)
+],
+calc(v){
+  const {D,H,t}=v; const d=v.d>0?v.d:0; if(!(D>0&&H>0&&t>=0)) return {err:"Remplis le grand Ø, la hauteur et l'épaisseur."};
+  const adj=v.ref==="ext"?-t:v.ref==="int"?t:0;
+  const Dm=D+adj, dm=d>0?d+adj:0;
+  if(!(Dm>dm)) return {err:"Le grand Ø doit être plus grand que le petit."};
+  const s=Math.hypot(H,(Dm-dm)/2), Rr=s*Dm/(Dm-dm), r=Rr-s, th=180*Dm/Rr, n=v.n>=1?Math.round(v.n):1, thp=th/n;
+  const res=[R("Grand rayon R",fmt(Rr,1),"mm",1),R("Angle du secteur",fmt(th,2),"°",1),R("Petit rayon r",fmt(r,1),"mm"),R("Génératrice",fmt(s,1),"mm"),R("Demi-angle au sommet",fmt(deg(Math.atan((Dm-dm)/2/H)),2),"°")];
+  if(n>1) res.push(R(`Angle par partie (${n})`,fmt(thp,2),"°"));
+  res.push(R(n>1?"Corde grand arc / partie":"Corde du grand arc",fmt(2*Rr*Math.sin(rad(thp/2)),1),"mm"));
+  if(r>0) res.push(R(n>1?"Corde petit arc / partie":"Corde du petit arc",fmt(2*r*Math.sin(rad(thp/2)),1),"mm"));
+  const notes=["Trace depuis le centre : arc de rayon R, arc de rayon r, puis reporte la corde pour fermer le secteur."];
+  if(th>270&&n===1) notes.push("Secteur presque fermé : développe en 2 ou 3 parties.");
+  const a0=90-th/2,a1=90+th/2, outer=arcPts([0,0],Rr,a0,a1,60), inner=r>0?arcPts([0,0],r,a1,a0,40):[[0,0]];
+  const pts=outer.concat(inner); const Dw=drawing(bbox(pts.concat([[0,0]])),{H:230,pad:24});
+  Dw.line([0,0],outer[0],"cn"); Dw.line([0,0],outer[outer.length-1],"cn");
+  Dw.poly(pts);
+  for(let i=1;i<n;i++){const a=rad(a0+thp*i);Dw.line([r*Math.cos(a),r*Math.sin(a)],[Rr*Math.cos(a),Rr*Math.sin(a)],"ac");}
+  Dw.circle([0,0],Rr*0.012,"sh");
+  const am=rad(90);
+  Dw.text([0,Rr],"R "+fmt(Rr,0),"tx","middle",0,-10);
+  if(r>0) Dw.text([0,r],"r "+fmt(r,0),"tm","middle",0,12);
+  Dw.text([0,0],fmt(th,1)+"°","td","middle",0,14);
+  return {res,notes,svg:Dw.svg("Développé du cône")};
+}});
+
+/* 9. Virole */
+T.push({id:"virole",cat:"chaud",name:"Virole (cylindre)",desc:"Longueur développée, découpe en parties, poids",
+kw:"virole cylindre roulage developpe circonference tole roulee fut",
+inputs:[N("D","Diamètre","mm",500),N("t","Épaisseur","mm",4),S("ref","Ø mesuré",[["ext","À l'extérieur"],["int","À l'intérieur"],["moy","À la fibre moyenne"]],"ext"),N("h","Hauteur","mm",1000),N("n","Nombre de parties","",1),S("mat","Matière",MATS,"acier")],
+calc(v){
+  const {D,t,h}=v; if(!(D>0&&t>0)) return {err:"Remplis le diamètre et l'épaisseur."};
+  const Dm=D+(v.ref==="ext"?-t:v.ref==="int"?t:0), L=Math.PI*Dm, n=v.n>=1?Math.round(v.n):1;
+  const res=[R("Longueur développée",fmt(L,1),"mm",1)];
+  if(n>1) res.push(R(`Par partie (${n})`,fmt(L/n,1),"mm",1));
+  if(h>0){res.push(R("Surface",fmt(L*h/1e6,2),"m²"),R("Poids",fmt(L*h*t*RHO[v.mat]/1e6,1),"kg"));}
+  const hh=h>0?h:L/3, Dd=drawing([0,0,L,hh],{H:170,pad:30});
+  Dd.poly([[0,0],[L,0],[L,hh],[0,hh]]);
+  for(let i=1;i<n;i++) Dd.line([L*i/n,0],[L*i/n,hh],"ac");
+  Dd.dim([0,0],[L,0],fmt(L,1),-16); if(h>0) Dd.dim([L,0],[L,hh],"h "+fmt(h,0),-14);
+  return {res,svg:Dd.svg("Tôle développée de la virole"),notes:["Roule avec le sens de laminage dans la longueur quand c'est possible."]};
+}});
+
+/* 10. Trémie */
+T.push({id:"tremie",cat:"chaud",name:"Trémie",desc:"Faces vraies, arêtes, angles de pli et de soudure",
+kw:"tremie pyramide tronc rectangulaire entonnoir carre faces developpe goulotte silo",
+inputs:[N("A","Haut : longueur A","mm",800),N("B","Haut : largeur B","mm",600),N("a","Bas : longueur a","mm",200),N("b","Bas : largeur b","mm",150),N("H","Hauteur","mm",500),N("t","Épaisseur","mm",3),S("mat","Matière",MATS,"acier",{wide:1})],
+calc(v){
+  const {A,B,a,b,H}=v; if(!(A>0&&B>0&&a>=0&&b>=0&&H>0)) return {err:"Remplis les cotes du haut, du bas et la hauteur."};
+  const h1=Math.hypot(H,(B-b)/2), h2=Math.hypot(H,(A-a)/2), e=Math.sqrt(H*H+((A-a)/2)**2+((B-b)/2)**2);
+  const cr=(u,w)=>[u[1]*w[2]-u[2]*w[1],u[2]*w[0]-u[0]*w[2],u[0]*w[1]-u[1]*w[0]], sub=(p,q)=>[p[0]-q[0],p[1]-q[1],p[2]-q[2]], un=x=>{const l=Math.hypot(...x);return x.map(c=>c/l)};
+  let n1=un(cr(sub([-A/2,B/2,H],[A/2,B/2,H]),sub([a/2,b/2,0],[A/2,B/2,H]))); if(n1[1]<0) n1=n1.map(c=>-c);
+  let n2=un(cr(sub([A/2,B/2,H],[A/2,-B/2,H]),sub([a/2,-b/2,0],[A/2,-B/2,H]))); if(n2[0]<0) n2=n2.map(c=>-c);
+  const dih=180-deg(Math.acos(clamp(n1[0]*n2[0]+n1[1]*n2[1]+n1[2]*n2[2],-1,1)));
+  const area=(A+a)*h1+(B+b)*h2, kg=v.t>0?area*v.t*RHO[v.mat]/1e6:NaN;
+  const res=[R("Hauteur vraie face A",fmt(h1,1),"mm",1),R("Hauteur vraie face B",fmt(h2,1),"mm",1),R("Arête vraie",fmt(e,1),"mm"),
+    R("Angle bas de la face A",fmt(deg(Math.atan2(h1,(A-a)/2)),1),"°"),R("Angle bas de la face B",fmt(deg(Math.atan2(h2,(B-b)/2)),1),"°"),
+    R("Pente face A / horizontale",fmt(deg(Math.atan2(H,(B-b)/2)),1),"°"),R("Pente face B / horizontale",fmt(deg(Math.atan2(H,(A-a)/2)),1),"°"),
+    R("Angle entre deux faces",fmt(dih,1),"°"),R("Surface de tôle",fmt(area/1e6,2),"m²"),R("Poids",fmt(kg,1),"kg")];
+  const gap=Math.max(A,B)*0.18, ox=A/2+gap+B/2;
+  const f1=[[-A/2,h1],[A/2,h1],[a/2,0],[-a/2,0]], f2=[[ox-B/2,h2],[ox+B/2,h2],[ox+b/2,0],[ox-b/2,0]];
+  const Dd=drawing(bbox(f1.concat(f2)),{H:200,pad:34});
+  Dd.poly(f1); Dd.poly(f2);
+  Dd.dim([-A/2,h1],[A/2,h1],"A "+fmt(A,0),14); Dd.dim([ox-B/2,h2],[ox+B/2,h2],"B "+fmt(B,0),14);
+  Dd.dim([-a/2,0],[a/2,0],"a "+fmt(a,0),-14); Dd.dim([ox-b/2,0],[ox+b/2,0],"b "+fmt(b,0),-14);
+  Dd.text([0,h1/2],"Face A ×2","tm"); Dd.text([ox,h2/2],"Face B ×2","tm");
+  Dd.text([0,h1/2],"h "+fmt(h1,0),"tx","middle",0,14); Dd.text([ox,h2/2],"h "+fmt(h2,0),"tx","middle",0,14);
+  return {res,svg:Dd.svg("Faces de la trémie"),notes:["Trémie centrée. Cotes prises à la fibre moyenne de la tôle.","Faces A : côtés de longueur A et a ; faces B : côtés B et b."]};
+}});
+
+/* 11. Débit */
+T.push({id:"debit",cat:"chaud",name:"Débit des barres",desc:"Plan de coupe des barres, minimum de chutes",
+kw:"debit optimisation coupe barre chute scie longueur 6 m nomenclature profile tube",
+inputs:[N("Lb","Longueur de barre","mm",6000),N("kerf","Trait de scie","mm",3),N("trim","Chute de départ","mm",10),{k:"pcs",t:"rows",l:"Pièces",d:[[1200,4],[850,6],[400,5]]}],
+calc(v){
+  const Lb=v.Lb,k=v.kerf>0?v.kerf:0,trim=v.trim>0?v.trim:0,cap=Lb-trim;
+  if(!(Lb>0)||cap<=0) return {err:"Indique la longueur de barre."};
+  const pcs=[]; (v.pcs||[]).forEach(r=>{const l=r[0],q=Math.round(r[1]);if(l>0&&q>0)for(let j=0;j<Math.min(q,1000);j++)pcs.push(l);});
+  if(!pcs.length) return {err:"Ajoute au moins une pièce (longueur et quantité)."};
+  if(pcs.some(p=>p>cap)) return {err:"Une pièce est plus longue que la barre utile."};
+  pcs.sort((x,y)=>y-x);
+  const bars=[];
+  for(const p of pcs){let bi=-1,br=Infinity;bars.forEach((b,i)=>{const need=b.p.length?k+p:p;const rem=cap-b.u-need;if(rem>=-1e-9&&rem<br){br=rem;bi=i;}});
+    if(bi<0)bars.push({p:[p],u:p});else{bars[bi].u+=k+p;bars[bi].p.push(p);}}
+  const tot=pcs.reduce((s,x)=>s+x,0), eff=tot/(bars.length*Lb)*100;
+  const groups=[]; bars.forEach(b=>{const key=b.p.join("+");const g=groups.find(x=>x.key===key);if(g)g.n++;else groups.push({key,n:1,p:b.p,rest:cap-b.u});});
+  const res=[R("Barres",String(bars.length),"",1),R("Rendement",fmt(eff,1),"%",1),R("Pièces",String(pcs.length)),R("Longueur des pièces",fmt(tot/1000,2),"m"),R("Chutes",fmt((bars.length*Lb-tot)/1000,2),"m")];
+  const W=360,rowH=24,show=groups.slice(0,10),H=24+show.length*(rowH+8)+8,x0=34,sc=(W-x0-10)/Lb;
+  let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Plan de coupe">`;
+  show.forEach((g,i)=>{const y=14+i*(rowH+8);s+=`<text class="tx" x="${x0-6}" y="${y+rowH/2}" text-anchor="end" dominant-baseline="middle">×${g.n}</text><rect class="bar" x="${x0}" y="${y}" width="${(Lb*sc).toFixed(1)}" height="${rowH}" rx="2"/>`;
+    let x=x0+trim*sc; g.p.forEach(p=>{const w=p*sc;s+=`<rect class="pc" x="${x.toFixed(1)}" y="${y}" width="${w.toFixed(1)}" height="${rowH}"/>`;if(w>19)s+=`<text class="tm" x="${(x+w/2).toFixed(1)}" y="${y+rowH/2}" text-anchor="middle" dominant-baseline="middle">${esc(fmt(p,0))}</text>`;x+=w+k*sc;});});
+  s+="</svg>";
+  const rows=groups.map(g=>`<tr><td>×${g.n}</td><td>${g.p.map(p=>fmt(p,0)).join(" + ")}</td><td>${fmt(g.rest,0)}</td></tr>`).join("");
+  return {res,svg:s,extra:`<div class="card"><h3>Plan de coupe</h3><div class="tscroll" style="margin-top:6px"><table class="t"><thead><tr><th>Barres</th><th>Coupes (mm)</th><th>Chute</th></tr></thead><tbody>${rows}</tbody></table></div></div>`,notes:["Coupe d'abord les plus longues pièces. Le trait de scie est compté entre chaque pièce."]};
+}});
+
+/* 12. Onglet */
+T.push({id:"onglet",cat:"chaud",name:"Coupe d'onglet",desc:"Angles de coupe, même pour deux largeurs différentes",
+kw:"onglet coupe angle scie cadre main courante raccord largeurs differentes biais mitre",
+inputs:[N("al","Angle entre les pièces","°",90,{wide:1}),N("w1","Largeur pièce 1","mm",40),N("w2","Largeur pièce 2","mm",40)],
+calc(v){
+  const al=v.al,w1=v.w1,w2=v.w2; if(!(w1>0&&w2>0)) return {err:"Indique les deux largeurs."};
+  if(!(al>=15&&al<=170)) return {err:"Angle entre 15 et 170° (90° = équerre)."};
+  const b1=deg(Math.atan2(w1*Math.sin(rad(al)),w2+w1*Math.cos(rad(al)))), b2=al-b1;
+  const xin=(w2+w1*Math.cos(rad(al)))/Math.sin(rad(al)), Lc=Math.hypot(xin,w1);
+  const res=[R("Pièce 1 : angle de coupe",fmt(b1,1),"°",1),R("Pièce 2 : angle de coupe",fmt(b2,1),"°",1),R("Réglage scie pièce 1",fmt(90-b1,1),"°"),R("Réglage scie pièce 2",fmt(90-b2,1),"°"),R("Longueur de la coupe",fmt(Lc,1),"mm")];
+  const len=3.2*Math.max(w1,w2), d2=[Math.cos(rad(al)),Math.sin(rad(al))], nn=[Math.sin(rad(al)),-Math.cos(rad(al))];
+  const m1=[[0,0],[len,0],[len,w1],[xin,w1]], m2=[[0,0],[len*d2[0],len*d2[1]],[len*d2[0]+w2*nn[0],len*d2[1]+w2*nn[1]],[xin,w1]];
+  const Dd=drawing(bbox(m1.concat(m2)),{H:220,pad:30});
+  Dd.poly(m1); Dd.poly(m2); Dd.line([0,0],[xin,w1],"ac");
+  Dd.text([len*0.7,w1/2],"1","tx"); Dd.text([len*0.7*d2[0]+w2/2*nn[0],len*0.7*d2[1]+w2/2*nn[1]],"2","tx");
+  Dd.text([xin,w1],fmt(b1,1)+"° / "+fmt(b2,1)+"°","td","start",8,-2);
+  return {res,svg:Dd.svg("Assemblage en onglet"),notes:["Angle mesuré par rapport à l'axe de la pièce ; réglage scie : 0° = coupe droite.","Angle entre les pièces : 90° pour un cadre ; pour une main courante qui change de pente, 180° moins le changement de pente."]};
+}});
+
+/* 13. Trigonométrie */
+T.push({id:"trigo",cat:"chaud",name:"Triangle, pente",desc:"Deux valeurs suffisent : longueurs, angle, pente",
+kw:"trigonometrie triangle rectangle pente escalier limon angle hypotenuse pythagore inclinaison",
+inputs:[N("a","Horizontal","mm",2700),N("b","Vertical","mm",1500),N("c","En pente","mm",""),N("ang","Angle","°","")],
+calc(v){
+  const has=x=>x>0; let {a,b,c,ang}=v; const given=[has(a),has(b),has(c),has(ang)].filter(Boolean).length;
+  if(given<2) return {err:"Donne au moins deux valeurs, dont une longueur."};
+  if(has(ang)&&ang>=90) return {err:"L'angle doit être inférieur à 90°."};
+  if(has(a)&&has(b)){c=Math.hypot(a,b);ang=deg(Math.atan2(b,a));}
+  else if(has(a)&&has(c)){if(c<=a)return {err:"La longueur en pente doit dépasser l'horizontal."};b=Math.sqrt(c*c-a*a);ang=deg(Math.acos(a/c));}
+  else if(has(b)&&has(c)){if(c<=b)return {err:"La longueur en pente doit dépasser le vertical."};a=Math.sqrt(c*c-b*b);ang=deg(Math.asin(b/c));}
+  else if(has(a)&&has(ang)){b=a*Math.tan(rad(ang));c=a/Math.cos(rad(ang));}
+  else if(has(b)&&has(ang)){a=b/Math.tan(rad(ang));c=b/Math.sin(rad(ang));}
+  else if(has(c)&&has(ang)){a=c*Math.cos(rad(ang));b=c*Math.sin(rad(ang));}
+  else return {err:"Donne au moins une longueur."};
+  const res=[R("En pente",fmt(c,1),"mm",1),R("Angle",fmt(ang,2),"°",1),R("Horizontal",fmt(a,1),"mm"),R("Vertical",fmt(b,1),"mm"),R("Angle complémentaire",fmt(90-ang,2),"°"),R("Pente",fmt(b/a*100,1),"%"),R("Pente",fmt(b/a*1000,0),"mm/m")];
+  const Dd=drawing([0,0,a,b],{H:200,pad:34}); Dd.poly([[0,0],[a,0],[a,b]]);
+  Dd.dim([0,0],[a,0],fmt(a,0),-16); Dd.dim([a,0],[a,b],fmt(b,0),-14); Dd.dim([0,0],[a,b],fmt(c,0),16);
+  Dd.text([0,0],fmt(ang,1)+"°","td","start",Math.min(40,a*Dd.s*.3),-8);
+  const notes=given>2?["Plus de deux valeurs : le calcul garde les deux premières (horizontal, vertical, pente, angle)."]:[];
+  return {res,notes,svg:Dd.svg("Triangle rectangle")};
+}});
+
+/* 14. Perçage et taraudage */
+const VC={doux:25,dur:16,inox:10,alu:60,fonte:18,laiton:45}, FK={doux:.018,dur:.014,inox:.012,alu:.025,fonte:.02,laiton:.02}, VCT={doux:8,dur:5,inox:4,alu:15,fonte:8,laiton:12};
+T.push({id:"percage",cat:"chaud",name:"Perçage, taraudage",desc:"Vitesse, avance, avant-trou, foret de taraudage",
+kw:"percage taraudage vitesse rotation avance foret tr/min taraud filetage avant trou platine",
+inputs:[S("mat","Matière",[["doux","Acier S235"],["dur","Acier S355 / dur"],["inox","Inox"],["alu","Aluminium"],["fonte","Fonte"],["laiton","Laiton / bronze"]],"doux"),S("outil","Foret",[["hss","HSS"],["co","HSS-Co (cobalt)"],["carb","Carbure"]],"hss"),N("D","Ø du foret","mm",10),S("fil","Taraudage",[["","Aucun"]].concat(VIS.map(r=>[r[0],r[0]+" × "+String(r[1]).replace(".",",")])),"M12")],
+calc(v){
+  const D=v.D; if(!(D>0)) return {err:"Indique le Ø du foret."};
+  const vc=VC[v.mat]*(v.outil==="co"?1.25:v.outil==="carb"?3:1), n=1000*vc/(Math.PI*D), f=clamp(D*FK[v.mat],.02,.5);
+  const res=[R("Vitesse",fmt(n,0),"tr/min",1),R("Avance",fmt(f,2),"mm/tr",1),R("Avance",fmt(n*f,0),"mm/min"),R("Vitesse de coupe",fmt(vc,0),"m/min"),R("Avant-trou",D>=10?`≈ ${fmt(Math.max(3,Math.round(D*0.3*2)/2),1)} mm`:"Pas nécessaire")];
+  const notes=[];
+  if(v.fil){const r=VIS.find(x=>x[0]===v.fil);const dn=parseFloat(r[0].slice(1));const nt=1000*VCT[v.mat]/(Math.PI*dn);
+    res.push(R(`Foret pour ${r[0]}`,fmt(r[2],1),"mm",1),R("Pas",fmt(r[1],2),"mm"),R("Trou de passage (moyen)",fmt(r[3],1),"mm"),R("Clé",String(r[4]),"mm"),R("Vitesse de taraudage",`≈ ${fmt(nt,0)}`,"tr/min"));}
+  if(v.mat==="inox") notes.push("Inox : vitesse lente, avance franche, lubrifie ; ne laisse jamais le foret frotter.");
+  if(v.outil==="carb") notes.push("Carbure : seulement sur machine rigide, pas à la perceuse à main.");
+  notes.push("À la perceuse portative, reste sous ces vitesses.");
+  return {res,notes};
+}});
+
+/* 15. Piquage */
+T.push({id:"piquage",cat:"tuy",name:"Piquage (gueule de loup)",desc:"Coupe gueule de loup tube sur tube, hauteurs à tracer",
+kw:"piquage gueule de loup gabarit tube sur tube intersection coupe selle raccord main courante te",
+inputs:[N("D","Ø ext. tube principal","mm",60.3),N("d","Ø ext. tube piqué","mm",42.4),N("be","Angle entre les axes","°",90),N("n","Génératrices","",16)],
+calc(v){
+  const D=v.D,d=v.d,be=v.be>0?v.be:90; if(!(D>0&&d>0)) return {err:"Indique les deux diamètres."};
+  if(d>D) return {err:"Le tube piqué doit être plus petit ou égal au tube principal."};
+  if(be<20||be>90) return {err:"Angle entre 20 et 90°."};
+  const Rr=D/2,r=d/2,n=clamp(Math.round(v.n>=4?v.n:16),4,64),C=Math.PI*d,sb=Math.sin(rad(be)),cb=Math.cos(rad(be));
+  const sF=th=>(Math.sqrt(Math.max(0,Rr*Rr-r*r*Math.sin(th)**2))-r*Math.cos(th)*cb)/sb;
+  const N2=180,pts=[];let mn=Infinity,mx=-Infinity;
+  for(let i=0;i<=N2;i++){const s=sF(2*Math.PI*i/N2);mn=Math.min(mn,s);mx=Math.max(mx,s);}
+  for(let i=0;i<=N2;i++){const th=2*Math.PI*i/N2;pts.push([C*i/N2,sF(th)-mn]);}
+  const ymax=mx-mn, top=Math.max(ymax*1.35,C*0.12);
+  const Dd=drawing([0,0,C,top],{H:200,pad:28});
+  Dd.poly([[0,0],...pts,[C,0]],"cut"); Dd.poly([...pts,[C,top],[0,top]]);
+  const rows=[];
+  for(let i=0;i<=n;i++){const x=C*i/n,y=sF(2*Math.PI*i/n)-mn;Dd.line([x,0],[x,top],"cn");rows.push(`<tr><td>${i===n?"0 (retour)":i}</td><td>${fmt(x,1)}</td><td><b>${fmt(y,1)}</b></td></tr>`);}
+  Dd.line([0,0],[C,0],"ln"); Dd.dim([0,0],[C,0],"développé "+fmt(C,1),-14); Dd.text([C/4,ymax*0.3],"à enlever","tm");
+  const res=[R("Profondeur maxi",fmt(ymax,1),"mm",1),R("Développé du tube",fmt(C,1),"mm",1),R("Écart entre génératrices",fmt(C/n,1),"mm")];
+  return {res,svg:Dd.svg("Gabarit de coupe"),extra:`<div class="card"><h3>Hauteurs à reporter</h3><p class="lede">Depuis un trait d'équerre au bout du tube. Génératrice 0 = dans le plan des deux axes${be<90?", côté angle obtus":""}.</p><div class="tscroll" style="margin-top:6px"><table class="t"><thead><tr><th>Génératrice</th><th>Position (mm)</th><th>Hauteur (mm)</th></tr></thead><tbody>${rows.join("")}</tbody></table></div></div>`,notes:["Calculé sur les Ø extérieurs : pour une tôle épaisse, ajuste à l'ajustage.","Divise le tube en génératrices égales, reporte chaque hauteur, relie les points avec un réglet souple."]};
+}});
+
+/* 16. Décalage */
+T.push({id:"decalage",cat:"tuy",name:"Baïonnette",desc:"Longueur en biais, avance, longueur droite entre coudes",
+kw:"decalage offset coude 45 biais tuyauterie main courante devoiement",
+inputs:[N("H","Décalage","mm",300),N("ang","Angle des coudes","°",45),N("R","Rayon des coudes (axe)","mm",0,{wide:1})],
+calc(v){
+  const H=v.H,a=v.ang,Rr=v.R>0?v.R:0; if(!(H>0)) return {err:"Indique le décalage."};
+  if(!(a>0&&a<90)) return {err:"Angle entre 0 et 90°."};
+  const tr=H/Math.sin(rad(a)), run=H/Math.tan(rad(a)), to=Rr*Math.tan(rad(a/2)), st=tr-2*to;
+  const res=[R("Longueur en biais (axe)",fmt(tr,1),"mm",1),R("Avance",fmt(run,1),"mm",1)];
+  const warn=[];
+  if(Rr>0){res.push(R("Retrait par coude",fmt(to,1),"mm"),R("Droit entre coudes",fmt(st,1),"mm",1)); if(st<0) warn.push("Décalage trop court pour ce rayon de coude.");}
+  else res.push(R("Coupe d'onglet",fmt(a/2,1)+"° à chaque bout",""));
+  const L0=Math.max(run*0.5,H*0.5), Dd=drawing([-L0,0,run+L0,H],{H:200,pad:32});
+  const path=[[-L0,0],[0,0],[run,H],[run+L0,H]];
+  Dd.pl(path,"tubeo"); Dd.pl(path,"tube"); Dd.pl(path,"cn");
+  Dd.dim([run+L0,0],[run+L0,H],"H "+fmt(H,0),-14); Dd.dim([0,0],[run,0],"avance "+fmt(run,0),-22); Dd.dim([0,0],[run,H],fmt(tr,0),20);
+  Dd.text([0,0],fmt(a,0)+"°","td","start",10,-10);
+  return {res,warn,svg:Dd.svg("Décalage")};
+}});
+
+/* 17. Cintrage */
+T.push({id:"cintrage",cat:"tuy",name:"Cintrage de tube",desc:"Longueur à couper, repères de cintrage, amincissement",
+kw:"cintrage cintreuse tube rayon repere longueur developpee coude main courante amincissement",
+inputs:[N("d","Ø du tube","mm",33.7),N("t","Épaisseur","mm",2.6),N("R","Rayon de cintrage (axe)","mm",100),N("ang","Angle","°",90),N("L1","Branche 1 (au sommet)","mm",500),N("L2","Branche 2 (au sommet)","mm",400)],
+calc(v){
+  const {d,t,R:Rr,ang:a,L1,L2}=v; if(!(Rr>0&&a>0&&a<180&&L1>0&&L2>0)) return {err:"Remplis le rayon, l'angle et les deux branches."};
+  const tp=Rr*Math.tan(rad(a/2)), arc=Rr*rad(a), Ld=L1+L2-2*tp+arc, st=L1-tp;
+  const res=[R("Longueur à couper",fmt(Ld,1),"mm",1),R("Début du cintrage",fmt(st,1),"mm",1),R("Fin du cintrage",fmt(st+arc,1),"mm"),R("Longueur d'arc",fmt(arc,1),"mm"),R("Gain",fmt(2*tp-arc,1),"mm")];
+  const warn=[];
+  if(d>0&&t>0){res.push(R("Épaisseur extrados",`≈ ${fmt(t*Rr/(Rr+d/2),2)}`,"mm"),R("Épaisseur intrados",`≈ ${fmt(t*Rr/(Rr-d/2),2)}`,"mm"),R("Rapport R / Ø",fmt(Rr/d,1)));
+    if(Rr/d<1.5) warn.push("Rayon serré (moins de 1,5 × Ø) : risque d'écrasement, mandrin conseillé.");}
+  if(st<0||L2-tp<0) warn.push("Une branche est plus courte que le cintrage.");
+  const dir=[Math.cos(rad(a)),Math.sin(rad(a))], c=[-tp,Rr];
+  const path=[[-L1,0],[-tp,0],...arcPts(c,Rr,-90,-90+a,30),[dir[0]*L2,dir[1]*L2]];
+  const Dd=drawing(bbox(path.concat([[0,0]])),{H:220,pad:40});
+  Dd.pl([[-tp,0],[0,0],[dir[0]*L2*.999,dir[1]*L2*.999]],"cn");
+  Dd.pl(path,"tubeo"); Dd.pl(path,"tube");
+  Dd.line([-tp,-Rr*.25],[-tp,Rr*.25],"ac"); Dd.text([-tp,0],"repère "+fmt(st,0),"td","end",-6,-16);
+  Dd.dim([-L1,0],[0,0],"L1 "+fmt(L1,0),-20);
+  return {res,warn,svg:Dd.svg("Tube cintré"),notes:["Branches mesurées sur l'axe, jusqu'au sommet (intersection des axes).","Repère pris depuis l'extrémité de la branche 1. Vérifie le retour élastique sur un essai."]};
+}});
+
+/* 18. Poids */
+const FORMES=[["plat","Plat"],["rond","Rond plein"],["carre","Carré plein"],["tube","Tube rond"],["tuberect","Tube carré / rect."],["corniere","Cornière"],["tole","Tôle"],["IPE","IPE"],["HEA","HEA"],["HEB","HEB"],["UPN","UPN"]];
+const isProf=f=>["IPE","HEA","HEB","UPN"].includes(f);
+T.push({id:"poids",cat:"ref",name:"Poids des profilés",desc:"Plats, tubes, cornières, tôles, IPE, HEA, HEB, UPN",
+kw:"poids masse kg/m profile plat tube corniere tole ipe hea heb upn acier inox alu devis",
+inputs:[
+  S("f","Forme",FORMES,"tube"),S("mat","Matière",MATS,"acier"),
+  N("b","Largeur","mm",40,{show:v=>["plat","carre","tuberect","corniere","tole"].includes(v.f)}),
+  N("h","Hauteur","mm",30,{show:v=>["tuberect","corniere"].includes(v.f)}),
+  N("lt","Longueur tôle","mm",2000,{show:v=>v.f==="tole"}),
+  N("D","Diamètre","mm",42.4,{show:v=>["rond","tube"].includes(v.f)}),
+  N("e","Épaisseur","mm",2.6,{show:v=>["plat","tube","tuberect","corniere","tole"].includes(v.f)}),
+  S("sIPE","Taille",Object.keys(PROFILS.IPE.kg).map(k=>[k,"IPE "+k]),"200",{show:v=>v.f==="IPE"}),
+  S("sHEA","Taille",Object.keys(PROFILS.HEA.kg).map(k=>[k,"HEA "+k]),"200",{show:v=>v.f==="HEA"}),
+  S("sHEB","Taille",Object.keys(PROFILS.HEB.kg).map(k=>[k,"HEB "+k]),"200",{show:v=>v.f==="HEB"}),
+  S("sUPN","Taille",Object.keys(PROFILS.UPN.kg).map(k=>[k,"UPN "+k]),"200",{show:v=>v.f==="UPN"}),
+  N("L","Longueur","m",6,{show:v=>v.f!=="tole"}),N("q","Quantité","",1)
+],
+calc(v){
+  const f=v.f,rho=RHO[v.mat],q=v.q>0?v.q:1; let A=NaN,kgm=NaN,shape=null;
+  const {b,h,e,D}=v;
+  if(f==="tole"){ if(!(b>0&&v.lt>0&&e>0)) return {err:"Indique largeur, longueur et épaisseur."};
+    const kg=b*v.lt*e*rho/1e6;
+    const Dd=drawing([0,0,v.lt,b],{H:170,pad:30}); Dd.poly([[0,0],[v.lt,0],[v.lt,b],[0,b]]); Dd.dim([0,0],[v.lt,0],fmt(v.lt,0),-14); Dd.dim([v.lt,0],[v.lt,b],fmt(b,0),-12);
+    return {res:[R("Poids total",fmt(kg*q,1),"kg",1),R("Par tôle",fmt(kg,2),"kg",1),R("Surface",fmt(b*v.lt/1e6*q,2),"m²"),R("Poids au m²",fmt(e*rho,2),"kg/m²")],svg:Dd.svg("Tôle")};
+  }
+  if(isProf(f)){const sz=v["s"+f],P=PROFILS[f];kgm=P.kg[sz]*rho/7.85;
+    const hh=P.h?P.h[sz]:+sz, bb=P.b?P.b[sz]:+sz, tf=Math.max(hh*0.07,4), tw=Math.max(hh*0.045,3);
+    shape=f==="UPN"?[[0,0],[bb,0],[bb,tf],[tw,tf],[tw,hh-tf],[bb,hh-tf],[bb,hh],[0,hh]]:[[-bb/2,0],[bb/2,0],[bb/2,tf],[tw/2,tf],[tw/2,hh-tf],[bb/2,hh-tf],[bb/2,hh],[-bb/2,hh],[-bb/2,hh-tf],[-tw/2,hh-tf],[-tw/2,tf],[-bb/2,tf]];
+    const Dd=drawing(bbox(shape),{H:190,pad:34}); Dd.poly(shape); Dd.dim([shape[0][0],0],[shape[0][0],hh],"h "+fmt(hh,0),18); Dd.dim([f==="UPN"?0:-bb/2,0],[f==="UPN"?bb:bb/2,0],"b "+fmt(bb,0),-14);
+    return {res:[R("Poids total",fmt(kgm*v.L*q,1),"kg",1),R("Poids au mètre",fmt(kgm,2),"kg/m",1),R("Hauteur × largeur",`${fmt(hh,0)} × ${fmt(bb,0)}`,"mm")],svg:Dd.svg("Section "+f),notes:["Poids nominaux des tables (acier) ; schéma non à l'échelle des épaisseurs."]};
+  }
+  const Dd=drawing([-1,-1,1,1],{H:180,pad:30});
+  let svg="";
+  if(f==="plat"){ if(!(b>0&&e>0)) return {err:"Indique largeur et épaisseur."}; A=b*e; const d2=drawing([0,0,b,e*Math.max(1,b/e/6)],{H:150,pad:30}); d2.poly([[0,0],[b,0],[b,e],[0,e]]); d2.dim([0,0],[b,0],fmt(b,0),-14); svg=d2.svg("Plat"); }
+  else if(f==="rond"){ if(!(D>0)) return {err:"Indique le diamètre."}; A=Math.PI*D*D/4; const d2=drawing([-D/2,-D/2,D/2,D/2],{H:170}); d2.circle([0,0],D/2); d2.dim([-D/2,-D/2],[D/2,-D/2],"Ø "+fmt(D,1),-12); svg=d2.svg("Rond"); }
+  else if(f==="carre"){ if(!(b>0)) return {err:"Indique le côté."}; A=b*b; const d2=drawing([0,0,b,b],{H:170}); d2.poly([[0,0],[b,0],[b,b],[0,b]]); d2.dim([0,0],[b,0],fmt(b,0),-12); svg=d2.svg("Carré"); }
+  else if(f==="tube"){ if(!(D>0&&e>0&&e<D/2)) return {err:"Indique un diamètre et une épaisseur cohérents."}; A=Math.PI*(D-e)*e; const d2=drawing([-D/2,-D/2,D/2,D/2],{H:170}); d2.circle([0,0],D/2); d2.circle([0,0],D/2-e,"hole"); d2.dim([-D/2,-D/2],[D/2,-D/2],"Ø "+fmt(D,1)+" × "+fmt(e,1),-12); svg=d2.svg("Tube rond"); }
+  else if(f==="tuberect"){ if(!(b>0&&h>0&&e>0&&e<Math.min(b,h)/2)) return {err:"Indique des cotes cohérentes."}; A=2*e*(b+h-2*e); const d2=drawing([0,0,b,h],{H:170}); d2.poly([[0,0],[b,0],[b,h],[0,h]]); d2.poly([[e,e],[b-e,e],[b-e,h-e],[e,h-e]],"hole"); d2.dim([0,0],[b,0],fmt(b,0),-12); d2.dim([b,0],[b,h],fmt(h,0),-12); svg=d2.svg("Tube rectangulaire"); }
+  else if(f==="corniere"){ if(!(b>0&&h>0&&e>0)) return {err:"Indique les ailes et l'épaisseur."}; A=e*(b+h-e); const d2=drawing([0,0,b,h],{H:170}); d2.poly([[0,0],[b,0],[b,e],[e,e],[e,h],[0,h]]); d2.dim([0,0],[b,0],fmt(b,0),-12); d2.dim([0,h],[0,0],fmt(h,0),-12); svg=d2.svg("Cornière"); }
+  kgm=A*rho/1000;
+  return {res:[R("Poids total",fmt(kgm*v.L*q,1),"kg",1),R("Poids au mètre",fmt(kgm,2),"kg/m",1),R("Section",fmt(A,0),"mm²"),R("Longueur totale",fmt(v.L*q,1),"m")],svg,notes:["Tubes et cornières sans les rayons d'angle : poids réel légèrement inférieur."]};
+}});
+
+/* 19. Visserie */
+T.push({id:"visserie",cat:"ref",name:"Visserie métrique",desc:"Pas, foret de taraudage, trou de passage, clé",
+kw:"visserie boulon vis filetage pas foret taraudage passage cle iso m8 m10 m12",
+inputs:[],
+calc(){return {extra:`<div class="card"><div class="tscroll"><table class="t"><thead><tr><th>Filet</th><th>Pas</th><th>Foret</th><th>Passage</th><th>Clé</th></tr></thead><tbody>${VIS.map(r=>`<tr><td><b>${r[0]}</b></td><td>${fmt(r[1],2)}</td><td>${fmt(r[2],1)}</td><td>${fmt(r[3],1)}</td><td>${r[4]}</td></tr>`).join("")}</tbody></table></div></div>`,notes:["Pas gros. Foret de taraudage = Ø nominal − pas. Passage : série moyenne. Clé : têtes ISO (M10 = 16, M12 = 18, M14 = 21, M22 = 34)."]};}});
+
+/* 20. Symboles */
+function symSvg(body){return `<svg viewBox="0 0 120 50" aria-hidden="true"><line x1="6" y1="38" x2="114" y2="38" stroke="currentColor" stroke-width="1.6"/>${body}</svg>`;}
+const SYMS=[
+ ["Angle","gorge a ou côté z",'<path d="M52 38V20l18 18z" fill="none" stroke="currentColor" stroke-width="2"/>'],
+ ["Bord à bord","joint en I",'<path d="M55 38V20M65 38V20" stroke="currentColor" stroke-width="2"/>'],
+ ["En V","chanfrein des 2 pièces",'<path d="M50 20l10 18 10-18" fill="none" stroke="currentColor" stroke-width="2"/>'],
+ ["Demi-V","une seule pièce chanfreinée",'<path d="M55 20v18M55 38l14-18" fill="none" stroke="currentColor" stroke-width="2"/>'],
+ ["En Y","V avec talon",'<path d="M50 16l10 14 10-14M60 30v8" fill="none" stroke="currentColor" stroke-width="2"/>'],
+ ["En U","chanfrein arrondi",'<path d="M50 16v6a10 10 0 0 0 20 0v-6M60 32v6" fill="none" stroke="currentColor" stroke-width="2"/>'],
+ ["Bouchon","trou ou fente",'<rect x="51" y="26" width="18" height="12" fill="none" stroke="currentColor" stroke-width="2"/>'],
+ ["Par points","soudure par résistance",'<circle cx="60" cy="38" r="8" fill="none" stroke="currentColor" stroke-width="2"/>'],
+ ["Tout autour","cercle au coude de la flèche",'<path d="M6 38l-0 0" /><circle cx="14" cy="38" r="6" fill="none" stroke="currentColor" stroke-width="2"/><path d="M52 38V20l18 18z" fill="none" stroke="currentColor" stroke-width="2"/>'],
+ ["Sur chantier","drapeau",'<path d="M14 38V12l16 6-16 6" fill="none" stroke="currentColor" stroke-width="2"/><path d="M52 38V20l18 18z" fill="none" stroke="currentColor" stroke-width="2"/>'],
+ ["Arasé","surface plane",'<path d="M50 20l10 18 10-18M48 14h24" fill="none" stroke="currentColor" stroke-width="2"/>'],
+ ["Convexe","surface bombée",'<path d="M50 20l10 18 10-18M48 16q12-10 24 0" fill="none" stroke="currentColor" stroke-width="2"/>']
+];
+T.push({id:"symboles",cat:"ref",name:"Symboles",desc:"Lecture des symboles ISO 2553 sur plan",
+kw:"symbole soudure plan iso 2553 lecture gorge cote fleche drapeau tout autour",
+inputs:[],
+calc(){return {extra:`<div class="card"><div class="sym">${SYMS.map(s=>`<figure>${symSvg(s[2])}<figcaption>${esc(s[0])}<small>${esc(s[1])}</small></figcaption></figure>`).join("")}</div></div>
+<div class="card"><h3>Lire la ligne de repère</h3><ul class="notes" style="color:var(--ink)"><li>Symbole sur la ligne pleine : soudure du côté de la flèche. Sur la ligne pointillée : de l'autre côté.</li><li><b>a5</b> = gorge de 5 mm ; <b>z7</b> = côté (jambe) de 7 mm. a ≈ 0,7 × z.</li><li><b>a4 ◺ 5 × 50 (100)</b> = 5 cordons de 50 mm, 100 mm d'espace entre eux.</li><li>Le chiffre après la queue (fourche) donne le procédé : 111 électrode, 135 MAG fil plein, 136 fil fourré, 141 TIG.</li></ul></div>`};}});
+
+/* 21. Polarité */
+T.push({id:"polarite",cat:"ref",name:"Polarité",desc:"Branchement de la torche ou de la pince par procédé",
+kw:"polarite branchement positif negatif dc ac electrode basique rutile tig mig fil fourre",
+inputs:[],
+calc(){const rows=[["Électrode basique","DC, électrode au +"],["Électrode rutile","AC ou DC (voir la boîte)"],["Électrode cellulosique","DC, électrode au +"],["TIG acier, inox, cuivre","DC, électrode au −"],["TIG aluminium","AC"],["MIG / MAG fil plein","DC, torche au +"],["Fil fourré avec gaz","DC, torche au +"],["Fil fourré sans gaz","DC, torche au − (le plus souvent)"],["Gougeage arc-air","DC, électrode au +"]];
+return {extra:`<div class="card"><div class="tscroll"><table class="t"><thead><tr><th>Procédé</th><th>Branchement</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${r[0]}</td><td><b>${r[1]}</b></td></tr>`).join("")}</tbody></table></div></div>`,notes:["En cas de doute, la polarité imprimée sur l'emballage du fil ou des électrodes fait foi."]};}});
+
+/* 22. Convertisseur */
+const UNITS={len:[["mm",1],["cm",10],["m",1000],["pouce",25.4],["pied",304.8]],pres:[["bar",1],["MPa",10],["kPa",.01],["psi",0.0689476]],masse:[["kg",1],["g",.001],["t",1000],["lb",0.45359237]],debit:[["l/min",1],["m³/h",1000/60],["CFH",0.4719474]],couple:[["N·m",1],["daN·m",10],["kgf·m",9.80665],["lbf·ft",1.355818],["lbf·in",0.1129848]]};
+const UL={len:"Longueur",pres:"Pression",masse:"Masse",temp:"Température",debit:"Débit de gaz",couple:"Couple"};
+function inchFrac(inches){const w=Math.floor(inches+1e-9);let n=Math.round((inches-w)*16),W=w;if(n===16){W++;n=0;}let d=16;while(n&&n%2===0&&d>1){n/=2;d/=2;}return n?`${W?W+" ":""}${n}/${d}"`:`${W}"`;}
+T.push({id:"convertisseur",cat:"ref",name:"Convertisseur",desc:"mm ↔ pouces (fractions), bar ↔ psi, l/min ↔ CFH…",
+kw:"convertisseur conversion unite pouce inch fraction mm psi bar lb kg cfh fahrenheit couple",
+inputs:[S("c","Grandeur",Object.keys(UL).map(k=>[k,UL[k]]),"len"),N("x","Valeur","","1 1/2"),
+  S("uLen","Unité",UNITS.len.map(u=>[u[0],u[0]]),"pouce",{show:v=>v.c==="len"}),
+  S("uPres","Unité",UNITS.pres.map(u=>[u[0],u[0]]),"bar",{show:v=>v.c==="pres"}),
+  S("uMasse","Unité",UNITS.masse.map(u=>[u[0],u[0]]),"kg",{show:v=>v.c==="masse"}),
+  S("uTemp","Unité",[["C","°C"],["F","°F"]],"C",{show:v=>v.c==="temp"}),
+  S("uDebit","Unité",UNITS.debit.map(u=>[u[0],u[0]]),"l/min",{show:v=>v.c==="debit"}),
+  S("uCouple","Unité",UNITS.couple.map(u=>[u[0],u[0]]),"N·m",{show:v=>v.c==="couple"})],
+calc(v){
+  const x=v.x; if(!isFinite(x)) return {err:"Tape une valeur (fractions acceptées : 3 1/2)."};
+  if(v.c==="temp"){const C=v.uTemp==="C"?x:(x-32)*5/9;return {res:[R("°C",fmt(C,1),"",1),R("°F",fmt(C*9/5+32,1),"",1)]};}
+  const key={len:"uLen",pres:"uPres",masse:"uMasse",debit:"uDebit",couple:"uCouple"}[v.c], list=UNITS[v.c], from=list.find(u=>u[0]===v[key])||list[0], base=x*from[1];
+  const res=list.map(u=>R(u[0],fmt(base/u[1],u[1]>=100?4:u[1]<0.05?1:3),"",u[0]===from[0]?0:1));
+  if(v.c==="len") res.push(R("Fraction (1/16\")",inchFrac(base/25.4)));
+  return {res};
+}});
+
+/* ===================== OUTILS SUPPLÉMENTAIRES ===================== */
+const X=(k,l,d,o={})=>Object.assign({k,l,d:String(d),t:"x",wide:1},o);
+const REFSEL=()=>S("ref","Ø mesurés",[["ext","À l'extérieur"],["int","À l'intérieur"],["moy","À la fibre moyenne"]],"ext");
+function inter2(c0,r0,c1,r1,ref,sign){const dx=c1[0]-c0[0],dy=c1[1]-c0[1],d=Math.hypot(dx,dy);if(d<1e-9)return null;const a=(r0*r0-r1*r1+d*d)/(2*d),h2=r0*r0-a*a,h=Math.sqrt(Math.max(0,h2));const xm=c0[0]+a*dx/d,ym=c0[1]+a*dy/d;const p1=[xm+h*dy/d,ym-h*dx/d],p2=[xm-h*dy/d,ym+h*dx/d];const cr=p=>(ref[1][0]-ref[0][0])*(p[1]-ref[0][1])-(ref[1][1]-ref[0][1])*(p[0]-ref[0][0]);return (cr(p1)*sign>=0)?p1:p2;}
+const d3=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1],a[2]-b[2]);
+const tableHTML=(title,head,rows,lede)=>`<div class="card"><h3>${title}</h3>${lede?`<p class="lede">${lede}</p>`:""}<div class="tscroll" style="margin-top:6px"><table class="t"><thead><tr>${head.map(h=>`<th>${h}</th>`).join("")}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div></div>`;
+
+/* Coude coupé */
+T.push({id:"coudecoupe",cat:"tuy",name:"Coude coupé",desc:"Recouper un coude du commerce à l'angle voulu",
+kw:"coude coupe recouper angle 45 30 60 coude a souder extrados intrados dos ventre tracer retrait",
+inputs:[N("D","Ø ext. tube","mm",60.3),N("R","Rayon du coude (axe)","mm",76),N("a0","Angle du coude","°",90),N("th","Angle voulu","°",45)],
+calc(v){
+  const {D,R:Rr,a0,th}=v; if(!(D>0&&Rr>0&&a0>0&&th>0)) return {err:"Remplis le Ø, le rayon et les deux angles."};
+  if(th>=a0) return {err:"L'angle voulu doit être plus petit que l'angle du coude."};
+  if(Rr<=D/2) return {err:"Le rayon doit être plus grand que le demi-diamètre."};
+  const t=rad(th),ro=Rr+D/2,ri=Rr-D/2;
+  const res=[R("Sur le dos (extrados)",fmt(ro*t,1),"mm",1),R("Sur le ventre (intrados)",fmt(ri*t,1),"mm",1),R("Sur les flancs (axe)",fmt(Rr*t,1),"mm"),R("Retrait axe-bout",fmt(Rr*Math.tan(t/2),1),"mm"),R("Reste du coude",fmt(a0-th,1),"°"),R("Reste sur le dos",fmt(ro*rad(a0-th),1),"mm")];
+  const keep=[...arcPts([0,0],ro,0,th,30),...arcPts([0,0],ri,th,0,30)],rest=[...arcPts([0,0],ro,th,a0,30),...arcPts([0,0],ri,a0,th,30)];
+  const Dd=drawing(bbox(keep.concat(rest,[[0,0]])),{H:220,pad:34});
+  Dd.line([0,0],[ri,0],"cn"); Dd.line([0,0],[ri*Math.cos(t),ri*Math.sin(t)],"cn");
+  Dd.poly(rest,"cut"); Dd.pl(rest.concat([rest[0]]),"cn"); Dd.poly(keep);
+  Dd.line([ri*Math.cos(t),ri*Math.sin(t)],[ro*Math.cos(t),ro*Math.sin(t)],"ac");
+  Dd.text([ro*Math.cos(t/2),ro*Math.sin(t/2)],"dos "+fmt(ro*t,0),"td","start",8,0);
+  Dd.text([0,0],fmt(th,0)+"°","td","middle",0,14);
+  return {res,svg:Dd.svg("Coude à recouper"),notes:["Mesure depuis le même bout : reporte la longueur sur le dos, sur le ventre et sur les deux flancs, puis relie les quatre repères avec un collier ou un réglet souple.","Le trait de coupe passe par le centre de courbure du coude."]};
+}});
+
+/* Coude à segments */
+T.push({id:"segments",cat:"tuy",name:"Coude à segments",desc:"Coude en pièces soudées : angles, longueurs, gabarit",
+kw:"coude segments homard pieces soudees onglets multiples coude personnalise gabarit lobster",
+inputs:[N("D","Ø ext. tube","mm",168.3),N("R","Rayon (axe)","mm",250),N("th","Angle total","°",90),N("n","Nombre de pièces","",4),N("L0","Droit en plus aux bouts","mm",0,{wide:1})],
+calc(v){
+  const D=v.D,Rr=v.R,th=v.th,n=Math.round(v.n),L0=v.L0>0?v.L0:0;
+  if(!(D>0&&Rr>0)) return {err:"Remplis le Ø et le rayon."};
+  if(!(th>0&&th<=180)) return {err:"Angle total entre 0 et 180°."};
+  if(!(n>=2&&n<=12)) return {err:"Entre 2 et 12 pièces."};
+  const b=rad(th/(2*(n-1))),tb=Math.tan(b),ro=Rr+D/2,ri=Rr-D/2;
+  const warn=[]; if(ri<=0) warn.push("Rayon trop petit pour ce Ø : le ventre se croise. Augmente le rayon.");
+  const res=[R("Angle de coupe",fmt(deg(b),2),"°",1),R("Soudures",String(n-1),"",1)];
+  if(n>2) res.push(R(`Pièces centrales (×${n-2}) : dos`,fmt(2*ro*tb,1),"mm"),R("Pièces centrales : ventre",fmt(2*ri*tb,1),"mm"),R("Pièces centrales : axe",fmt(2*Rr*tb,1),"mm"));
+  res.push(R("Pièces de bout (×2) : dos",fmt(ro*tb+L0,1),"mm"),R("Pièces de bout : ventre",fmt(ri*tb+L0,1),"mm"),R("Pièces de bout : axe",fmt(Rr*tb+L0,1),"mm"));
+  // dessin
+  const pcs=[Rr*tb+L0]; for(let i=0;i<n-2;i++) pcs.push(2*Rr*tb); pcs.push(Rr*tb+L0);
+  let p=[0,0],ang=0; const left=[],right=[],h=D/2;
+  const nrm=a=>[-Math.sin(a),Math.cos(a)];
+  left.push([p[0]+nrm(0)[0]*h,p[1]+nrm(0)[1]*h]); right.push([p[0]-nrm(0)[0]*h,p[1]-nrm(0)[1]*h]);
+  pcs.forEach((L,i)=>{p=[p[0]+Math.cos(ang)*L,p[1]+Math.sin(ang)*L];
+    if(i<pcs.length-1){const bis=ang+b,nn=nrm(bis),k=h/Math.cos(b);left.push([p[0]+nn[0]*k,p[1]+nn[1]*k]);right.push([p[0]-nn[0]*k,p[1]-nn[1]*k]);ang+=2*b;}
+    else{const nn=nrm(ang);left.push([p[0]+nn[0]*h,p[1]+nn[1]*h]);right.push([p[0]-nn[0]*h,p[1]-nn[1]*h]);}});
+  const Dd=drawing(bbox(left.concat(right)),{H:230,pad:30});
+  for(let i=0;i<pcs.length;i++) Dd.poly([left[i],left[i+1],right[i+1],right[i]],i===0||i===pcs.length-1?"sh":"sh");
+  for(let i=1;i<pcs.length;i++) Dd.line(left[i],right[i],"ac");
+  const C=Math.PI*D,rows=[];for(let k=0;k<=12;k++){const ph=2*Math.PI*k/12;rows.push([k===12?"0 (retour)":String(k),fmt(C*k/12,1),`<b>${fmt(2*tb*(Rr+h*Math.cos(ph)),1)}</b>`]);}
+  return {res,warn,svg:Dd.svg("Coude à segments"),extra:n>2?tableHTML("Gabarit d'une pièce centrale",["Génératrice","Position (mm)","Longueur (mm)"],rows,"Génératrice 0 = dos. Trace les longueurs sur 12 génératrices et relie."):"",notes:["Coupe chaque pièce avec l'angle indiqué de part et d'autre de l'équerre, en tournant la pièce de 180° entre deux coupes."]};
+}});
+
+/* Réduction excentrée / concentrique par triangulation */
+T.push({id:"reduction",cat:"chaud",name:"Réduction",desc:"Développé par triangulation (excentrée ou concentrique)",
+kw:"reduction excentree concentrique developpe triangulation cone oblique tronc tracage reduction personnalisee",
+inputs:[N("D1","Grand Ø","mm",168.3),N("D2","Petit Ø","mm",114.3),N("H","Longueur","mm",200),N("t","Épaisseur","mm",3),REFSEL(),S("type","Type",[["exc","Excentrée (un côté droit)"],["con","Concentrique"]],"exc"),N("n","Divisions","",24,{wide:1})],
+calc(v){
+  const {D1,D2,H,t}=v; if(!(D1>0&&D2>0&&H>0&&t>=0)) return {err:"Remplis les deux Ø, la longueur et l'épaisseur."};
+  const adj=v.ref==="ext"?-t:v.ref==="int"?t:0,R1=(D1+adj)/2,R2=(D2+adj)/2;
+  if(!(R1>R2)) return {err:"Le grand Ø doit être plus grand que le petit."};
+  let n=Math.round(v.n>=8?v.n:24); n=clamp(n+(n%2),8,72);
+  const e=v.type==="exc"?R1-R2:0;
+  const B=i=>{const f=Math.PI+2*Math.PI*i/n;return [R1*Math.cos(f),R1*Math.sin(f),0];}, Tt=i=>{const f=Math.PI+2*Math.PI*i/n;return [e+R2*Math.cos(f),R2*Math.sin(f),H];};
+  const Bp=[[0,0]],Tp=[[0,d3(B(0),Tt(0))]],G=[d3(B(0),Tt(0))];
+  for(let i=0;i<n;i++){
+    const b1=inter2(Bp[i],d3(B(i+1),B(i)),Tp[i],d3(B(i+1),Tt(i)),[Bp[i],Tp[i]],-1); if(!b1) return {err:"Développé impossible avec ces cotes."};
+    Bp.push(b1);
+    const t1=inter2(Tp[i],d3(Tt(i+1),Tt(i)),b1,d3(Tt(i+1),B(i+1)),[b1,Tp[i]],-1); Tp.push(t1); G.push(d3(B(i+1),Tt(i+1)));
+  }
+  const pts=Bp.concat(Tp.slice().reverse()), bb=bbox(pts);
+  const res=[R("Génératrice la plus longue",fmt(Math.max(...G),1),"mm",1),R("Génératrice la plus courte",fmt(Math.min(...G),1),"mm",1),R("Encombrement du flan",`${fmt(bb[2]-bb[0],0)} × ${fmt(bb[3]-bb[1],0)}`,"mm"),R("Développé grand Ø",fmt(2*Math.PI*R1,1),"mm"),R("Développé petit Ø",fmt(2*Math.PI*R2,1),"mm")];
+  if(e>0) res.push(R("Excentrement",fmt(e,1),"mm"));
+  const Dd=drawing(bb,{H:230,pad:24}); Dd.poly(pts);
+  for(let i=1;i<n;i++) Dd.line(Bp[i],Tp[i],"cn");
+  Dd.text(Bp[n/2],"bas (grand Ø)","tm","middle",0,14);
+  const rows=[];for(let i=0;i<=n;i++)rows.push([String(i),`<b>${fmt(G[i],1)}</b>`,`${fmt(Bp[i][0],1)} ; ${fmt(Bp[i][1],1)}`,`${fmt(Tp[i][0],1)} ; ${fmt(Tp[i][1],1)}`]);
+  return {res,svg:Dd.svg("Développé de la réduction"),extra:tableHTML("Points de traçage",["N°","Génératrice","Point bas (x ; y)","Point haut (x ; y)"],rows,"Repère 0 = soudure longitudinale, côté opposé au plat. Coordonnées en mm depuis le premier point bas."),notes:["Traçage par triangulation : chaque bande est découpée en deux triangles, précis à mieux que 1 mm avec 24 divisions.",v.type==="exc"?"Le côté plat (génératrice du milieu) reste droit et dans l'axe du tube.":"Pour une réduction concentrique, l'outil « Développé de cône » donne aussi les rayons de traçage."]};
+}});
+
+/* Nappe de tubes */
+T.push({id:"nappe",cat:"tuy",name:"Nappe de tubes",desc:"Décalage des coudes quand des tubes parallèles tournent",
+kw:"nappe tubes paralleles faisceau rack coudes decalage entraxe changement direction",
+inputs:[N("n","Nombre de tubes","",4),N("s","Entraxe","mm",150),N("th","Angle du changement","°",90,{wide:1})],
+calc(v){
+  const n=Math.round(v.n),s=v.s,th=v.th; if(!(n>=2&&n<=20&&s>0)) return {err:"Entre 2 et 20 tubes, avec un entraxe."};
+  if(!(th>0&&th<180)) return {err:"Angle entre 0 et 180°."};
+  const sh=s*Math.tan(rad(th/2));
+  const res=[R("Décalage par tube",fmt(sh,1),"mm",1),R("Les coudes s'alignent à",fmt(th/2,1)+"°","",1),R("Écart total (dernier tube)",fmt(sh*(n-1),1),"mm")];
+  const t=rad(th),d2=[Math.cos(t),Math.sin(t)],bis=[0-Math.sin(t),-1+Math.cos(t)].map(c=>c),bl=Math.hypot(bis[0],bis[1]);
+  const bu=[(Math.sin(t)+0)/1,(-1-Math.cos(t))/1],bul=Math.hypot(bu[0],bu[1]),bun=[bu[0]/bul,bu[1]/bul];
+  const Lx=(n+1)*s*1.4, lines=[];
+  for(let k=0;k<n;k++){const c=[bun[0]*k*s/Math.cos(t/2),bun[1]*k*s/Math.cos(t/2)];lines.push([[c[0]-Lx,-k*s],c,[c[0]+d2[0]*Lx,c[1]+d2[1]*Lx]]);}
+  const Dd=drawing(bbox(lines.flat()),{H:230,pad:30});
+  lines.forEach(l=>{Dd.pl(l,"tubeo");Dd.pl(l,"tube");});
+  Dd.line(lines[0][1],lines[n-1][1],"ac");
+  const rows=[];for(let k=0;k<n;k++)rows.push([String(k+1),`<b>${fmt(k*sh,1)}</b>`,fmt(k*s,0)]);
+  return {res,svg:Dd.svg("Nappe de tubes"),extra:tableHTML("Décalage de chaque tube",["Tube","Décalage du coude (mm)","Écart depuis le tube 1 (mm)"],rows,"Tube 1 = côté intérieur du virage. Le décalage s'ajoute sur chaque branche."),notes:["Valable avec le même coude (même rayon) sur tous les tubes : les coudes s'alignent sur la bissectrice."]};
+}});
+
+/* Brides EN 1092-1 PN16 */
+const PN16={15:[95,65,4,12],20:[105,75,4,12],25:[115,85,4,12],32:[140,100,4,16],40:[150,110,4,16],50:[165,125,4,16],65:[185,145,8,16],80:[200,160,8,16],100:[220,180,8,16],125:[250,210,8,16],150:[285,240,8,20],200:[340,295,12,20],250:[405,355,12,24],300:[460,410,12,24]};
+const DNOD={15:21.3,20:26.9,25:33.7,32:42.4,40:48.3,50:60.3,65:76.1,80:88.9,100:114.3,125:139.7,150:168.3,200:219.1,250:273,300:323.9};
+const HOLE={12:14,16:18,20:22,24:26};
+const JOINT={eau:["Eau froide","EPDM ou fibre sans amiante"],chaud:["Eau chaude, chauffage","Fibre sans amiante (aramide) ou EPDM haute température"],vap:["Vapeur","Graphite expansé avec insert inox, ou joint spiralé"],air:["Air comprimé","Fibre sans amiante ou NBR"],gaz:["Gaz naturel","Fibre sans amiante certifiée pour le gaz"],huile:["Huile, hydrocarbures","NBR ou fibre sans amiante liée NBR"],chim:["Produits chimiques","PTFE (vérifie la compatibilité chimique)"]};
+T.push({id:"brides",cat:"tuy",name:"Brides PN16",desc:"Perçage, boulonnerie et joint conseillé (EN 1092-1)",
+kw:"bride brides pn16 en 1092-1 boulons visserie percage entraxe joint de bride dn",
+inputs:[S("dn","DN",Object.keys(PN16).map(k=>[k,"DN "+k]),"50"),S("fl","Fluide",Object.keys(JOINT).map(k=>[k,JOINT[k][0]]),"eau")],
+calc(v){
+  const d=PN16[v.dn],od=DNOD[v.dn]; if(!d) return {err:"Choisis un DN."};
+  const [Df,K,nb,M]=d,J=JOINT[v.fl];
+  const res=[R("Boulons",`${nb} × M${M}`,"",1),R("Entraxe de perçage",fmt(K,0),"mm",1),R("Ø extérieur de la bride",fmt(Df,0),"mm"),R("Ø des trous",fmt(HOLE[M],0),"mm"),R("Clé",String((VIS.find(r=>r[0]==="M"+M)||[])[4]||""),"mm"),R("Écart entre trous",`${fmt(360/nb,1)}° · corde ${fmt(K*Math.sin(Math.PI/nb),1)}`,"mm"),R("Ø ext. du tube (EN 10220)",fmt(od,1),"mm"),R("Joint conseillé",J[1])];
+  const Dd=drawing([-Df/2,-Df/2,Df/2,Df/2],{H:230,pad:34});
+  Dd.circle([0,0],Df/2); Dd.circle([0,0],od/2,"hole"); Dd.circle([0,0],K/2,"cn");
+  for(let i=0;i<nb;i++){const a=Math.PI/nb+2*Math.PI*i/nb;Dd.circle([K/2*Math.cos(a),K/2*Math.sin(a)],HOLE[M]/2,"hole");}
+  Dd.line([-Df/2-6,0],[Df/2+6,0],"cn"); Dd.line([0,-Df/2-6],[0,Df/2+6],"cn");
+  Dd.dim([-K/2,-Df/2],[K/2,-Df/2],"entraxe "+fmt(K,0),-14);
+  const notes=["Trous à cheval sur les axes : aucun trou sur la verticale ni l'horizontale.","Serre en croix, en plusieurs passes, au couple donné par le fabricant du joint.","Dimensions courantes EN 1092-1 PN16 : vérifie sur la fiche de la bride."];
+  if(v.dn==="65") notes.push("DN 65 : les anciennes brides DIN n'ont que 4 trous.");
+  return {res,svg:Dd.svg("Bride PN16"),notes};
+}});
+
+/* Épreuve hydraulique */
+T.push({id:"epreuve",cat:"tuy",name:"Épreuve hydraulique",desc:"Pression d'épreuve, volume d'eau, PV à enregistrer",
+kw:"epreuve hydraulique test pression essai etancheite pv proces verbal volume eau manometre epreuves realisees",
+inputs:[N("PS","Pression de service","bar",10),S("regle","Règle",[["143","1,43 × PS (DESP)"],["150","1,5 × PS (ASME B31.3)"],["125","1,25 × PS"],["perso","Coefficient perso"]],"143"),N("k","Coefficient","",1.5,{show:v=>v.regle==="perso"}),
+  N("D","Ø ext. tube","mm",60.3),N("e","Épaisseur","mm",3.9),N("L","Longueur de ligne","m",25),N("dur","Maintien","min",30),
+  X("mano","N° du manomètre",""),S("ok","Résultat",[["","À faire"],["ok","Conforme"],["nok","Non conforme"]],"",{wide:1})],
+calc(v){
+  const {PS,D,e,L}=v; if(!(PS>0)) return {err:"Indique la pression de service."};
+  const k=v.regle==="perso"?v.k:(+v.regle)/100; if(!(k>0)) return {err:"Indique le coefficient."};
+  const Pt=PS*k, res=[R("Pression d'épreuve",fmt(Pt,1),"bar",1)];
+  if(D>0&&e>0&&e<D/2&&L>0){const Vl=Math.PI/4*(D-2*e)**2*L/1000;res.push(R("Volume d'eau",fmt(Vl,1),"l",1),R("Masse d'eau",fmt(Vl,0),"kg"));}
+  if(v.dur>0) res.push(R("Maintien",fmt(v.dur,0),"min"));
+  res.push(R("Gamme du manomètre",`≈ ${fmt(Pt*1.5,0)} à ${fmt(Pt*2,0)}`,"bar"));
+  if(v.mano) res.push(R("Manomètre",v.mano));
+  res.push(R("Résultat",v.ok==="ok"?"Conforme":v.ok==="nok"?"Non conforme":"À faire"));
+  return {res,notes:["Remplis par le point bas et purge l'air au point haut.","Monte par paliers ; isole soupapes et appareils qui ne supportent pas la pression.","Confirme le coefficient selon le code et le cahier des charges du chantier.","Enregistre l'épreuve dans le chantier : elle sert de procès-verbal."]};
+}});
+
+/* Poids de ligne */
+T.push({id:"poidsligne",cat:"tuy",name:"Poids de ligne",desc:"Tube + contenu + isolant, au mètre et au total",
+kw:"poids de ligne charge supports tube eau isolant calorifuge kg/m",
+inputs:[N("D","Ø ext. tube","mm",60.3),N("e","Épaisseur","mm",3.9),S("mat","Matière",MATS,"acier"),S("c","Contenu",[["eau","Eau"],["vide","Vide"],["autre","Autre densité"]],"eau"),N("rc","Densité du contenu","kg/m³",850,{show:v=>v.c==="autre"}),N("ti","Épaisseur d'isolant","mm",0),N("ri","Densité de l'isolant","kg/m³",100,{show:v=>v.ti>0}),N("L","Longueur","m",10)],
+calc(v){
+  const {D,e,ti,L}=v; if(!(D>0&&e>0&&e<D/2)) return {err:"Indique un Ø et une épaisseur cohérents."};
+  const tube=Math.PI*(D-e)*e*RHO[v.mat]/1000, rc=v.c==="eau"?1000:v.c==="vide"?0:(v.rc>0?v.rc:0), cont=Math.PI/4*(D-2*e)**2*rc/1e6, iso=ti>0?Math.PI/4*((D+2*ti)**2-D*D)*(v.ri>0?v.ri:0)/1e6:0, tot=tube+cont+iso;
+  const res=[R("Poids au mètre",fmt(tot,2),"kg/m",1)];
+  if(L>0) res.push(R(`Poids sur ${fmt(L,1)} m`,fmt(tot*L,1),"kg",1));
+  res.push(R("Tube",fmt(tube,2),"kg/m"),R("Contenu",fmt(cont,2),"kg/m"));
+  if(ti>0) res.push(R("Isolant",fmt(iso,2),"kg/m"));
+  return {res,notes:["Sans la tôle de protection de l'isolant ni les accessoires (vannes, brides)."]};
+}});
+
+/* Fiche de traçabilité */
+T.push({id:"tracabilite",cat:"soud",name:"Traçabilité",desc:"Matière ou soudure : coulée, certificat, soudeur, contrôle",
+kw:"tracabilite matiere soudure coulee lot certificat 3.1 soudeur dmos wps controle fiche suivi",
+inputs:[S("type","Fiche",[["mat","Matière"],["soud","Soudure"]],"mat",{wide:1}),X("rep","Repère (pièce, soudure n°)",""),
+  X("nuance","Nuance","S235JR",{show:v=>v.type==="mat"}),X("dim","Dimensions","",{show:v=>v.type==="mat"}),X("coulee","N° de coulée","",{show:v=>v.type==="mat"}),X("cert","Certificat","3.1",{show:v=>v.type==="mat"}),X("four","Fournisseur","",{show:v=>v.type==="mat"}),
+  X("soudeur","Soudeur","",{show:v=>v.type==="soud"}),S("proc","Procédé",[["135","135 MAG fil plein"],["136","136 fil fourré"],["141","141 TIG"],["111","111 électrode"]],"135",{show:v=>v.type==="soud",wide:1}),X("dmos","DMOS / WPS","",{show:v=>v.type==="soud"}),X("apport","Métal d'apport (lot)","",{show:v=>v.type==="soud"}),
+  S("ctrl","Contrôle",[["VT","Visuel (VT)"],["PT","Ressuage (PT)"],["MT","Magnétoscopie (MT)"],["RT","Radio (RT)"],["UT","Ultrasons (UT)"],["","Aucun"]],"VT",{show:v=>v.type==="soud"}),S("ok","Résultat",[["ok","Conforme"],["nok","Non conforme"],["","À contrôler"]],"ok",{show:v=>v.type==="soud"})],
+calc(v){
+  const res=[R("Fiche",v.type==="mat"?"Matière":"Soudure","",1)]; if(v.rep) res.push(R("Repère",v.rep,"",1));
+  const add=(l,x)=>{if(x)res.push(R(l,x));};
+  if(v.type==="mat"){add("Nuance",v.nuance);add("Dimensions",v.dim);add("N° de coulée",v.coulee);add("Certificat",v.cert);add("Fournisseur",v.four);}
+  else{add("Soudeur",v.soudeur);add("Procédé",{135:"135 MAG fil plein",136:"136 fil fourré",141:"141 TIG",111:"111 électrode"}[v.proc]);add("DMOS / WPS",v.dmos);add("Métal d'apport",v.apport);add("Contrôle",v.ctrl);res.push(R("Résultat",v.ok==="ok"?"Conforme":v.ok==="nok"?"Non conforme":"À contrôler"));}
+  return {res,notes:["Enregistre la fiche dans le chantier : elle apparaît dans le rapport téléchargé."]};
+}});
+
+/* Répartition de barreaux */
+T.push({id:"barreaux",cat:"chaud",name:"Barreaux",desc:"Garde-corps : nombre de barreaux, vide réel, positions",
+kw:"barreaux garde-corps garde corps balustres repartition espacement vide remplissage rampe croquage division",
+inputs:[N("L","Vide entre poteaux","mm",1500),N("b","Largeur d'un barreau","mm",20),N("g","Vide maxi","mm",110),S("mode","Aux poteaux",[["vide","Un vide contre chaque poteau"],["barreau","Un barreau contre chaque poteau"]],"vide",{wide:1})],
+calc(v){
+  const {L,b,g}=v; if(!(L>0&&b>0&&g>0)) return {err:"Remplis les trois cotes."};
+  let n,gap,pos=[];
+  if(v.mode==="vide"){n=Math.max(0,Math.ceil((L-g)/(b+g)));gap=(L-n*b)/(n+1);for(let i=1;i<=n;i++)pos.push(gap*i+b*(i-0.5));}
+  else{n=Math.max(2,Math.ceil((L+g)/(b+g)));gap=(L-n*b)/(n-1);for(let i=0;i<n;i++)pos.push(i*(b+gap)+b/2);}
+  if(gap<0) return {err:"Les barreaux ne tiennent pas dans ce vide."};
+  const res=[R("Barreaux",String(n),"",1),R("Vide réel",fmt(gap,1),"mm",1),R("Entraxe",fmt(b+gap,1),"mm"),R("Premier axe depuis le poteau",fmt(pos[0]||0,1),"mm")];
+  const H=Math.max(L*0.35,120),pw=Math.max(b*2,40),Dd=drawing([-pw,0,L+pw,H],{H:170,pad:20});
+  Dd.poly([[-pw,0],[0,0],[0,H],[-pw,H]]); Dd.poly([[L,0],[L+pw,0],[L+pw,H],[L,H]]);
+  pos.forEach(x=>Dd.poly([[x-b/2,H*0.08],[x+b/2,H*0.08],[x+b/2,H*0.92],[x-b/2,H*0.92]],"wd"));
+  Dd.dim([0,0],[L,0],fmt(L,0),-14);
+  const rows=pos.map((x,i)=>[String(i+1),`<b>${fmt(x,1)}</b>`,fmt(x-b/2,1),fmt(x+b/2,1)]);
+  return {res,svg:Dd.svg("Répartition des barreaux"),extra:tableHTML("Positions depuis le poteau gauche",["Barreau","Axe (mm)","Bord gauche","Bord droit"],rows),notes:["Vide maxi : vérifie la règle qui s'applique à ton chantier (souvent 110 mm entre barreaux)."]};
+}});
+
+/* Plan de cadre */
+T.push({id:"cadre",cat:"chaud",name:"Plan de cadre",desc:"Longueurs de coupe d'un cadre, traverses comprises",
+kw:"cadre chassis portail porte portillon plan de cadre debit montants traverses onglet",
+inputs:[N("W","Largeur ext.","mm",1000),N("H","Hauteur ext.","mm",1100),N("w","Largeur du profilé","mm",40),S("asm","Assemblage",[["onglet","Onglets à 45°"],["mont","Montants passants"],["trav","Traverses passantes"]],"onglet"),N("ni","Traverses intermédiaires","",1),N("q","Nombre de cadres","",1),N("kg","Poids du profilé","kg/m","",{wide:1})],
+calc(v){
+  const {W,H,w}=v,ni=v.ni>0?Math.round(v.ni):0,q=v.q>0?Math.round(v.q):1;
+  if(!(W>0&&H>0&&w>0&&2*w<Math.min(W,H))) return {err:"Remplis des cotes cohérentes (profilé plus étroit que le cadre)."};
+  const P=v.asm==="onglet"?[["Traverses haut et bas",2,W,"onglet 45° aux 2 bouts (cote extérieure)"],["Montants",2,H,"onglet 45° aux 2 bouts (cote extérieure)"]]
+    :v.asm==="mont"?[["Montants",2,H,"coupe droite"],["Traverses haut et bas",2,W-2*w,"coupe droite, entre montants"]]
+    :[["Traverses haut et bas",2,W,"coupe droite"],["Montants",2,H-2*w,"coupe droite, entre traverses"]];
+  if(ni) P.push(["Traverses intermédiaires",ni,W-2*w,"coupe droite, entre montants"]);
+  const tot=P.reduce((a,p)=>a+p[1]*p[2],0)*q, nb=P.reduce((a,p)=>a+p[1],0)*q;
+  const res=[R("Longueur totale",fmt(tot/1000,2),"m",1),R("Pièces",String(nb),"",1)];
+  if(v.kg>0) res.push(R("Poids",fmt(tot/1000*v.kg,1),"kg"));
+  const clear=H-2*w,space=(clear-ni*w)/(ni+1),zs=[];for(let k=1;k<=ni;k++)zs.push(w+k*space+(k-0.5)*w);
+  if(ni&&space<0) return {err:"Trop de traverses pour cette hauteur."};
+  const Dd=drawing([0,0,W,H],{H:230,pad:30});
+  Dd.poly([[0,0],[W,0],[W,H],[0,H]]); Dd.poly([[w,w],[W-w,w],[W-w,H-w],[w,H-w]],"hole");
+  if(v.asm==="onglet"){Dd.line([0,0],[w,w]);Dd.line([W,0],[W-w,w]);Dd.line([W,H],[W-w,H-w]);Dd.line([0,H],[w,H-w]);}
+  else if(v.asm==="mont"){Dd.line([w,0],[w,w]);Dd.line([W-w,0],[W-w,w]);Dd.line([w,H],[w,H-w]);Dd.line([W-w,H],[W-w,H-w]);}
+  else{Dd.line([0,w],[w,w]);Dd.line([W,w],[W-w,w]);Dd.line([0,H-w],[w,H-w]);Dd.line([W,H-w],[W-w,H-w]);}
+  zs.forEach(z=>Dd.poly([[w,z-w/2],[W-w,z-w/2],[W-w,z+w/2],[w,z+w/2]]));
+  Dd.dim([0,0],[W,0],fmt(W,0),-14); Dd.dim([W,0],[W,H],fmt(H,0),-12);
+  const rows=P.map(p=>[esc(p[0]),String(p[1]*q),`<b>${fmt(p[2],1)}</b>`,esc(p[3])]);
+  let extra=tableHTML("Liste de coupe",["Pièce","Qté","Longueur (mm)","Coupe"],rows);
+  if(ni) extra+=tableHTML("Axe des traverses intermédiaires",["Traverse","Depuis le bas (mm)"],zs.map((z,i)=>[String(i+1),`<b>${fmt(z,1)}</b>`]),`Espace libre entre traverses : ${fmt(space,1)} mm.`);
+  return {res,svg:Dd.svg("Plan de cadre"),extra};
+}});
+
+/* Génératrices */
+T.push({id:"generatrices",cat:"chaud",name:"Génératrices",desc:"Diviser un tube ou une virole pour le traçage",
+kw:"generatrices division tube virole tracage parts egales compas corde",
+inputs:[N("D","Ø de traçage","mm",168.3),N("n","Nombre de divisions","",12)],
+calc(v){
+  const D=v.D,n=Math.round(v.n); if(!(D>0&&n>=2&&n<=360)) return {err:"Indique un Ø et entre 2 et 360 divisions."};
+  const C=Math.PI*D;
+  const res=[R("Pas sur le développé",fmt(C/n,2),"mm",1),R("Ouverture de compas (corde)",fmt(D*Math.sin(Math.PI/n),2),"mm",1),R("Angle",fmt(360/n,2),"°"),R("Développé",fmt(C,1),"mm")];
+  const Dd=drawing([-D/2,-D/2,D/2,D/2],{H:200,pad:24}); Dd.circle([0,0],D/2);
+  for(let i=0;i<n;i++){const a=2*Math.PI*i/n;Dd.line([0,0],[D/2*Math.cos(a),D/2*Math.sin(a)],"cn");Dd.circle([D/2*Math.cos(a),D/2*Math.sin(a)],D*0.012,"wd");if(n<=24)Dd.text([D/2*Math.cos(a),D/2*Math.sin(a)],String(i),"tm","middle",Math.cos(a)*12,-Math.sin(a)*12);}
+  const rows=[];for(let i=0;i<=Math.min(n,72);i++)rows.push([String(i),`<b>${fmt(C*i/n,1)}</b>`,fmt(360*i/n,1)]);
+  return {res,svg:Dd.svg("Division du tube"),extra:tableHTML("Positions sur le développé",["Génératrice","Position (mm)","Angle (°)"],rows)};
+}});
+
+/* Historique (vue spéciale) */
+T.push({id:"historique",cat:"ref",special:true,name:"Historique",desc:"Tes derniers calculs, à rouvrir ou à enregistrer",kw:"historique derniers calculs recents",inputs:[],calc(){return {};}});
+
+T.push({id:"iso",cat:"tuy",special:true,name:"Plans iso",desc:"Dessine une ligne en iso : cotes, coupe, nomenclature, PDF",kw:"iso isometrique plan croquis dessin ligne tuyauterie liste de coupe nomenclature pdf cartouche soudures",inputs:[],calc(){return {};}});
+const TOOLMAP={}; T.forEach(t=>TOOLMAP[t.id]=t);
+
+/* ---------- valeurs saisies ---------- */
+const VALS=ls.get("cs-vals",{});
+function rawVals(t){const o=VALS[t.id]||(VALS[t.id]={});t.inputs.forEach(f=>{if(o[f.k]===undefined)o[f.k]=f.t==="rows"?JSON.parse(JSON.stringify(f.d)):f.d;});return o;}
+function getV(t){const o=rawVals(t),v={};t.inputs.forEach(f=>{if(f.t==="n")v[f.k]=parseNum(o[f.k]);else if(f.t==="rows")v[f.k]=(o[f.k]||[]).map(r=>[parseNum(r[0]),parseNum(r[1])]);else if(f.t==="x")v[f.k]=String(o[f.k]||"").trim();else v[f.k]=o[f.k];});return v;}
+let saveValsT; function persistVals(){clearTimeout(saveValsT);saveValsT=setTimeout(()=>ls.set("cs-vals",VALS),400);}
+
+/* ---------- chantiers ---------- */
+const Store={jobs:ls.get("cs-jobs",[]),isos:ls.get("cs-isos",[]),col:null,mode:"local",chains:{},timers:{},active:ls.get("cs-active",null),
+  saveLocal(){ls.set("cs-jobs",this.jobs);ls.set("cs-isos",this.isos);ls.set("cs-active",this.active);},
+  getIso(id){return this.isos.find(x=>x.id===id);},
+  putIso(iso,now){iso.updated=Date.now();const i=this.isos.findIndex(x=>x.id===iso.id);if(i<0)this.isos.unshift(iso);else this.isos[i]=iso;this.saveLocal();
+    clearTimeout(this.timers[iso.id]);const go=()=>{const cur=this.getIso(iso.id);if(!cur||!this.col)return;const copy=JSON.parse(JSON.stringify(cur));this.remote(iso.id,()=>this.col.doc(iso.id).set(copy));};
+    if(now)go();else this.timers[iso.id]=setTimeout(go,1200);},
+  delIso(id){clearTimeout(this.timers[id]);this.isos=this.isos.filter(x=>x.id!==id);this.saveLocal();this.remote(id,()=>this.col.doc(id).delete());},
+  get(id){return this.jobs.find(j=>j.id===id);},
+  put(job){job.updated=Date.now();const i=this.jobs.findIndex(j=>j.id===job.id);if(i<0)this.jobs.unshift(job);else this.jobs[i]=job;this.saveLocal();const copy=JSON.parse(JSON.stringify(job));this.remote(job.id,()=>this.col.doc(job.id).set(copy));},
+  del(id){this.jobs=this.jobs.filter(j=>j.id!==id);if(this.active===id)this.active=this.jobs[0]?this.jobs[0].id:null;this.saveLocal();this.remote(id,()=>this.col.doc(id).delete());},
+  remote(id,fn){if(!this.col)return;const prev=this.chains[id]||Promise.resolve();this.chains[id]=prev.then(fn).catch(e=>{if(e&&e.code==="quota_exceeded")toast("Stockage plein : supprime d'anciens chantiers.");});},
+  async connect(){
+    try{
+      const C=window.claude; if(!C||typeof C.use!=="function") return false;
+      const db=await C.use("db"), user=await C.use("user"); if(!db||!user) return false;
+      const uid=await user.id(); if(!uid) return false;
+      const col=db.collection("data/users/"+uid);
+      const snap=await col.get();
+      const remote=snap.docs.filter(d=>d.exists).map(d=>JSON.parse(JSON.stringify(d.data())));
+      const push=[],merge=(local,rem)=>{const byId={};rem.forEach(j=>byId[j.id]=j);local.forEach(j=>{const r=byId[j.id];if(!r||(j.updated||0)>(r.updated||0)){byId[j.id]=j;push.push(j);}});return Object.values(byId).sort((a,b)=>(b.updated||0)-(a.updated||0));};
+      this.jobs=merge(this.jobs,remote.filter(d=>d.kind!=="iso"));
+      this.isos=merge(this.isos,remote.filter(d=>d.kind==="iso"));
+      this.col=col; this.mode="cloud"; this.saveLocal();
+      push.forEach(j=>{const copy=JSON.parse(JSON.stringify(j));this.remote(j.id,()=>col.doc(j.id).set(copy));});
+      return true;
+    }catch(e){return false;}
+  }
+};
+let DL=null;
+function newId(){return "j"+Date.now().toString(36)+Math.random().toString(36).slice(2,7);}
+function createJob(name){const j={id:newId(),name:name.trim().slice(0,80)||"Chantier",created:Date.now(),items:[]};Store.active=j.id;Store.put(j);return j;}
+
+/* ---------- rendu ---------- */
+const app=document.getElementById("app"), topbar=document.getElementById("topbar");
+let state={cat:ls.get("cs-cat","all"),q:"",openJob:null,confirm:null};
+let LAST=null;
+const THEMES=[["auto","Auto"],["light","Clair"],["dark","Sombre"]];
+function applyTheme(){const th=ls.get("cs-theme","auto");if(th==="auto")document.documentElement.removeAttribute("data-theme");else document.documentElement.setAttribute("data-theme",th);return th;}
+function themeBtn(){const th=applyTheme();const lbl=THEMES.find(x=>x[0]===th)[1];const ic=th==="dark"?'<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>':th==="light"?'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>':'<circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/>';
+  return `<button class="iconbtn" id="themeBtn" aria-label="Thème : ${lbl}"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">${ic}</svg> ${lbl}</button>`;}
+document.addEventListener("click",e=>{const b=e.target.closest("#themeBtn");if(!b)return;const th=ls.get("cs-theme","auto");const nx=THEMES[(THEMES.findIndex(x=>x[0]===th)+1)%3][0];ls.set("cs-theme",nx);b.outerHTML=themeBtn();});
+
+function route(){
+  const h=decodeURIComponent(location.hash.slice(1)),isIso=h==="iso"||h.indexOf("iso-")===0;
+  const sec=h==="chantiers"?"jobs":isIso?"iso":"tools";
+  [["navTools","tools"],["navIso","iso"],["navJobs","jobs"]].forEach(([id,k])=>document.getElementById(id).setAttribute("aria-current",sec===k?"page":"false"));
+  pushHist();LAST=null;ED=null;
+  if(h==="historique") {renderHistory();window.scrollTo(0,0);return;}
+  if(h==="chantiers") renderJobs(); else if(h==="iso") renderIsoList(); else if(isIso&&Store.getIso(h.slice(4))) renderIsoEditor(Store.getIso(h.slice(4))); else if(isIso) renderIsoList(); else if(TOOLMAP[h]&&!TOOLMAP[h].special) renderTool(TOOLMAP[h]); else renderHome();
+  window.scrollTo(0,0);
+}
+window.addEventListener("hashchange",route);
+
+function renderHome(){
+  app.onclick=null;app.classList.remove("tool");
+  topbar.innerHTML=`<div class="brand">Carnet <span>Soudeur</span></div><div class="sp"></div>${themeBtn()}`;
+  app.innerHTML=`<div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="q" type="search" placeholder="Chercher : cône, onglet, gaz…" aria-label="Chercher un outil" value="${esc(state.q)}" autocomplete="off"></div>
+  <div class="chips" role="group" aria-label="Catégories">${CATS.map(c=>`<button class="chip" data-cat="${c[0]}" aria-pressed="${state.cat===c[0]}">${c[1]}</button>`).join("")}</div>
+  <div id="list"></div>
+  <p class="foot">${T.length} outils · version hors ligne. Les valeurs sont indicatives : elles ne remplacent ni les normes ni un DMOS qualifié.</p>`;
+  const q=document.getElementById("q");
+  q.addEventListener("input",()=>{state.q=q.value;renderList();});
+  app.querySelectorAll(".chip").forEach(b=>b.addEventListener("click",()=>{state.cat=b.dataset.cat;ls.set("cs-cat",state.cat);app.querySelectorAll(".chip").forEach(x=>x.setAttribute("aria-pressed",x===b));renderList();}));
+  renderList();
+}
+function card(t){return `<a class="tl" href="#${t.id}" style="--cat:${CATCOL[t.cat]}"><span class="ib">${ico(t.id)}</span><b>${esc(t.name)}</b></a>`;}
+function recentHTML(){const seen=new Set(),list=[];HIST.forEach(h=>{if(!seen.has(h.tool)&&TOOLMAP[h.tool]){seen.add(h.tool);list.push(TOOLMAP[h.tool]);}});
+  return list.length?`<div class="sec-title"><h2>Récents</h2></div><div class="recents">${list.slice(0,8).map(t=>`<a class="rc" href="#${t.id}" style="--cat:${CATCOL[t.cat]}"><span class="ib">${ico(t.id)}</span>${esc(t.name)}</a>`).join("")}</div>`:"";}
+function renderList(){
+  const el=document.getElementById("list"); const words=norm(state.q).split(/\s+/).filter(Boolean);
+  const match=t=>{const hay=norm(t.name+" "+t.desc+" "+t.kw);return words.every(w=>hay.includes(w)||(w.length>3&&hay.includes(w.slice(0,-1))));};
+  let list=T.filter(t=>(state.cat==="all"||words.length||t.cat===state.cat)&&match(t));
+  if(!list.length){el.innerHTML=`<p class="empty">Aucun outil pour « ${esc(state.q)} ».</p>`;return;}
+  if(state.cat==="all"&&!words.length){
+    const fv=favs().map(id=>TOOLMAP[id]).filter(Boolean);
+    el.innerHTML=(fv.length?`<div class="sec-title"><h2>Favoris</h2></div><div class="grid">${fv.map(card).join("")}</div>`:"")+recentHTML()+CATS.slice(1).map(c=>{const l=list.filter(t=>t.cat===c[0]);return `<div class="sec-title" style="--cat:${CATCOL[c[0]]}"><span class="dot"></span><h2>${c[1]}</h2><span class="n">${l.length}</span></div><div class="grid">${l.map(card).join("")}</div>`;}).join("")+(fv.length?"":`<p class="foot">Touche l'étoile dans un outil pour l'épingler en haut.</p>`);
+  } else el.innerHTML=`<div class="grid" style="margin-top:4px">${list.map(card).join("")}</div>`;
+}
+
+function fieldHTML(f,o){
+  const lab=`<span>${esc(f.l)}${f.u?` <em>${esc(f.u)}</em>`:""}</span>`;
+  if(f.t==="s") return `<label class="fld${f.wide?" wide":""}" data-f="${f.k}">${lab}<select id="in-${f.k}" data-k="${f.k}">${f.opts.map(op=>`<option value="${esc(op[0])}"${String(o[f.k])===String(op[0])?" selected":""}>${esc(op[1])}</option>`).join("")}</select></label>`;
+  if(f.t==="rows") return `<div class="rows" data-f="${f.k}" id="rows-${f.k}">${rowsHTML(f,o)}</div>`;
+  if(f.t==="x") return `<label class="fld${f.wide?" wide":""}" data-f="${f.k}">${lab}<input id="in-${f.k}" data-k="${f.k}" type="text" autocomplete="off" style="font-size:18px" value="${esc(o[f.k])}"></label>`;
+  return `<label class="fld${f.wide?" wide":""}" data-f="${f.k}">${lab}<input id="in-${f.k}" data-k="${f.k}" inputmode="decimal" autocomplete="off" value="${esc(o[f.k])}"></label>`;
+}
+function rowsHTML(f,o){const rows=o[f.k]||[];return `<div class="rh"><span>Longueur <em>mm</em></span><span>Qté</span><span></span></div>${rows.map((r,i)=>`<div class="rw"><input class="inp" aria-label="Longueur pièce ${i+1}" inputmode="decimal" data-row="${f.k}" data-i="${i}" data-c="0" value="${esc(r[0])}"><input class="inp" aria-label="Quantité pièce ${i+1}" inputmode="numeric" data-row="${f.k}" data-i="${i}" data-c="1" value="${esc(r[1])}"><button type="button" data-delrow="${f.k}" data-i="${i}" aria-label="Retirer la pièce ${i+1}">×</button></div>`).join("")}<button type="button" class="btn" data-addrow="${f.k}">+ Ajouter une pièce</button>`;}
+
+function renderTool(t){
+  app.onclick=null;app.classList.remove("tool");
+  const isFav=favs().includes(t.id);
+  topbar.innerHTML=`<a class="back" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>Outils</a><div class="sp"></div><button class="iconbtn" id="favBtn" aria-pressed="${isFav}" aria-label="Favori"><svg viewBox="0 0 24 24" width="20" height="20" fill="${isFav?"currentColor":"none"}" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg></button>${themeBtn()}`;
+  document.getElementById("favBtn").addEventListener("click",()=>{let f=favs();f=f.includes(t.id)?f.filter(x=>x!==t.id):f.concat(t.id);ls.set("cs-fav",f);const on=f.includes(t.id),b=document.getElementById("favBtn");b.setAttribute("aria-pressed",on);b.querySelector("svg").setAttribute("fill",on?"currentColor":"none");toast(on?"Ajouté aux favoris.":"Retiré des favoris.");});
+  const o=rawVals(t);
+  app.classList.add("tool");
+  app.innerHTML=`<div class="tool-head th" style="--cat:${CATCOL[t.cat]}"><span class="ib">${ico(t.id)}</span><div><h1>${esc(t.name)}</h1><p class="lede" style="margin-top:2px">${esc(t.desc)}</p></div></div>
+  <div class="drw" id="drw" hidden></div>
+  ${t.inputs.length?`<form class="card fields" id="form" autocomplete="off">${t.inputs.map(f=>fieldHTML(f,o)).join("")}</form>`:""}
+  <div id="res"></div><div id="extra"></div>
+  ${t.inputs.length?`<details class="card save" id="saveD"><summary>Enregistrer dans un chantier</summary><div id="save" style="margin-top:12px"></div></details>`:""}
+  <div class="rbar" id="rbar" hidden><div class="in"><button type="button" id="rbarBtn"></button></div></div>`;
+  document.getElementById("rbarBtn").addEventListener("click",()=>{const r=document.getElementById("res");if(r)r.scrollIntoView({behavior:"smooth",block:"start"});});
+  const form=document.getElementById("form");
+  if(form){
+    form.addEventListener("submit",e=>e.preventDefault());
+    form.addEventListener("input",e=>{const el=e.target;const oo=rawVals(t);
+      if(el.dataset.row){oo[el.dataset.row][+el.dataset.i][+el.dataset.c]=el.value;}else if(el.dataset.k){oo[el.dataset.k]=el.value;}
+      persistVals();refresh(t);LAST.dirty=true;});
+    form.addEventListener("change",e=>{const el=e.target;if(el.tagName==="SELECT"){rawVals(t)[el.dataset.k]=el.value;persistVals();refresh(t);LAST.dirty=true;}});
+    form.addEventListener("click",e=>{const add=e.target.closest("[data-addrow]"),del=e.target.closest("[data-delrow]");const oo=rawVals(t);
+      if(add){const k=add.dataset.addrow;oo[k].push(["",""]);document.getElementById("rows-"+k).innerHTML=rowsHTML(t.inputs.find(f=>f.k===k),oo);const ins=document.querySelectorAll(`[data-row="${k}"][data-c="0"]`);ins[ins.length-1].focus();persistVals();refresh(t);}
+      if(del){const k=del.dataset.delrow;oo[k].splice(+del.dataset.i,1);document.getElementById("rows-"+k).innerHTML=rowsHTML(t.inputs.find(f=>f.k===k),oo);persistVals();refresh(t);}});
+  }
+  document.getElementById("extra").addEventListener("click",e=>{const b=e.target.closest('[data-act="timer"]');if(b)toggleTimer(b);});
+  refresh(t); renderSave(t);
+}
+function refresh(t){
+  const v=getV(t);
+  t.inputs.forEach(f=>{const el=document.querySelector(`[data-f="${f.k}"]`);if(el)el.hidden=f.show?!f.show(v):false;});
+  let r; try{r=t.calc(v)||{};}catch(e){console.error(e);r={err:"Calcul impossible avec ces valeurs."};}
+  LAST={t,r,v,dirty:!!(LAST&&LAST.t===t&&LAST.dirty)};
+  const drw=document.getElementById("drw"); drw.innerHTML=r.svg||""; drw.hidden=!r.svg||!!r.err;
+  const res=document.getElementById("res");
+  const rb=document.getElementById("rbar"),bigs=(r.res||[]).filter(x=>x.big);
+  if(rb){rb.hidden=!!r.err||!bigs.length;if(bigs.length){const x=bigs[0];document.getElementById("rbarBtn").innerHTML=`<span class="l">${esc(x.l)}</span><span class="v">${esc(x.v)}${x.u?`<small>${esc(x.u)}</small>`:""}</span>`;}}
+  if(r.err){res.innerHTML=`<div class="msg err" role="alert">${esc(r.err)}</div>`;document.getElementById("extra").innerHTML="";return;}
+  const big=(r.res||[]).filter(x=>x.big), rest=(r.res||[]).filter(x=>!x.big);
+  res.innerHTML=(big.length?`<div class="tiles" style="margin-top:12px">${big.map(x=>`<div class="tile"><div class="l">${esc(x.l)}</div><div class="v">${esc(x.v)}${x.u?`<small>${esc(x.u)}</small>`:""}</div></div>`).join("")}</div>`:"")
+    +(rest.length?`<div class="card"><dl class="rlist">${rest.map(x=>`<div><dt>${esc(x.l)}</dt><dd>${esc(x.v)}${x.u?` <small>${esc(x.u)}</small>`:""}</dd></div>`).join("")}</dl></div>`:"")
+    +(r.warn||[]).map(w=>`<div class="msg warn">${esc(w)}</div>`).join("")
+    +((r.notes||[]).length?`<ul class="notes">${r.notes.map(n=>`<li>${esc(n)}</li>`).join("")}</ul>`:"");
+  document.getElementById("extra").innerHTML=r.extra||"";
+  if(r.extra&&TIMER.end>Date.now()) timerTick();
+}
+function renderSave(t){
+  const box=document.getElementById("save"); if(!box) return;
+  const jobs=Store.jobs;
+  if(!jobs.length){box.innerHTML=`<div class="row"><input class="inp" id="newJob" placeholder="Nom du chantier (ex. Garde-corps Dupont)" aria-label="Nom du nouveau chantier"><input class="inp" id="saveNote" placeholder="Repère (facultatif)" aria-label="Repère"></div><button class="btn primary" id="saveBtn" style="width:100%">Créer le chantier et enregistrer</button><p class="savemsg" id="saveMsg" role="status"></p>`;}
+  else{const act=Store.get(Store.active)?Store.active:jobs[0].id;
+    box.innerHTML=`<div class="row"><select class="inp" id="jobSel" aria-label="Chantier">${jobs.map(j=>`<option value="${esc(j.id)}"${j.id===act?" selected":""}>${esc(j.name)}</option>`).join("")}<option value="__new">+ Nouveau chantier…</option></select><input class="inp" id="newJob" placeholder="Nom du nouveau chantier" aria-label="Nom du nouveau chantier" hidden><input class="inp" id="saveNote" placeholder="Repère (facultatif, ex. palier haut)" aria-label="Repère"></div><button class="btn primary" id="saveBtn" style="width:100%">Enregistrer ce calcul</button><p class="savemsg" id="saveMsg" role="status"></p>`;
+    const sel=document.getElementById("jobSel");sel.addEventListener("change",()=>{document.getElementById("newJob").hidden=sel.value!=="__new";if(sel.value!=="__new"){Store.active=sel.value;Store.saveLocal();}});}
+  document.getElementById("saveBtn").addEventListener("click",()=>{
+    if(!LAST||LAST.r.err){toast("Corrige d'abord les valeurs.");return;}
+    const sel=document.getElementById("jobSel"); let job;
+    if(!sel||sel.value==="__new"){const nm=document.getElementById("newJob").value.trim();if(!nm){toast("Donne un nom au chantier.");document.getElementById("newJob").focus();return;}job=createJob(nm);}
+    else job=Store.get(sel.value);
+    const inputs=buildInputs(t,rawVals(t));
+    const item={id:newId(),tool:t.id,toolName:t.name,date:Date.now(),note:document.getElementById("saveNote").value.trim().slice(0,120),inputs,results:(LAST.r.res||[]).map(x=>[x.l,x.v,x.u||""])};
+    job=JSON.parse(JSON.stringify(job)); job.items.unshift(item); Store.active=job.id; Store.put(job);
+    renderSave(t); const m=document.getElementById("saveMsg"); if(m) m.textContent=`Enregistré dans « ${job.name} ».`;
+  });
+}
+
+function buildInputs(t,o){const v={};t.inputs.forEach(f=>{v[f.k]=f.t==="n"?parseNum(o[f.k]):o[f.k];});
+  const inputs=t.inputs.filter(f=>f.t!=="rows"&&(!f.show||f.show(v))&&String(o[f.k]==null?"":o[f.k]).trim()!=="").map(f=>[f.l,f.t==="s"?(f.opts.find(x=>String(x[0])===String(o[f.k]))||["",o[f.k]])[1]:String(o[f.k]),f.u||""]);
+  t.inputs.filter(f=>f.t==="rows").forEach(f=>{inputs.push([f.l,(o[f.k]||[]).filter(r=>String(r[0]).trim()).map(r=>`${r[0]} × ${r[1]}`).join(", "),""]);});return inputs;}
+/* ---------- historique & favoris ---------- */
+let HIST=ls.get("cs-hist",[]);
+function pushHist(){if(!LAST||!LAST.dirty||!LAST.r||LAST.r.err||!(LAST.r.res||[]).length)return;const t=LAST.t;
+  HIST.unshift({id:newId(),tool:t.id,toolName:t.name,date:Date.now(),raw:JSON.parse(JSON.stringify(rawVals(t))),inputs:buildInputs(t,rawVals(t)),results:(LAST.r.res||[]).map(x=>[x.l,x.v,x.u||""])});
+  HIST=HIST.slice(0,60);ls.set("cs-hist",HIST);LAST.dirty=false;}
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden")pushHist();});
+const favs=()=>ls.get("cs-fav",[]);
+function renderHistory(){
+  app.onclick=null;app.classList.remove("tool");
+  topbar.innerHTML=`<a class="back" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>Outils</a><div class="sp"></div>${themeBtn()}`;
+  const act=Store.get(Store.active);
+  app.innerHTML=`<div class="tool-head"><h1>Historique</h1><p class="lede">Tes ${HIST.length} derniers calculs, gardés sur cet appareil.${act?` Chantier actif : ${esc(act.name)}.`:""}</p></div>
+  ${HIST.length?HIST.map(h=>`<div class="card"><div class="item-h"><b>${esc(h.toolName)}</b><time>${new Date(h.date).toLocaleString("fr-BE",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"})}</time></div><div class="kv lede">${h.results.slice(0,4).map(r=>`${esc(r[0])} <strong style="color:var(--ink)">${esc(r[1])}${r[2]?" "+esc(r[2]):""}</strong>`).join(" · ")}</div><div class="actions"><button class="btn small" data-h="open" data-id="${esc(h.id)}">Rouvrir</button>${act?`<button class="btn small" data-h="save" data-id="${esc(h.id)}">Ajouter à « ${esc(act.name)} »</button>`:""}</div></div>`).join("")+`<div class="actions" style="margin-top:14px"><button class="btn small danger" data-h="clear">Effacer l'historique</button></div>`:`<p class="empty">Rien pour l'instant. Chaque calcul que tu fais s'ajoute ici quand tu quittes l'outil.</p>`}`;
+  let conf=false;
+  app.onclick=e=>{const b=e.target.closest("[data-h]");if(!b)return;const h=HIST.find(x=>x.id===b.dataset.id);
+    if(b.dataset.h==="open"&&h){VALS[h.tool]=JSON.parse(JSON.stringify(h.raw));ls.set("cs-vals",VALS);location.hash=h.tool;}
+    else if(b.dataset.h==="save"&&h&&act){const j=JSON.parse(JSON.stringify(Store.get(Store.active)));j.items.unshift({id:newId(),tool:h.tool,toolName:h.toolName,date:h.date,note:"",inputs:h.inputs||[],results:h.results});Store.put(j);toast(`Ajouté à « ${j.name} ».`);}
+    else if(b.dataset.h==="clear"){if(!conf){conf=true;b.textContent="Confirmer";return;}HIST=[];ls.set("cs-hist",HIST);renderHistory();}};
+}
+function fmtDate(ts){try{return new Date(ts).toLocaleDateString("fr-BE",{day:"2-digit",month:"2-digit",year:"numeric"});}catch(e){return "";}}
+function renderJobs(){
+  app.classList.remove("tool");
+  topbar.innerHTML=`<div class="brand">Chantiers</div><div class="sp"></div>${themeBtn()}`;
+  const jobs=Store.jobs;
+  app.innerHTML=`<div class="tool-head"><p class="lede">Enregistrés dans ce téléphone. Fais une sauvegarde (.json) de temps en temps : elle sert aussi à passer sur un autre téléphone.</p></div>
+  <div class="card"><h3>Nouveau chantier</h3><div class="save"><div class="row"><input class="inp" id="jn" placeholder="Nom (ex. Garde-corps rue Haute)" aria-label="Nom du chantier"></div></div><button class="btn primary" id="jnBtn" style="width:100%">Créer</button></div>
+  <div id="jl">${jobs.length?jobs.map(jobHTML).join(""):`<p class="empty">Aucun chantier pour l'instant. Crée-en un, puis enregistre tes calculs depuis chaque outil.</p>`}</div>
+  <div class="card"><h3>Sauvegarde</h3><p class="lede">Un fichier avec tous tes chantiers, à garder ou à remettre sur un autre téléphone.</p><div class="actions"><button class="btn" data-act="exportjson"${jobs.length?"":" disabled"}>Exporter (.json)</button><label class="btn" for="imp">Importer…</label><input type="file" id="imp" accept=".json,application/json" hidden></div></div>`;
+  document.getElementById("jnBtn").addEventListener("click",()=>{const nm=document.getElementById("jn").value.trim();if(!nm){toast("Donne un nom au chantier.");return;}const j=createJob(nm);state.openJob=j.id;renderJobs();});
+  document.getElementById("imp").addEventListener("change",async e=>{const f=e.target.files[0];if(!f)return;try{const data=JSON.parse(await f.text());const list=Array.isArray(data)?data:data.jobs;if(!Array.isArray(list))throw 0;let n=0;list.forEach(j=>{if(j&&j.id&&Array.isArray(j.items)){Store.put(j);n++;}});toast(n+" chantier(s) importé(s).");renderJobs();}catch(err){toast("Fichier non reconnu.");}});
+  app.onclick=jobsClick;
+}
+function jobHTML(j){
+  const open=state.openJob===j.id;
+  return `<div class="card job"><div class="job-h"><b>${esc(j.name)}</b>${Store.active===j.id?`<span class="pill on">Actif</span>`:""}</div>
+  <div class="lede">${j.items.length} calcul${j.items.length>1?"s":""} · créé le ${fmtDate(j.created)}</div>
+  <div class="actions"><button class="btn small" data-act="toggle" data-id="${esc(j.id)}" aria-expanded="${open}">${open?"Fermer":"Ouvrir"}</button>${Store.active!==j.id?`<button class="btn small" data-act="activate" data-id="${esc(j.id)}">Rendre actif</button>`:""}</div>
+  ${open?`<div style="margin-top:8px">${j.items.length?j.items.map(it=>itemHTML(j,it)).join(""):`<p class="lede">Rien d'enregistré. Ouvre un outil et touche « Enregistrer ce calcul ».</p>`}
+  ${Store.isos.filter(x=>x.job===j.id).length?`<div class="item"><b>Plans iso</b><div class="kv">${Store.isos.filter(x=>x.job===j.id).map(x=>`<a href="#iso-${esc(x.id)}" style="color:var(--ink);font-weight:600">${esc(x.name)}</a>`).join(" · ")}</div></div>`:""}
+  <div class="actions"><button class="btn small" data-act="report" data-id="${esc(j.id)}"${j.items.length?"":" disabled"}>Télécharger le rapport</button><button class="btn small" data-act="copy" data-id="${esc(j.id)}"${j.items.length?"":" disabled"}>Copier le texte</button><button class="btn small" data-act="rename" data-id="${esc(j.id)}">Renommer</button><button class="btn small danger" data-act="deljob" data-id="${esc(j.id)}">${state.confirm==="job"+j.id?"Confirmer la suppression":"Supprimer"}</button></div>
+  <div id="ren-${esc(j.id)}"></div></div>`:""}</div>`;
+}
+function itemHTML(j,it){
+  const main=it.results.slice(0,4).map(r=>`${esc(r[0])} <strong>${esc(r[1])}${r[2]?" "+esc(r[2]):""}</strong>`).join(" · ");
+  return `<div class="item"><div class="item-h"><b><a href="#${esc(it.tool)}" style="color:inherit">${esc(it.toolName)}</a>${it.note?` — ${esc(it.note)}`:""}</b><time>${fmtDate(it.date)}</time></div><div class="kv">${main}</div>
+  <details><summary class="lede" style="cursor:pointer;margin-top:4px">Détail</summary><dl class="rlist">${it.inputs.concat(it.results.slice(4)).map(r=>`<div><dt>${esc(r[0])}</dt><dd>${esc(r[1])}${r[2]?` <small>${esc(r[2])}</small>`:""}</dd></div>`).join("")}</dl></details>
+  <div class="actions" style="margin-top:6px"><button class="btn small danger" data-act="delitem" data-id="${esc(j.id)}" data-item="${esc(it.id)}">${state.confirm==="item"+it.id?"Confirmer":"Retirer"}</button></div></div>`;
+}
+function jobText(j){
+  let s=`CHANTIER : ${j.name}\n`;
+  j.items.slice().reverse().forEach(it=>{s+=`\n— ${it.toolName}${it.note?" ("+it.note+")":""} · ${fmtDate(it.date)}\n`;it.inputs.forEach(r=>{s+=`  ${r[0]} : ${r[1]}${r[2]?" "+r[2]:""}\n`;});s+=`  ⇒\n`;it.results.forEach(r=>{s+=`  ${r[0]} : ${r[1]}${r[2]?" "+r[2]:""}\n`;});});
+  return s;
+}
+function jobReport(j){
+  const sec=j.items.slice().reverse().map(it=>`<section><h2>${esc(it.toolName)}${it.note?` <span>— ${esc(it.note)}</span>`:""}</h2><p class="d">${fmtDate(it.date)}</p><table><tbody>${it.inputs.map(r=>`<tr><td>${esc(r[0])}</td><td>${esc(r[1])} ${esc(r[2])}</td></tr>`).join("")}</tbody></table><table class="r"><tbody>${it.results.map(r=>`<tr><td>${esc(r[0])}</td><td><b>${esc(r[1])} ${esc(r[2])}</b></td></tr>`).join("")}</tbody></table></section>`).join("");
+  return `<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${esc(j.name)} — calculs</title><style>body{font-family:Arial,Helvetica,sans-serif;color:#1a2026;max-width:760px;margin:24px auto;padding:0 16px}h1{font-size:24px;border-bottom:3px solid #b9500c;padding-bottom:6px}h2{font-size:17px;margin:22px 0 2px}h2 span{font-weight:normal;color:#5b6670}.d{color:#5b6670;font-size:13px;margin:0 0 6px}table{width:100%;border-collapse:collapse;margin-bottom:6px}td{padding:5px 6px;border-bottom:1px solid #d2d8dd;font-size:14px}td:first-child{color:#5b6670;width:55%}table.r td{background:#f7e6d9}section{page-break-inside:avoid}footer{margin-top:24px;color:#5b6670;font-size:12px}</style></head><body><h1>${esc(j.name)}</h1><p class="d">Calculs du ${fmtDate(j.created)} au ${fmtDate(Date.now())} · ${j.items.length} calcul(s)</p>${sec}<footer>Valeurs indicatives, à vérifier selon les normes applicables.</footer></body></html>`;
+}
+function offerFile(name,data){
+  const ext=name.split(".").pop().toLowerCase(),type={pdf:"application/pdf",svg:"image/svg+xml",json:"application/json",html:"text/html"}[ext]||"text/plain";
+  const blob=data instanceof Blob?data:new Blob([data],{type});
+  try{const file=new File([blob],name,{type});if(navigator.canShare&&navigator.canShare({files:[file]})){navigator.share({files:[file],title:name}).catch(()=>{});return;}}catch(e){}
+  try{const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(url);a.remove();},4000);}catch(e){toast("Le fichier n'a pas pu être créé.");}
+}
+function safeName(s){return (s||"chantier").normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-zA-Z0-9 _-]/g,"").trim().replace(/\s+/g,"-").slice(0,60)||"chantier";}
+function jobsClick(e){
+  const b=e.target.closest("[data-act]"); if(!b) return;
+  const act=b.dataset.act, j=Store.get(b.dataset.id);
+  if(act==="toggle"){state.openJob=state.openJob===j.id?null:j.id;state.confirm=null;renderJobs();}
+  else if(act==="activate"){Store.active=j.id;Store.saveLocal();renderJobs();}
+  else if(act==="deljob"){if(state.confirm==="job"+j.id){Store.del(j.id);state.confirm=null;state.openJob=null;toast("Chantier supprimé.");}else state.confirm="job"+j.id;renderJobs();}
+  else if(act==="delitem"){const id=b.dataset.item;if(state.confirm==="item"+id){const c=JSON.parse(JSON.stringify(j));c.items=c.items.filter(x=>x.id!==id);Store.put(c);state.confirm=null;}else state.confirm="item"+id;renderJobs();}
+  else if(act==="copy"){const txt=jobText(j);(navigator.clipboard?navigator.clipboard.writeText(txt):Promise.reject()).then(()=>toast("Texte copié."),()=>{const box=document.getElementById("ren-"+j.id);box.innerHTML=`<textarea class="inp" style="height:180px;font-size:14px;padding:10px;margin-top:8px" readonly aria-label="Texte du chantier">${esc(txt)}</textarea>`;box.querySelector("textarea").select();});}
+  else if(act==="report"){offerFile(safeName(j.name)+".html",jobReport(j));}
+  else if(act==="rename"){const box=document.getElementById("ren-"+j.id);box.innerHTML=`<div class="save"><div class="row"><input class="inp" id="rn" value="${esc(j.name)}" aria-label="Nouveau nom"></div></div><button class="btn small primary" data-act="renok" data-id="${esc(j.id)}">Valider</button>`;box.querySelector("input").focus();}
+  else if(act==="renok"){const nm=document.getElementById("rn").value.trim();if(nm){const c=JSON.parse(JSON.stringify(j));c.name=nm.slice(0,80);Store.put(c);}renderJobs();}
+  else if(act==="exportjson"){offerFile("carnet-soudeur-sauvegarde.json",JSON.stringify({app:"Carnet Soudeur",date:new Date().toISOString(),jobs:Store.jobs},null,1));}
+}
+
+/* ===================== PLANS ISO ===================== */
+const ISOVIEW={yaw:45,pitch:35.264};
+const DIRS={E:[1,0,0],O:[-1,0,0],N:[0,1,0],S:[0,-1,0],H:[0,0,1],B:[0,0,-1]};
+const DIRN={E:"Est",O:"Ouest",N:"Nord",S:"Sud",H:"Haut",B:"Bas"};
+const PERP={E:"NSHB",O:"NSHB",N:"EOHB",S:"EOHB",H:"NSEO",B:"NSEO"};
+const ACCN={vanne:"Vanne",clapet:"Clapet anti-retour",bride:"Paire de brides",reduc:"Réduction",filtre:"Filtre"};
+const MATN={acier:"acier",inox:"inox",alu:"alu"};
+const v3={add:(p,u,t)=>[p[0]+u[0]*t,p[1]+u[1]*t,p[2]+u[2]*t],dot:(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2]};
+function segVec(s){const a=DIRS[s.d]||DIRS.E;if(!s.d2)return a.slice();const b=DIRS[s.d2],k=Math.SQRT1_2;return [(a[0]+b[0])*k,(a[1]+b[1])*k,(a[2]+b[2])*k];}
+function segName(s){return s.d2?`${DIRN[s.d]} + ${DIRN[s.d2]} à 45°`:DIRN[s.d];}
+function project(p,v){const ps=rad(v.yaw),ph=rad(v.pitch);return [p[0]*Math.cos(ps)+p[1]*Math.sin(ps),(-p[0]*Math.sin(ps)+p[1]*Math.cos(ps))*Math.sin(ph)+p[2]*Math.cos(ph)];}
+function newIso(name){return {id:newId(),kind:"iso",name:name||"Ligne",job:Store.active||null,D:60.3,R:76,tee:"te",C:64,gap:2,mat:"acier",page:"A4",nums:true,dims:true,created:Date.now(),segs:[]};}
+function exampleIso(){const i=newIso("Exemple — ligne L-01");i.segs=[{d:"E",L:1500,f:0},{d:"N",L:800,f:1,acc:"vanne",accL:150},{d:"H",L:600,f:2},{d:"E",L:1200,f:3},{d:"S",L:500,f:1}];return i;}
+
+/* ---- analyse : nœuds, pièces à couper, soudures, nomenclature ---- */
+function analyseIso(iso){
+  const segs=iso.segs||[],P=[[0,0,0]],V=[];
+  segs.forEach((s,i)=>{const v=segVec(s);V.push(v);P[i+1]=v3.add(P[s.f]||[0,0,0],v,s.L);});
+  const inc=P.map(()=>[]);
+  segs.forEach((s,i)=>{inc[s.f].push({i,end:0,u:V[i]});inc[i+1].push({i,end:1,u:V[i].map(c=>-c)});});
+  const R=iso.R>0?iso.R:0,Ct=iso.C>0?iso.C:0,gap=iso.gap>0?iso.gap:0,piq=iso.tee==="piq",D=iso.D>0?iso.D:0;
+  const warn=[];
+  const nodes=inc.map(list=>{const d=list.length;
+    if(d===0)return {type:"vide",list}; if(d===1)return {type:"libre",list};
+    if(d===2){const th=180-deg(Math.acos(clamp(v3.dot(list[0].u,list[1].u),-1,1)));if(th<0.5)return {type:"droit",list};if(th>170)warn.push("Un tronçon revient sur le précédent (demi-tour) : vérifie les directions.");return {type:"coude",th,list};}
+    if(d===3){for(let p=0;p<3;p++)for(let q=p+1;q<3;q++)if(v3.dot(list[p].u,list[q].u)<-0.999)return {type:"te",run:[p,q],br:3-p-q,list};return {type:"te",run:null,list};}
+    return {type:"croix",list};});
+  const info=(n,ix)=>{const nd=nodes[n];
+    if(nd.type==="libre")return {take:0,g:0,kind:"libre",note:"bout libre"};
+    if(nd.type==="droit")return {take:0,g:0,merge:true};
+    if(nd.type==="coude")return R>0?{take:R*Math.tan(rad(Math.min(nd.th,170)/2)),g:gap,kind:"coude",note:`coude ${fmt(nd.th,0)}°`}:{take:0,g:gap/2,kind:"onglet",note:`onglet ${fmt(nd.th/2,1)}°`};
+    if(nd.type==="te"&&piq&&nd.run){if(ix===nd.br)return {take:0,g:0,kind:"piquage",note:"gueule de loup"};return {take:0,g:0,merge:true};}
+    return {take:Ct,g:gap,kind:"te",note:nd.type==="croix"?"croix":"té"};};
+  const subs=[],segSubs=[];
+  segs.forEach((s,i)=>{
+    const e0={node:s.f,ix:nodes[s.f].list.findIndex(e=>e.i===i&&e.end===0)},e1={node:i+1,ix:nodes[i+1].list.findIndex(e=>e.i===i&&e.end===1)};
+    e0.inf=info(e0.node,e0.ix);e1.inf=info(e1.node,e1.ix);
+    if(s.acc){const raw=(s.L-(s.accL||0))/2,ea={inf:{take:0,g:gap,kind:"acc",note:(ACCN[s.acc]||"accessoire").toLowerCase()}};segSubs[i]=[subs.length,subs.length+1];subs.push({i,raw,ends:[e0,ea]},{i,raw,ends:[ea,e1]});}
+    else{segSubs[i]=[subs.length,subs.length];subs.push({i,raw:s.L,ends:[e0,e1]});}
+  });
+  const par=subs.map((_,k)=>k),find=k=>par[k]===k?k:(par[k]=find(par[k])),uni=(a,b)=>{a=find(a);b=find(b);if(a!==b)par[Math.max(a,b)]=Math.min(a,b);};
+  nodes.forEach(nd=>{const pair=nd.type==="droit"?[0,1]:(nd.type==="te"&&piq&&nd.run)?nd.run:null;if(!pair)return;
+    const sb=pair.map(ix=>{const e=nd.list[ix];return e.end===0?segSubs[e.i][0]:segSubs[e.i][1];});uni(sb[0],sb[1]);});
+  const groups={};subs.forEach((sb,k)=>{const r=find(k);(groups[r]=groups[r]||[]).push(k);});
+  const pieces=Object.keys(groups).map(r=>{const ks=groups[r];let len=0;const notes=[],si=new Set();
+    ks.forEach(k=>{const sb=subs[k];len+=sb.raw;si.add(sb.i);sb.ends.forEach(e=>{if(e.inf.merge)return;len-=e.inf.take+e.inf.g;notes.push(e.inf.note);});});
+    return {len,notes,segs:[...si].sort((a,b)=>a-b),first:Math.min(...ks)};}).sort((a,b)=>a.first-b.first);
+  pieces.forEach((p,k)=>{p.rep="P"+(k+1);});
+  const welds=[],done=new Set();
+  const nodeW=n=>{if(done.has(n))return;done.add(n);const nd=nodes[n],p=P[n];
+    if(nd.type==="coude"){if(R>0)nd.list.forEach(e=>welds.push({p:v3.add(p,e.u,R*Math.tan(rad(Math.min(nd.th,170)/2))),seg:e.i,dir:e.u}));else welds.push({p,seg:nd.list[0].i});}
+    else if(nd.type==="te"||nd.type==="croix"){if(piq&&nd.type==="te"&&nd.run){const e=nd.list[nd.br];welds.push({p:v3.add(p,e.u,D/2),seg:e.i,dir:e.u});}else nd.list.forEach(e=>welds.push({p:v3.add(p,e.u,Ct),seg:e.i,dir:e.u}));}};
+  segs.forEach((s,i)=>{nodeW(s.f);if(s.acc){const m=v3.add(P[s.f],V[i],s.L/2),h=(s.accL||0)/2;welds.push({p:v3.add(m,V[i],-h),seg:i,dir:V[i].map(c=>-c)},{p:v3.add(m,V[i],h),seg:i,dir:V[i]});}nodeW(i+1);});
+  welds.forEach((w,k)=>w.n=k+1);
+  const tot=pieces.reduce((a,p)=>a+Math.max(0,p.len),0),bom=[];
+  if(segs.length) bom.push([`Tube Ø ${fmt(D,1)} ${MATN[iso.mat]||""}`.trim(),`${fmt(tot/1000,2)} m`]);
+  const el={};nodes.forEach(nd=>{if(nd.type==="coude"){const k=Math.round(nd.th*10)/10;el[k]=(el[k]||0)+1;}});
+  Object.keys(el).sort((a,b)=>b-a).forEach(k=>bom.push([R>0?`Coude ${fmt(+k,1)}° R ${fmt(R,0)}`:`Angle ${fmt(+k,1)}° en onglet (coupes à ${fmt(k/2,1)}°)`,String(el[k])]));
+  const nte=nodes.filter(nd=>nd.type==="te").length,ncx=nodes.filter(nd=>nd.type==="croix").length;
+  if(nte) bom.push([piq?"Piquage direct (gueule de loup)":"Té égal",String(nte)]);
+  if(ncx) bom.push(["Croix",String(ncx)]);
+  const ac={};segs.forEach(s=>{if(s.acc)ac[s.acc]=(ac[s.acc]||0)+1;});Object.keys(ac).forEach(k=>bom.push([ACCN[k],String(ac[k])]));
+  if(welds.length) bom.push(["Soudures",String(welds.length)]);
+  pieces.forEach(p=>{if(p.len<0)warn.push(`${p.rep} sort négative : un tronçon est trop court pour ses raccords.`);});
+  if(nodes.some(nd=>nd.type==="te"&&!nd.run))warn.push("Un té n'est pas sur une ligne droite : vérifie les directions.");
+  if(nodes.some(nd=>nd.type==="croix"))warn.push("Quatre tronçons ou plus se rejoignent sur un même point (croix).");
+  return {P,V,nodes,pieces,welds,bom,warn,tot};
+}
+
+/* ---- dessin générique (écran SVG ou PDF) ---- */
+function drawIso(G,iso,A,o){
+  const k=o.k,view=o.view||ISOVIEW,segs=iso.segs||[];
+  const Q=A.P.map(p=>project(p,view));
+  const bb=bbox(Q),bw=bb[2]-bb[0],bh=bb[3]-bb[1],pad=o.pad*k;
+  let s0=Math.min((o.W-2*pad)/Math.max(bw,1e-6),(o.H-2*pad)/Math.max(bh,1e-6));
+  if(!isFinite(s0)||(bw<1e-6&&bh<1e-6)) s0=1;
+  const s=s0*(o.zoom||1),cx=(bb[0]+bb[2])/2,cy=(bb[1]+bb[3])/2,pan=o.pan||[0,0];
+  const T=q=>[o.x0+o.W/2+(q[0]-cx)*s+pan[0],o.y0+o.H/2-(q[1]-cy)*s+pan[1]];
+  const S=Q.map(T),C=S.reduce((a,p)=>[a[0]+p[0]/S.length,a[1]+p[1]/S.length],[0,0]);
+  const geo=segs.map((sg,i)=>{const a=S[sg.f],b=S[i+1],L=Math.hypot(b[0]-a[0],b[1]-a[1]);const u=L>1e-9?[(b[0]-a[0])/L,(b[1]-a[1])/L]:[1,0];let n=[u[1],-u[0]];const m=[(a[0]+b[0])/2,(a[1]+b[1])/2];const side=(m[0]-C[0])*n[0]+(m[1]-C[1])*n[1];if(side<-1e-6||(Math.abs(side)<=1e-6&&n[1]>0))n=[-n[0],-n[1]];return {a,b,L,u,n,m};});
+  const at=(p,u,t,n,w)=>[p[0]+u[0]*t+(n?n[0]*w:0),p[1]+u[1]*t+(n?n[1]*w:0)];
+  // nord
+  if(o.north!==false){const q=project([0,1,0],view),ql=Math.hypot(q[0],q[1]);if(ql>0.08){const d=[q[0]/ql,-q[1]/ql],b=[o.x0+24*k,o.y0+28*k],tp=at(b,d,18*k),nn=[d[1],-d[0]];
+    G.line(b,tp,"north");G.poly([tp,at(tp,d,-6*k,nn,3*k),at(tp,d,-6*k,nn,-3*k)],"north","muted");G.text(at(tp,d,8*k),"N",10*k,"middle",true,"muted");}}
+  // tubes
+  segs.forEach((sg,i)=>G.line(geo[i].a,geo[i].b,o.sel===i?"pipeSel":"pipe",i));
+  // accessoires
+  segs.forEach((sg,i)=>{if(!sg.acc)return;const g=geo[i],M=g.m,u=g.u,n=[u[1],-u[0]],q=(t,w)=>at(M,u,t*k,n,w*k);
+    if(sg.acc==="vanne"||sg.acc==="clapet"){G.poly([q(-9,6),q(-9,-6),q(9,6),q(9,-6)],"sym","paper");if(sg.acc==="clapet")G.poly([q(0,0),q(9,6),q(9,-6)],"sym","ink");}
+    else if(sg.acc==="bride"){G.poly([q(-4,7),q(4,7),q(4,-7),q(-4,-7)],"sym","paper");G.line(q(-2,7),q(-2,-7),"sym");G.line(q(2,7),q(2,-7),"sym");}
+    else if(sg.acc==="reduc"){G.poly([q(-8,7),q(8,4),q(8,-4),q(-8,-7)],"sym","paper");}
+    else if(sg.acc==="filtre"){G.poly([q(-8,6),q(8,6),q(8,-6),q(-8,-6)],"sym","paper");G.line(q(-8,6),q(8,-6),"sym");}});
+  // cotes
+  if(o.dims!==false) segs.forEach((sg,i)=>{const g=geo[i];if(g.L<4*k)return;const off=17*k,n=g.n,u=g.u,A2=at(g.a,[0,0],0,n,off),B2=at(g.b,[0,0],0,n,off);
+    G.line(at(g.a,[0,0],0,n,3*k),at(A2,[0,0],0,n,3*k),"ext");G.line(at(g.b,[0,0],0,n,3*k),at(B2,[0,0],0,n,3*k),"ext");G.line(A2,B2,"dim");
+    const tk=[(u[0]+n[0])*2.4*k,(u[1]+n[1])*2.4*k];[A2,B2].forEach(p=>G.line([p[0]-tk[0],p[1]-tk[1]],[p[0]+tk[0],p[1]+tk[1]],"dim"));
+    const anc=Math.abs(n[0])>0.8?(n[0]>0?"start":"end"):"middle";G.text(at(g.m,[0,0],0,n,off+(anc==="middle"?8:5)*k),fmt(sg.L,0),11*k,anc,true,"ink");});
+  // repères de tronçon
+  if(o.segnums!==false) segs.forEach((sg,i)=>{const g=geo[i];if(g.L<14*k)return;const p=at(g.m,[0,0],0,g.n,-11*k);G.text(sg.acc?at(p,g.u,-16*k):p,"T"+(i+1),8.5*k,"middle",false,"muted");});
+  // nœuds
+  A.nodes.forEach((nd,j)=>{const p=S[j];if(nd.type==="libre")G.circle(p,3.2*k,"sym","paper");else if(nd.type==="te"||nd.type==="croix")G.circle(p,3*k,"sym","ink");});
+  if(segs.length){const g0=geo[0];G.text(at(S[0],g0.u,-12*k,g0.n,0),"A",11*k,"middle",true,"accent");}
+  if(o.start!=null&&S[o.start]) G.circle(S[o.start],7*k,"start","none");
+  // soudures
+  A.welds.forEach(w=>{const p=T(project(w.p,view)),g=geo[w.seg];G.circle(p,2.3*k,"sym","ink");
+    if(o.nums!==false&&g){let d=[0,0];if(w.dir){const q=T(project(v3.add(w.p,w.dir,1),view)),ql=Math.hypot(q[0]-p[0],q[1]-p[1]);if(ql>1e-9)d=[(q[0]-p[0])/ql,(q[1]-p[1])/ql];}const b=at(p,d,9*k,g.n,-13*k);G.line(at(p,[0,0],0,g.n,-2.5*k),at(b,[0,0],0,g.n,6.5*k),"ext");G.circle(b,6.5*k,"sym","paper");G.text(b,String(w.n),8*k,"middle",true,"ink");}});
+  return {S,geo};
+}
+
+function svgAdapter(){
+  const o=[],hits=[],F=n=>n.toFixed(1),pts=p=>p.map(q=>F(q[0])+","+F(q[1])).join(" ");
+  return {
+    line(a,b,st,seg){o.push(`<line class="i-${st}" x1="${F(a[0])}" y1="${F(a[1])}" x2="${F(b[0])}" y2="${F(b[1])}"/>`);if(seg!=null)hits.push(`<line class="i-hit" data-seg="${seg}" x1="${F(a[0])}" y1="${F(a[1])}" x2="${F(b[0])}" y2="${F(b[1])}"/>`);},
+    poly(p,st,fill){o.push(`<polygon class="i-${st} f-${fill||"none"}" points="${pts(p)}"/>`);},
+    circle(c,r,st,fill){o.push(`<circle class="i-${st} f-${fill||"none"}" cx="${F(c[0])}" cy="${F(c[1])}" r="${F(r)}"/>`);},
+    text(p,str,size,anc,bold,col){o.push(`<text class="i-t${bold?" b":""} c-${col||"ink"}" x="${F(p[0])}" y="${F(p[1])}" font-size="${F(size)}" text-anchor="${anc||"middle"}" dominant-baseline="central">${esc(str)}</text>`);},
+    out(){return o.join("")+hits.join("");}
+  };
+}
+
+/* ---- mini générateur PDF vectoriel (Helvetica, WinAnsi) ---- */
+const HW=[278,278,355,556,556,889,667,191,333,333,389,584,278,333,278,278,556,556,556,556,556,556,556,556,556,556,278,278,584,584,584,556,1015,667,667,722,722,667,611,778,722,278,500,667,556,833,722,778,667,778,722,667,611,722,667,944,667,667,611,278,278,278,469,556,333,556,556,500,556,556,278,556,556,222,222,500,222,833,556,556,556,556,333,500,278,556,500,722,500,500,500,334,260,334,584];
+function hwChar(c){const x=c.charCodeAt(0);if(x>=32&&x<=126)return HW[x-32];const b=c.normalize("NFD")[0];if(b!==c&&b.charCodeAt(0)<127)return hwChar(b);return {"°":400,"Ø":778,"×":584,"²":333,"µ":556,"«":556,"»":556," ":278}[c]||556;}
+function pdfSafe(s){return String(s).replace(/[   ]/g," ").replace(/[—–]/g,"-").replace(/[’‘]/g,"'").replace(/[“”]/g,'"').replace(/≈/g,"~").replace(/…/g,"...").replace(/œ/g,"oe").replace(/[^\x20-\xff]/g,"?");}
+function MiniPDF(wmm,hmm){
+  const K=72/25.4,ops=[],Hp=hmm*K,N=x=>(x*K).toFixed(2),Yp=y=>(Hp-y*K).toFixed(2),c3=c=>c.map(v=>(v/255).toFixed(3)).join(" ");
+  const enc=s=>{let r="";for(const ch of pdfSafe(s)){const x=ch.charCodeAt(0);if(ch==="("||ch===")"||ch==="\\")r+="\\"+ch;else if(x>126)r+="\\"+x.toString(8).padStart(3,"0");else r+=ch;}return r;};
+  const P={
+    width(s,pt,bold){let w=0;for(const ch of pdfSafe(s))w+=hwChar(ch);return w/1000*pt*(bold?1.06:1)/K;},
+    style(lw,stroke,fill){if(lw!=null)ops.push(`${N(lw)} w`);if(stroke)ops.push(`${c3(stroke)} RG`);if(fill)ops.push(`${c3(fill)} rg`);},
+    line(a,b){ops.push(`${N(a[0])} ${Yp(a[1])} m ${N(b[0])} ${Yp(b[1])} l S`);},
+    rect(x,y,w,h,mode){ops.push(`${N(x)} ${Yp(y+h)} ${N(w)} ${N(h)} re ${mode||"S"}`);},
+    poly(p,mode){ops.push(p.map((q,i)=>`${N(q[0])} ${Yp(q[1])} ${i?"l":"m"}`).join(" ")+` h ${mode||"S"}`);},
+    circle(c,r,mode){const k=0.5523*r,[x,y]=c;const pt=(a,b)=>`${N(a)} ${Yp(b)}`;ops.push(`${pt(x+r,y)} m ${pt(x+r,y+k)} ${pt(x+k,y+r)} ${pt(x,y+r)} c ${pt(x-k,y+r)} ${pt(x-r,y+k)} ${pt(x-r,y)} c ${pt(x-r,y-k)} ${pt(x-k,y-r)} ${pt(x,y-r)} c ${pt(x+k,y-r)} ${pt(x+r,y-k)} ${pt(x+r,y)} c h ${mode||"S"}`);},
+    text(str,x,y,pt,o={}){const w=P.width(str,pt,o.bold),xx=o.align==="center"?x-w/2:o.align==="right"?x-w:x;const yy=o.base?y:y+pt/K*0.35;ops.push(`BT /${o.bold?"F2":"F1"} ${pt.toFixed(2)} Tf ${c3(o.color||[20,24,28])} rg ${N(xx)} ${Yp(yy)} Td (${enc(str)}) Tj ET`);},
+    output(){const content=ops.join("\n"),objs=[];
+      objs.push("<< /Type /Catalog /Pages 2 0 R >>");
+      objs.push("<< /Type /Pages /Kids [3 0 R] /Count 1 >>");
+      objs.push(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${N(wmm)} ${N(hmm)}] /Resources << /Font << /F1 5 0 R /F2 6 0 R >> >> /Contents 4 0 R >>`);
+      objs.push(`<< /Length ${content.length} >>\nstream\n${content}\nendstream`);
+      objs.push("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>");
+      objs.push("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>");
+      let out="%PDF-1.4\n";const off=[];objs.forEach((o,i)=>{off.push(out.length);out+=`${i+1} 0 obj\n${o}\nendobj\n`;});
+      const xr=out.length;out+=`xref\n0 ${objs.length+1}\n0000000000 65535 f \n`+off.map(x=>String(x).padStart(10,"0")+" 00000 n \n").join("")+`trailer\n<< /Size ${objs.length+1} /Root 1 0 R >>\nstartxref\n${xr}\n%%EOF`;return out;}
+  };
+  return P;
+}
+function pdfAdapter(P){
+  const INK=[20,24,28],MUT=[105,114,122],ACC=[185,80,12],W=[255,255,255];
+  const ST={pipe:[.55,INK],pipeSel:[.55,INK],dim:[.12,MUT],ext:[.12,MUT],sym:[.25,INK],north:[.25,MUT],start:[.2,ACC]};
+  const fillC={ink:INK,paper:W,muted:MUT,accent:ACC};
+  return {
+    line(a,b,st){const s=ST[st]||ST.sym;P.style(s[0],s[1]);P.line(a,b);},
+    poly(p,st,fill){const s=ST[st]||ST.sym;P.style(s[0],s[1],fillC[fill]||null);P.poly(p,fill&&fill!=="none"?"B":"S");},
+    circle(c,r,st,fill){if(st==="start")return;const s=ST[st]||ST.sym;P.style(s[0],s[1],fillC[fill]||null);P.circle(c,r,fill&&fill!=="none"?"B":"S");},
+    text(p,str,size,anc,bold,col){P.text(str,p[0],p[1],size*2.8346,{align:anc==="start"?"left":anc==="end"?"right":"center",bold,color:col==="muted"?MUT:col==="accent"?ACC:INK});}
+  };
+}
+function isoPDF(iso){
+  const A3=iso.page==="A3",W=A3?420:297,H=A3?297:210,m=10,pw=A3?128:100,k=A3?0.36:0.29;
+  const P=MiniPDF(W,H),A=analyseIso(iso),INK=[20,24,28],MUT=[105,114,122],ACC=[185,80,12];
+  P.style(.5,INK);P.rect(m,m,W-2*m,H-2*m);
+  const px=W-m-pw;P.style(.3,INK);P.line([px,m],[px,H-m]);
+  drawIso(pdfAdapter(P),iso,A,{W:px-m-6,H:H-2*m-6,x0:m+3,y0:m+3,k,view:ISOVIEW,pad:22,nums:iso.nums!==false,dims:iso.dims!==false});
+  const x=px+4,cw=pw-8,fs=A3?8.5:7.2,lh=A3?4.6:3.9,cartH=A3?58:50,ymax=H-m-cartH-4;let y=m+7,cut=false;
+  const head=t=>{P.text(t,x,y,fs+1.8,{bold:true,color:ACC});y+=2;P.style(.3,INK);P.line([x,y],[x+cw,y]);y+=lh;};
+  head("LISTE DE COUPE");
+  P.text("Rep.",x,y,fs,{bold:true,color:MUT});P.text("Long. (mm)",x+30,y,fs,{bold:true,color:MUT,align:"right"});P.text("Tronçons",x+33,y,fs,{bold:true,color:MUT});P.text("Bouts",x+52,y,fs,{bold:true,color:MUT});y+=lh;
+  for(const p of A.pieces){if(y>ymax-lh*6){cut=true;break;}
+    P.text(p.rep,x,y,fs,{bold:true});P.text(fmt(p.len,0),x+30,y,fs,{align:"right",bold:true,color:p.len<0?ACC:INK});P.text(p.segs.map(i=>"T"+(i+1)).join("+"),x+33,y,fs);
+    let nt=p.notes.join(" / ");while(nt.length>4&&P.width(nt,fs*.9)>cw-53)nt=nt.slice(0,-2);if(nt!==p.notes.join(" / "))nt+="…";P.text(nt,x+52,y,fs*.9,{color:MUT});y+=lh;}
+  if(cut){P.text("(suite dans l'application)",x,y,fs,{color:MUT});y+=lh;}
+  y+=lh*.8;head("NOMENCLATURE");
+  for(const r of A.bom){if(y>ymax){P.text("(suite dans l'application)",x,y,fs,{color:MUT});break;}let t=r[0];while(t.length>4&&P.width(t,fs)>cw-22)t=t.slice(0,-2);P.text(t,x,y,fs);P.text(r[1],x+cw,y,fs,{align:"right",bold:true});y+=lh;}
+  if(y<ymax-lh*3){y+=lh*.6;const note=[`Longueurs sur l'axe, écart de soudure ${fmt(iso.gap||0,1)} mm déduit.`];if(!(iso.R>0))note.push("Onglets : longueur prise sur l'axe.");note.forEach(t=>{if(y<ymax){P.text(t,x,y,fs*.85,{color:MUT});y+=lh*.9;}});}
+  const cy=H-m-cartH,job=Store.get(iso.job),rows=[["Plan",iso.name],["Chantier",job?job.name:""],["Tube",`Ø ${fmt(iso.D,1)} ${MATN[iso.mat]||""}`],["Coudes",iso.R>0?`R ${fmt(iso.R,0)} mm`:"Coupe d'onglet"],["Tés",iso.tee==="piq"?"Piquage direct":`Té, axe-bout ${fmt(iso.C,0)} mm`],["Date",fmtDate(Date.now())],["Échelle","Sans échelle"],["Dessiné par",""]];
+  const rh=cartH/rows.length;P.style(.4,INK);P.rect(px,cy,pw,cartH);P.style(.15,MUT);
+  rows.forEach((r,i)=>{const ry=cy+i*rh;if(i)P.line([px,ry],[px+pw,ry]);P.text(r[0],px+3,ry+rh/2,fs*.9,{color:MUT});let v=r[1];while(v.length>4&&P.width(v,fs,true)>pw-30)v=v.slice(0,-2);P.text(v,px+26,ry+rh/2,fs,{bold:i===0});});
+  P.style(.15,MUT);P.line([px+24,cy],[px+24,cy+cartH]);
+  return P.output();
+}
+function isoSVGFile(iso){
+  const A=analyseIso(iso),W=1123,H=794,G=svgAdapter();
+  drawIso(G,iso,A,{W:W-40,H:H-90,x0:20,y0:70,k:1.25,view:ISOVIEW,pad:30,nums:iso.nums!==false,dims:iso.dims!==false});
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="297mm" height="210mm"><style>.i-pipe,.i-pipeSel{stroke:#14181c;stroke-width:3.4;stroke-linecap:round;fill:none}.i-hit{display:none}.i-dim,.i-ext{stroke:#69727a;stroke-width:1;fill:none}.i-sym{stroke:#14181c;stroke-width:1.6}.i-north{stroke:#69727a;stroke-width:1.4}.f-none{fill:none}.f-ink{fill:#14181c}.f-paper{fill:#fff}.f-muted{fill:#69727a}.i-t{font-family:Arial,Helvetica,sans-serif;paint-order:stroke;stroke:#fff;stroke-width:3px}.b{font-weight:700}.c-ink{fill:#14181c}.c-muted{fill:#69727a}.c-accent{fill:#b9500c}</style><rect width="${W}" height="${H}" fill="#fff"/><text x="24" y="40" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#14181c">${esc(iso.name)}</text><text x="24" y="60" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#69727a">Ø ${esc(fmt(iso.D,1))} · ${A.pieces.length} pièces · ${A.welds.length} soudures · ${esc(fmtDate(Date.now()))}</text>${G.out()}</svg>`;
+}
+function isoText(iso){const A=analyseIso(iso);let s=`PLAN ISO : ${iso.name}\nTube Ø ${fmt(iso.D,1)} ${MATN[iso.mat]||""}\n\nLISTE DE COUPE\n`;A.pieces.forEach(p=>{s+=`${p.rep}  ${fmt(p.len,0)} mm  (${p.segs.map(i=>"T"+(i+1)).join("+")})  ${p.notes.join(" / ")}\n`;});s+="\nNOMENCLATURE\n";A.bom.forEach(r=>{s+=`${r[0]} : ${r[1]}\n`;});return s;}
+
+/* ---- liste des plans ---- */
+function isoThumb(iso){const A=analyseIso(iso),G=svgAdapter();if(!iso.segs.length)return "";drawIso(G,iso,A,{W:112,H:84,x0:0,y0:0,k:0.5,view:ISOVIEW,pad:14,nums:false,dims:false,segnums:false,north:false});return `<svg viewBox="0 0 112 84" aria-hidden="true">${G.out().replace(/<line class="i-hit"[^>]*\/>/g,"")}</svg>`;}
+function renderIsoList(){
+  app.onclick=null;app.classList.remove("tool");
+  topbar.innerHTML=`<div class="brand">Plans <span>iso</span></div><div class="sp"></div>${themeBtn()}`;
+  const list=Store.isos;
+  app.innerHTML=`<div class="tool-head"><p class="lede">Dessine une ligne tronçon par tronçon : l'appli place les coudes et les tés, cote le plan, sort la liste de coupe et le PDF.</p></div>
+  <div class="card"><h3>Nouveau plan</h3><div class="save"><div class="row"><input class="inp" id="isoNm" placeholder="Repère de la ligne (ex. L-01 eau glacée)" aria-label="Nom du plan"></div></div><div class="actions"><button class="btn primary" id="isoNew" style="flex:1">Créer</button>${list.some(x=>/^Exemple/.test(x.name))?"":`<button class="btn" id="isoEx">Ouvrir un exemple</button>`}</div></div>
+  ${list.length?list.map(iso=>{const A=analyseIso(iso),job=Store.get(iso.job);return `<a class="card isocard" href="#iso-${esc(iso.id)}"><div class="thumb">${isoThumb(iso)}</div><div><b style="font-family:var(--display);font-size:21px;font-weight:600">${esc(iso.name)}</b><div class="lede">${iso.segs.length} tronçon${iso.segs.length>1?"s":""} · ${A.pieces.length} pièce${A.pieces.length>1?"s":""} · ${fmt(A.tot/1000,2)} m</div><div class="lede">${job?esc(job.name)+" · ":""}${fmtDate(iso.updated||iso.created)}</div></div></a>`;}).join(""):`<p class="empty">Aucun plan pour l'instant.</p>`}`;
+  document.getElementById("isoNew").addEventListener("click",()=>{const nm=document.getElementById("isoNm").value.trim();const iso=newIso(nm||`Ligne ${Store.isos.length+1}`);Store.putIso(iso,true);location.hash="iso-"+iso.id;});
+  const ex=document.getElementById("isoEx");if(ex)ex.addEventListener("click",()=>{const iso=exampleIso();Store.putIso(iso,true);location.hash="iso-"+iso.id;});
+}
+
+/* ---- éditeur ---- */
+let ED=null;
+const ARROW={E:[1,0.58],O:[-1,-0.58],N:[1,-0.58],S:[-1,0.58],H:[0,-1],B:[0,1]};
+function arrowSvg(d){const v=ARROW[d],l=Math.hypot(v[0],v[1]),u=[v[0]/l,v[1]/l],a=[12-u[0]*8,12-u[1]*8],b=[12+u[0]*8,12+u[1]*8],n=[-u[1],u[0]];return `<svg viewBox="0 0 24 24" aria-hidden="true"><line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><polygon points="${b[0]+u[0]*2},${b[1]+u[1]*2} ${b[0]-u[0]*5+n[0]*4},${b[1]-u[1]*5+n[1]*4} ${b[0]-u[0]*5-n[0]*4},${b[1]-u[1]*5-n[1]*4}" fill="currentColor"/></svg>`;}
+function curIso(){return Store.getIso(ED.id);}
+function renderIsoEditor(iso){
+  app.onclick=null;app.classList.remove("tool");
+  ED={id:iso.id,view:{mode:"iso",yaw:45,pitch:35.264,zoom:1,pan:[0,0]},sel:null,start:iso.segs.length,form:{d:"E",d2:"",L:"1000",acc:"",accL:"150"},editing:null,confirm:null};
+  topbar.innerHTML=`<a class="back" href="#iso"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>Plans</a><div class="sp"></div>${themeBtn()}`;
+  const jobs=Store.jobs;
+  app.innerHTML=`<div class="tool-head"><h1 id="isoH">${esc(iso.name)}</h1><p class="lede" id="isoSub"></p></div>
+  <div class="iso-stage" id="stage"><svg id="isvg" role="img" aria-label="Plan isométrique"></svg><div class="iso-empty" id="isoEmpty" hidden>Choisis une direction et une longueur ci-dessous, puis touche « Ajouter ».</div>
+    <div class="iso-ctrl"><button data-v="iso" aria-pressed="true">Iso</button><button data-v="3d" aria-pressed="false">3D</button><button data-z="in" aria-label="Zoomer">+</button><button data-z="out" aria-label="Dézoomer">−</button><button data-z="fit" aria-label="Recadrer">⤢</button></div>
+    <button class="iso-start" id="startPill"></button></div>
+  <div id="selBox"></div>
+  <section class="card" id="addBox">
+    <h3 id="addTitle">Ajouter un tronçon</h3>
+    <div class="dpad" role="group" aria-label="Direction">${["O","H","N","S","B","E"].map(d=>`<button type="button" data-dir="${d}" aria-pressed="${d==="E"}">${arrowSvg(d)}${DIRN[d]}</button>`).join("")}</div>
+    <div class="sublbl">Incliner à 45° vers</div><div class="chips" id="d2chips" style="padding-bottom:4px"></div>
+    <div class="fields" style="margin-top:6px"><label class="fld"><span>Longueur (axe) <em>mm</em></span><input id="fL" inputmode="decimal" autocomplete="off" value="1000"></label>
+      <label class="fld"><span>Accessoire</span><select id="fAcc"><option value="">Aucun</option>${Object.keys(ACCN).map(k=>`<option value="${k}">${ACCN[k]}</option>`).join("")}</select></label>
+      <label class="fld wide" id="fAccLw" hidden><span>Longueur de l'accessoire <em>mm</em></span><input id="fAccL" inputmode="decimal" autocomplete="off" value="150"></label></div>
+    <div class="actions"><button class="btn primary" id="addBtn" style="flex:1">Ajouter</button><button class="btn" id="undoBtn">Annuler le dernier</button><button class="btn" id="cancelEdit" hidden>Abandonner</button></div>
+  </section>
+  <div id="isoOut"></div>
+  <section class="card" id="setBox"><h3>Réglages du plan</h3><div class="fields" style="margin-top:10px">
+    <label class="fld wide"><span>Nom / repère de ligne</span><input id="sName" value="${esc(iso.name)}" autocomplete="off"></label>
+    <label class="fld wide"><span>Chantier</span><select id="sJob"><option value="">Aucun</option>${jobs.map(j=>`<option value="${esc(j.id)}"${iso.job===j.id?" selected":""}>${esc(j.name)}</option>`).join("")}</select></label>
+    <label class="fld"><span>Ø ext. tube <em>mm</em></span><input id="sD" inputmode="decimal" value="${esc(iso.D)}"></label>
+    <label class="fld"><span>Rayon des coudes <em>mm</em></span><input id="sR" inputmode="decimal" value="${esc(iso.R)}"></label>
+    <label class="fld"><span>Raccord en té</span><select id="sTee"><option value="te"${iso.tee!=="piq"?" selected":""}>Té à souder</option><option value="piq"${iso.tee==="piq"?" selected":""}>Piquage direct</option></select></label>
+    <label class="fld" id="sCw"><span>Té : axe-bout <em>mm</em></span><input id="sC" inputmode="decimal" value="${esc(iso.C)}"></label>
+    <label class="fld"><span>Écart de soudure <em>mm</em></span><input id="sGap" inputmode="decimal" value="${esc(iso.gap)}"></label>
+    <label class="fld"><span>Matière</span><select id="sMat">${Object.keys(MATN).map(k=>`<option value="${k}"${iso.mat===k?" selected":""}>${k[0].toUpperCase()+k.slice(1)}</option>`).join("")}</select></label>
+    <label class="fld"><span>Cotes</span><select id="sDims"><option value="1"${iso.dims!==false?" selected":""}>Affichées</option><option value="0"${iso.dims===false?" selected":""}>Masquées</option></select></label>
+    <label class="fld"><span>N° de soudure</span><select id="sNums"><option value="1"${iso.nums!==false?" selected":""}>Affichés</option><option value="0"${iso.nums===false?" selected":""}>Masqués</option></select></label>
+    <label class="fld"><span>Format PDF</span><select id="sPage"><option value="A4"${iso.page!=="A3"?" selected":""}>A4 paysage</option><option value="A3"${iso.page==="A3"?" selected":""}>A3 paysage</option></select></label>
+  </div><p class="lede" style="margin-top:8px">Rayon 0 = coupes d'onglet (tube soudé directement).</p></section>
+  <section class="card"><h3>Exporter</h3><div class="actions"><button class="btn primary" id="xPdf">PDF avec cartouche</button><button class="btn" id="xSvg">Dessin SVG</button><button class="btn" id="xTxt">Copier la liste de coupe</button></div><div id="xOut"></div>
+    <div class="actions" style="margin-top:14px"><button class="btn small danger" id="isoDel">Supprimer ce plan</button></div></section>`;
+  wireIso();
+  renderD2();isoRefresh();
+}
+function renderD2(){const box=document.getElementById("d2chips");const opts=[["","Non"]].concat(PERP[ED.form.d].split("").map(c=>[c,DIRN[c]]));box.innerHTML=opts.map(o=>`<button type="button" class="chip" data-d2="${o[0]}" aria-pressed="${ED.form.d2===o[0]}">${o[1]}</button>`).join("");}
+function syncForm(){document.querySelectorAll("[data-dir]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.dir===ED.form.d));renderD2();document.getElementById("fL").value=ED.form.L;document.getElementById("fAcc").value=ED.form.acc;document.getElementById("fAccL").value=ED.form.accL;document.getElementById("fAccLw").hidden=!ED.form.acc;
+  const ed=ED.editing!=null;document.getElementById("addTitle").textContent=ed?`Modifier T${ED.editing+1}`:"Ajouter un tronçon";document.getElementById("addBtn").textContent=ed?"Mettre à jour":"Ajouter";document.getElementById("cancelEdit").hidden=!ed;document.getElementById("undoBtn").hidden=ed;}
+function isoChanged(iso,now){Store.putIso(iso,now);isoRefresh();}
+function wireIso(){
+  const stage=document.getElementById("stage");
+  document.getElementById("addBox").addEventListener("click",e=>{
+    const d=e.target.closest("[data-dir]");if(d){ED.form.d=d.dataset.dir;if(ED.form.d2&&!PERP[ED.form.d].includes(ED.form.d2))ED.form.d2="";syncForm();return;}
+    const d2=e.target.closest("[data-d2]");if(d2){ED.form.d2=d2.dataset.d2;renderD2();}});
+  document.getElementById("fL").addEventListener("input",e=>{ED.form.L=e.target.value;});
+  document.getElementById("fAccL").addEventListener("input",e=>{ED.form.accL=e.target.value;});
+  document.getElementById("fAcc").addEventListener("change",e=>{ED.form.acc=e.target.value;document.getElementById("fAccLw").hidden=!ED.form.acc;});
+  document.getElementById("addBtn").addEventListener("click",()=>{
+    const iso=JSON.parse(JSON.stringify(curIso())),L=parseNum(ED.form.L),aL=parseNum(ED.form.accL);
+    if(!(L>0)){toast("Indique une longueur.");document.getElementById("fL").focus();return;}
+    if(ED.form.acc&&!(aL>=0&&aL<L)){toast("L'accessoire doit être plus court que le tronçon.");return;}
+    const seg={d:ED.form.d,L};if(ED.form.d2)seg.d2=ED.form.d2;if(ED.form.acc){seg.acc=ED.form.acc;seg.accL=aL||0;}
+    if(ED.editing!=null){seg.f=iso.segs[ED.editing].f;iso.segs[ED.editing]=seg;ED.sel=ED.editing;ED.editing=null;}
+    else{seg.f=Math.min(ED.start,iso.segs.length);iso.segs.push(seg);ED.sel=iso.segs.length-1;ED.start=iso.segs.length;}
+    ED.form.acc="";syncForm();isoChanged(iso);});
+  document.getElementById("undoBtn").addEventListener("click",()=>{const iso=curIso();if(!iso.segs.length)return;delSeg(iso.segs.length-1);});
+  document.getElementById("cancelEdit").addEventListener("click",()=>{ED.editing=null;syncForm();});
+  document.getElementById("startPill").addEventListener("click",()=>{ED.start=curIso().segs.length;isoRefresh();});
+  stage.querySelector(".iso-ctrl").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
+    if(b.dataset.v){ED.view.mode=b.dataset.v;if(b.dataset.v==="iso"){ED.view.yaw=45;ED.view.pitch=35.264;}ED.view.pan=[0,0];stage.querySelectorAll("[data-v]").forEach(x=>x.setAttribute("aria-pressed",x===b));}
+    if(b.dataset.z==="in")ED.view.zoom=Math.min(8,ED.view.zoom*1.4);if(b.dataset.z==="out")ED.view.zoom=Math.max(0.3,ED.view.zoom/1.4);if(b.dataset.z==="fit"){ED.view.zoom=1;ED.view.pan=[0,0];}
+    drawStage();});
+  // gestes : glisser = déplacer (iso) ou tourner (3D), pincer = zoom, toucher un tronçon = le sélectionner
+  const ptr=new Map();let g=null,raf=0;const redraw=()=>{if(!raf)raf=requestAnimationFrame(()=>{raf=0;drawStage();});};
+  const svg=document.getElementById("isvg");
+  svg.addEventListener("pointerdown",e=>{svg.setPointerCapture&&svg.setPointerCapture(e.pointerId);ptr.set(e.pointerId,[e.clientX,e.clientY]);
+    if(ptr.size===1)g={t:"drag",p:[e.clientX,e.clientY],moved:false,seg:e.target.closest&&e.target.closest("[data-seg]")};
+    else if(ptr.size===2){const [a,b]=[...ptr.values()];g={t:"pinch",d:Math.hypot(a[0]-b[0],a[1]-b[1]),z:ED.view.zoom};}});
+  svg.addEventListener("pointermove",e=>{if(!ptr.has(e.pointerId)||!g)return;ptr.set(e.pointerId,[e.clientX,e.clientY]);
+    if(g.t==="drag"){const dx=e.clientX-g.p[0],dy=e.clientY-g.p[1];if(!g.moved&&Math.hypot(dx,dy)<6)return;g.moved=true;g.p=[e.clientX,e.clientY];
+      if(ED.view.mode==="3d"){ED.view.yaw-=dx*0.45;ED.view.pitch=clamp(ED.view.pitch+dy*0.45,-89,89);}else{ED.view.pan=[ED.view.pan[0]+dx,ED.view.pan[1]+dy];}redraw();}
+    else if(g.t==="pinch"&&ptr.size===2){const [a,b]=[...ptr.values()];ED.view.zoom=clamp(g.z*Math.hypot(a[0]-b[0],a[1]-b[1])/(g.d||1),0.3,8);redraw();}});
+  const up=e=>{if(!ptr.has(e.pointerId))return;ptr.delete(e.pointerId);
+    if(g&&g.t==="drag"&&!g.moved&&ptr.size===0){const i=g.seg?+g.seg.dataset.seg:null;ED.sel=(i===ED.sel)?null:i;ED.confirm=null;drawStage();renderSel();}
+    if(ptr.size===0)g=null;};
+  svg.addEventListener("pointerup",up);svg.addEventListener("pointercancel",up);
+  svg.addEventListener("wheel",e=>{e.preventDefault();ED.view.zoom=clamp(ED.view.zoom*(e.deltaY<0?1.12:1/1.12),0.3,8);redraw();},{passive:false});
+  document.getElementById("selBox").addEventListener("click",e=>{const b=e.target.closest("[data-a]");if(!b)return;const iso=curIso(),i=ED.sel;if(i==null)return;
+    if(b.dataset.a==="edit"){const s=iso.segs[i];ED.editing=i;ED.form={d:s.d,d2:s.d2||"",L:String(s.L),acc:s.acc||"",accL:String(s.accL||150)};syncForm();document.getElementById("addBox").scrollIntoView({behavior:"smooth",block:"start"});}
+    else if(b.dataset.a==="end"){ED.start=i+1;isoRefresh();toast(`Le prochain tronçon part de la fin de T${i+1}.`);}
+    else if(b.dataset.a==="begin"){ED.start=iso.segs[i].f;isoRefresh();toast(`Le prochain tronçon part du début de T${i+1}.`);}
+    else if(b.dataset.a==="del"){if(ED.confirm!==i){ED.confirm=i;renderSel();return;}delSeg(i);}});
+  const setBox=document.getElementById("setBox");
+  const readSet=()=>{const iso=JSON.parse(JSON.stringify(curIso())),num=(id,d)=>{const v=parseNum(document.getElementById(id).value);return isFinite(v)&&v>=0?v:d;};
+    iso.name=document.getElementById("sName").value.trim()||"Ligne";iso.job=document.getElementById("sJob").value||null;iso.D=num("sD",iso.D);iso.R=num("sR",0);iso.tee=document.getElementById("sTee").value;iso.C=num("sC",0);iso.gap=num("sGap",0);iso.mat=document.getElementById("sMat").value;iso.dims=document.getElementById("sDims").value==="1";iso.nums=document.getElementById("sNums").value==="1";iso.page=document.getElementById("sPage").value;
+    document.getElementById("sCw").hidden=iso.tee==="piq";document.getElementById("isoH").textContent=iso.name;isoChanged(iso);};
+  setBox.addEventListener("input",readSet);setBox.addEventListener("change",readSet);
+  document.getElementById("sCw").hidden=curIso().tee==="piq";
+  document.getElementById("xPdf").addEventListener("click",()=>{const iso=curIso();if(!iso.segs.length){toast("Le plan est vide.");return;}offerFile(safeName(iso.name)+".pdf",isoPDF(iso));});
+  document.getElementById("xSvg").addEventListener("click",()=>{const iso=curIso();if(!iso.segs.length){toast("Le plan est vide.");return;}offerFile(safeName(iso.name)+".svg",isoSVGFile(iso));});
+  document.getElementById("xTxt").addEventListener("click",()=>{const txt=isoText(curIso());(navigator.clipboard?navigator.clipboard.writeText(txt):Promise.reject()).then(()=>toast("Liste copiée."),()=>{document.getElementById("xOut").innerHTML=`<textarea class="inp" style="height:200px;font-size:14px;padding:10px;margin-top:10px" readonly aria-label="Liste de coupe">${esc(txt)}</textarea>`;});});
+  let delC=false;document.getElementById("isoDel").addEventListener("click",e=>{if(!delC){delC=true;e.target.textContent="Confirmer la suppression";return;}Store.delIso(ED.id);location.hash="iso";});
+  window.addEventListener("resize",()=>{if(ED&&document.getElementById("isvg"))drawStage();});
+  syncForm();
+}
+function delSeg(i){
+  const iso=JSON.parse(JSON.stringify(curIso()));
+  if(iso.segs.some((s,j)=>j!==i&&s.f===i+1)){toast(`D'autres tronçons partent de la fin de T${i+1} : supprime-les d'abord.`);ED.confirm=null;renderSel();return;}
+  const from=iso.segs[i].f;iso.segs.splice(i,1);iso.segs.forEach(s=>{if(s.f>i+1)s.f-=1;});
+  if(ED.start===i+1)ED.start=from;else if(ED.start>i+1)ED.start-=1;ED.start=Math.min(ED.start,iso.segs.length);
+  ED.sel=null;ED.confirm=null;if(ED.editing!=null){ED.editing=null;syncForm();}
+  isoChanged(iso);
+}
+function drawStage(){
+  const st=document.getElementById("stage"),svg=document.getElementById("isvg");if(!st||!svg)return;
+  const iso=curIso(),W=st.clientWidth||360,H=st.clientHeight||320,G=svgAdapter();
+  const view=ED.view.mode==="iso"?ISOVIEW:{yaw:ED.view.yaw,pitch:ED.view.pitch};
+  drawIso(G,iso,ED.A,{W,H,x0:0,y0:0,k:1,view,zoom:ED.view.zoom,pan:ED.view.pan,pad:40,sel:ED.sel,nums:iso.nums!==false,dims:iso.dims!==false,start:ED.start});
+  svg.setAttribute("viewBox",`0 0 ${W} ${H}`);svg.innerHTML=G.out();
+  document.getElementById("isoEmpty").hidden=iso.segs.length>0;
+}
+function renderSel(){
+  const box=document.getElementById("selBox"),iso=curIso(),i=ED.sel;
+  if(i==null||!iso.segs[i]){box.innerHTML="";return;}
+  const s=iso.segs[i],ps=ED.A.pieces.filter(p=>p.segs.includes(i));
+  box.innerHTML=`<div class="card selbar"><b style="font-family:var(--display);font-size:22px">T${i+1} · ${esc(segName(s))} · ${fmt(s.L,0)} mm</b>
+  <div class="lede">${s.acc?esc(ACCN[s.acc])+` (${fmt(s.accL,0)} mm) · `:""}${ps.map(p=>`${p.rep} à couper : <b style="color:var(--ink)">${fmt(p.len,0)} mm</b>`).join(" · ")}</div>
+  <div class="actions"><button class="btn small" data-a="edit">Modifier</button><button class="btn small" data-a="end">Partir de sa fin</button><button class="btn small" data-a="begin">Partir de son début</button><button class="btn small danger" data-a="del">${ED.confirm===i?"Confirmer":"Supprimer"}</button></div></div>`;
+}
+function isoRefresh(){
+  const iso=curIso();if(!iso)return;ED.A=analyseIso(iso);const A=ED.A;
+  if(ED.sel!=null&&!iso.segs[ED.sel])ED.sel=null;ED.start=Math.min(ED.start,iso.segs.length);
+  document.getElementById("isoSub").textContent=`${iso.segs.length} tronçon${iso.segs.length>1?"s":""} · ${A.pieces.length} pièce${A.pieces.length>1?"s":""} · ${A.welds.length} soudure${A.welds.length>1?"s":""} · ${fmt(A.tot/1000,2)} m de tube`;
+  document.getElementById("startPill").textContent=ED.start===0?"Départ : point A":`Départ : fin de T${ED.start}`;
+  drawStage();renderSel();
+  document.getElementById("isoOut").innerHTML=(A.warn.map(w=>`<div class="msg warn">${esc(w)}</div>`).join(""))+(iso.segs.length?`
+  <div class="card"><h3>Liste de coupe</h3><div class="tscroll" style="margin-top:6px"><table class="t"><thead><tr><th>Rep.</th><th>Longueur</th><th>Tronçons</th><th>Bouts</th></tr></thead><tbody>${A.pieces.map(p=>`<tr><td><b>${p.rep}</b></td><td><b style="${p.len<0?"color:var(--bad)":""}">${fmt(p.len,0)}</b> <small style="color:var(--muted)">mm</small></td><td>${p.segs.map(i=>"T"+(i+1)).join("+")}</td><td style="color:var(--muted);font-size:14px">${esc(p.notes.join(" / "))}</td></tr>`).join("")}</tbody></table></div></div>
+  <div class="card"><h3>Nomenclature</h3><dl class="rlist" style="margin-top:4px">${A.bom.map(r=>`<div><dt>${esc(r[0])}</dt><dd>${esc(r[1])}</dd></div>`).join("")}</dl></div>
+  <ul class="notes"><li>Cotes d'axe en axe (entre les sommets). Longueurs de coupe : coudes, tés et écart de soudure (${fmt(iso.gap||0,1)} mm) déduits.</li>${iso.R>0?"":"<li>Coupes d'onglet : la longueur est prise sur l'axe ; côté extérieur, ajoute Ø/2 × tan(angle de coupe).</li>"}${iso.tee==="piq"?"<li>Piquage : le tube principal passe d'une pièce ; trace la gueule de loup avec l'outil « Gabarit de piquage ».</li>":""}</ul>`:"");
+}
+
+/* ---------- démarrage ---------- */
+route();
+if("serviceWorker" in navigator&&location.protocol!=="file:"){
+  navigator.serviceWorker.register("sw.js").then(reg=>{
+    reg.addEventListener("updatefound",()=>{const w=reg.installing;if(!w)return;w.addEventListener("statechange",()=>{if(w.state==="installed"&&navigator.serviceWorker.controller)toast("Nouvelle version prête : ferme et rouvre l'appli.");});});
+  }).catch(()=>{});
+}
+try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist();}catch(e){}
+</script>
+</body>
+</html>
