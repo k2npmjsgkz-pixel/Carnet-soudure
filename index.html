@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" data-theme="dark">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#111518">
+<meta name="theme-color" content="#0b0e11">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -21,26 +21,27 @@
   --bg:#edf0f2; --surface:#ffffff; --ink:#1a2026; --muted:#5b6670; --line:#d2d8dd; --fill:#dfe5ea;
   --accent:#b9500c; --accent-soft:#f7e6d9; --on-accent:#ffffff;
   --ok:#2f7d4f; --warn:#8a5f00; --warn-soft:#fbf0d2; --bad:#b3261e;
-  --c-chaud:#2f6fa8; --c-tuy:#2b8460; --c-ref:#9a7420;
+  --c-chaud:#2f6fa8; --c-tuy:#2b8460; --c-ref:#9a7420; --c-meca:#0e7c86; --c-fer:#a3472c;
   --display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
   --body:"Barlow",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   color-scheme:light;
 }
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
-    --bg:#111518; --surface:#1a1f24; --ink:#e8ecef; --muted:#97a3ad; --line:#2b333a; --fill:#2a3239;
+    --bg:#0b0e11; --surface:#151a1f; --ink:#eef1f3; --muted:#98a3ac; --line:#252d34; --fill:#242c33;
     --accent:#ff8a3d; --accent-soft:#3a2617; --on-accent:#1a0f06;
     --ok:#5cc58a; --warn:#e6bd4a; --warn-soft:#33290f; --bad:#ff6b5e; color-scheme:dark;
-    --c-chaud:#6aa6dc; --c-tuy:#5cc38f; --c-ref:#d4a94a;
+    --c-chaud:#6aa6dc; --c-tuy:#5cc38f; --c-ref:#d4a94a; --c-meca:#4cc6d1; --c-fer:#e8805f;
   }
 }
 :root[data-theme="dark"]{
-  --bg:#111518; --surface:#1a1f24; --ink:#e8ecef; --muted:#97a3ad; --line:#2b333a; --fill:#2a3239;
+  --bg:#0b0e11; --surface:#151a1f; --ink:#eef1f3; --muted:#98a3ac; --line:#252d34; --fill:#242c33;
   --accent:#ff8a3d; --accent-soft:#3a2617; --on-accent:#1a0f06;
   --ok:#5cc58a; --warn:#e6bd4a; --warn-soft:#33290f; --bad:#ff6b5e; color-scheme:dark;
-  --c-chaud:#6aa6dc; --c-tuy:#5cc38f; --c-ref:#d4a94a;
+  --c-chaud:#6aa6dc; --c-tuy:#5cc38f; --c-ref:#d4a94a; --c-meca:#4cc6d1; --c-fer:#e8805f;
 }
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 html,body{margin:0}
 body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.4;-webkit-text-size-adjust:100%}
 button,input,select{font:inherit;color:inherit}
@@ -131,7 +132,7 @@ details.acc .bd b{color:var(--muted);font-size:13px;text-transform:uppercase;let
 .sym figcaption{font-size:14px;font-weight:600}
 .sym figcaption small{display:block;font-weight:400;color:var(--muted);font-size:12.5px}
 .save .row{display:grid;grid-template-columns:1fr;gap:8px;margin:10px 0}
-.savemsg{color:var(--ok);font-weight:600;margin:8px 0 0}
+.prt-h{display:flex;align-items:center;gap:8px} .prt-s{font-weight:600;margin:0 0 10px;font-size:15px} .prt-n{color:var(--muted);font-size:13px;margin:10px 0 0;line-height:1.4} #prtB svg{margin-right:8px} #prtB:disabled{opacity:.45;cursor:default} .savemsg{color:var(--ok);font-weight:600;margin:8px 0 0}
 .timer{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .timer-v{font-family:var(--display);font-size:44px;font-weight:700;font-variant-numeric:tabular-nums;min-width:120px}
 .timer-v.done{color:var(--accent);animation:blink 1s steps(2) infinite}
@@ -394,8 +395,8 @@ const ICONS={
 function ico(id){return `<svg class="ico" viewBox="0 0 48 48" aria-hidden="true">${ICONS[id]||'<circle cx="24" cy="24" r="16"/>'}</svg>`;}
 
 /* ---------- définition des outils ---------- */
-const CATS=[["all","Tout"],["soud","Soudure"],["chaud","Chaudronnerie"],["tuy","Tube & tuyauterie"],["ref","Références"]];
-const CATCOL={soud:"var(--accent)",chaud:"var(--c-chaud)",tuy:"var(--c-tuy)",ref:"var(--c-ref)"};
+const CATS=[["all","Tout"],["soud","Soudure"],["chaud","Chaudronnerie"],["tuy","Tube & tuyauterie"],["meca","Mécanique"],["ref","Références"]];
+const CATCOL={soud:"var(--accent)",chaud:"var(--c-chaud)",tuy:"var(--c-tuy)",meca:"var(--c-meca)",ref:"var(--c-ref)"};
 const T=[];
 const N=(k,l,u,d,o={})=>Object.assign({k,l,u,d:String(d),t:"n"},o);
 const S=(k,l,opts,d,o={})=>Object.assign({k,l,opts,d,t:"s"},o);
@@ -1097,26 +1098,57 @@ calc(v){
   return {res,svg:Dd.svg("Nappe de tubes"),extra:tableHTML("Décalage de chaque tube",["Tube","Décalage du coude (mm)","Écart depuis le tube 1 (mm)"],rows,"Tube 1 = côté intérieur du virage. Le décalage s'ajoute sur chaque branche."),notes:["Valable avec le même coude (même rayon) sur tous les tubes : les coudes s'alignent sur la bissectrice."]};
 }});
 
-/* Brides EN 1092-1 PN16 */
+/* Brides et visserie (EN 1092-1 PN10/16/40, ASME B16.5 classe 150) */
 const PN16={15:[95,65,4,12],20:[105,75,4,12],25:[115,85,4,12],32:[140,100,4,16],40:[150,110,4,16],50:[165,125,4,16],65:[185,145,8,16],80:[200,160,8,16],100:[220,180,8,16],125:[250,210,8,16],150:[285,240,8,20],200:[340,295,12,20],250:[405,355,12,24],300:[460,410,12,24]};
+const EN1092={"10":Object.assign({},PN16,{200:[340,295,8,20],250:[395,350,12,20],300:[445,400,12,20]}),"16":PN16,
+  "40":{15:[95,65,4,12],20:[105,75,4,12],25:[115,85,4,12],32:[140,100,4,16],40:[150,110,4,16],50:[165,125,4,16],65:[185,145,8,16],80:[200,160,8,16],100:[235,190,8,20],125:[270,220,8,24],150:[300,250,8,24],200:[375,320,12,27],250:[450,385,12,30],300:[515,450,16,30]}};
 const DNOD={15:21.3,20:26.9,25:33.7,32:42.4,40:48.3,50:60.3,65:76.1,80:88.9,100:114.3,125:139.7,150:168.3,200:219.1,250:273,300:323.9};
-const HOLE={12:14,16:18,20:22,24:26};
+const HOLE={12:14,16:18,20:22,24:26,27:30,30:33};
+const NUTH={12:10.8,16:14.8,20:18,24:21.5,27:23.8,30:25.6}, WASH={12:2.5,16:3,20:3,24:4,27:4,30:4};
+const ASME150=[["1/2",88.9,60.3,4,"1/2",21.3],["3/4",98.4,69.9,4,"1/2",26.7],["1",108,79.4,4,"1/2",33.4],["1 1/4",117.5,88.9,4,"1/2",42.2],["1 1/2",127,98.4,4,"1/2",48.3],["2",152.4,120.7,4,"5/8",60.3],["2 1/2",177.8,139.7,4,"5/8",73],["3",190.5,152.4,4,"5/8",88.9],["4",228.6,190.5,8,"5/8",114.3],["5",254,215.9,8,"3/4",141.3],["6",279.4,241.3,8,"3/4",168.3],["8",342.9,298.5,8,"3/4",219.1],["10",406.4,362,12,"7/8",273],["12",482.6,431.8,12,"7/8",323.8]];
+const UNC={"1/2":{d:12.7,tpi:13,hole:15.9,key:"7/8\" (22,2)"},"5/8":{d:15.9,tpi:11,hole:19.1,key:"1 1/16\" (27)"},"3/4":{d:19.1,tpi:10,hole:22.2,key:"1 1/4\" (31,8)"},"7/8":{d:22.2,tpi:9,hole:25.4,key:"1 7/16\" (36,5)"}};
+const LSTD=[30,35,40,45,50,55,60,65,70,75,80,90,100,110,120,130,140,150,160,180,200,220,240,260,280,300];
 const JOINT={eau:["Eau froide","EPDM ou fibre sans amiante"],chaud:["Eau chaude, chauffage","Fibre sans amiante (aramide) ou EPDM haute température"],vap:["Vapeur","Graphite expansé avec insert inox, ou joint spiralé"],air:["Air comprimé","Fibre sans amiante ou NBR"],gaz:["Gaz naturel","Fibre sans amiante certifiée pour le gaz"],huile:["Huile, hydrocarbures","NBR ou fibre sans amiante liée NBR"],chim:["Produits chimiques","PTFE (vérifie la compatibilité chimique)"]};
-T.push({id:"brides",cat:"tuy",name:"Brides PN16",desc:"Perçage, boulonnerie et joint conseillé (EN 1092-1)",
-kw:"bride brides pn16 en 1092-1 boulons visserie percage entraxe joint de bride dn",
-inputs:[S("dn","DN",Object.keys(PN16).map(k=>[k,"DN "+k]),"50"),S("fl","Fluide",Object.keys(JOINT).map(k=>[k,JOINT[k][0]]),"eau")],
+const TYPEB={"11":["À collerette (11)","Soudure bout à bout : chanfrein en V sur la collerette et sur le tube, pénétration complète, comme un raboutage de tubes."],
+  "01":["Plate à souder (01)","Glisse la bride sur le tube en laissant le tube en retrait de la face d'environ son épaisseur, puis deux soudures d'angle : une à l'intérieur côté face, une à l'extérieur au dos. Rien ne doit dépasser sur la face de joint."],
+  "05":["Pleine (05)","Bride pleine : pas de soudure sur le tube. Elle ferme une ligne, par exemple pour l'épreuve hydraulique."]};
+function crossOrder(n){const q=n/4;if(!Number.isInteger(q)||q<1)return Array.from({length:n},(_,i)=>i+1);
+  let offs;if((q&(q-1))===0){const bits=Math.round(Math.log2(q));offs=[...Array(q).keys()].map(i=>{let r=0;for(let b=0;b<bits;b++)if(i&(1<<b))r|=1<<(bits-1-b);return r;});}else offs=[...Array(q).keys()];
+  const order=[];offs.forEach(o=>[0,2*q,q,3*q].forEach(b=>order.push(b+o)));const seq=Array(n);order.forEach((p,i)=>seq[p]=i+1);return seq;}
+T.push({id:"brides",cat:"tuy",name:"Brides et visserie",desc:"Perçage, longueur des vis, ordre de serrage, joint",
+kw:"bride brides pn10 pn16 pn40 en 1092-1 asme b16.5 classe 150 boulons visserie vis goujon tige filetee percage entraxe serrage croix joint de bride dn collerette plate pleine",
+inputs:[S("norme","Norme",[["en","EN 1092-1"],["asme","ASME B16.5 classe 150"]],"en",{wide:1}),
+  S("pn","PN",[["10","PN 10"],["16","PN 16"],["40","PN 40"]],"16",{show:v=>v.norme==="en"}),
+  S("dn","DN",Object.keys(PN16).map(k=>[k,`DN ${k} · ${String(DNOD[k]).replace(".",",")}`]),"50",{show:v=>v.norme==="en"}),
+  S("nps","NPS",ASME150.map(r=>[r[0],`${r[0]}" · ${String(r[5]).replace(".",",")}`]),"2",{show:v=>v.norme==="asme"}),
+  S("type","Type de bride",Object.keys(TYPEB).map(k=>[k,TYPEB[k][0]]),"11"),
+  N("e","Épaisseur d'une bride","mm",20),N("j","Épaisseur du joint","mm",2),
+  S("rond","Rondelles",[["1","Une sous la tête et une sous l'écrou"],["0","Sans rondelle"]],"1",{wide:1}),
+  S("fl","Fluide",Object.keys(JOINT).map(k=>[k,JOINT[k][0]]),"eau",{wide:1})],
 calc(v){
-  const d=PN16[v.dn],od=DNOD[v.dn]; if(!d) return {err:"Choisis un DN."};
-  const [Df,K,nb,M]=d,J=JOINT[v.fl];
-  const res=[R("Boulons",`${nb} × M${M}`,"",1),R("Entraxe de perçage",fmt(K,0),"mm",1),R("Ø extérieur de la bride",fmt(Df,0),"mm"),R("Ø des trous",fmt(HOLE[M],0),"mm"),R("Clé",String((VIS.find(r=>r[0]==="M"+M)||[])[4]||""),"mm"),R("Écart entre trous",`${fmt(360/nb,1)}° · corde ${fmt(K*Math.sin(Math.PI/nb),1)}`,"mm"),R("Ø ext. du tube (EN 10220)",fmt(od,1),"mm"),R("Joint conseillé",J[1])];
-  const Dd=drawing([-Df/2,-Df/2,Df/2,Df/2],{H:230,pad:34});
-  Dd.circle([0,0],Df/2); Dd.circle([0,0],od/2,"hole"); Dd.circle([0,0],K/2,"cn");
-  for(let i=0;i<nb;i++){const a=Math.PI/nb+2*Math.PI*i/nb;Dd.circle([K/2*Math.cos(a),K/2*Math.sin(a)],HOLE[M]/2,"hole");}
-  Dd.line([-Df/2-6,0],[Df/2+6,0],"cn"); Dd.line([0,-Df/2-6],[0,Df/2+6],"cn");
-  Dd.dim([-K/2,-Df/2],[K/2,-Df/2],"entraxe "+fmt(K,0),-14);
-  const notes=["Trous à cheval sur les axes : aucun trou sur la verticale ni l'horizontale.","Serre en croix, en plusieurs passes, au couple donné par le fabricant du joint.","Dimensions courantes EN 1092-1 PN16 : vérifie sur la fiche de la bride."];
-  if(v.dn==="65") notes.push("DN 65 : les anciennes brides DIN n'ont que 4 trous.");
-  return {res,svg:Dd.svg("Bride PN16"),notes};
+  let Df,K,nb,od,boltLbl,hole,key,P,d,nutH,wash,inch=false;
+  if(v.norme==="asme"){const r=ASME150.find(x=>x[0]===v.nps);if(!r)return {err:"Choisis un diamètre."};const u=UNC[r[4]];[Df,K,nb]=[r[1],r[2],r[3]];od=r[5];boltLbl=`${nb} × ${r[4]}" UNC`;hole=u.hole;key=u.key;P=25.4/u.tpi;d=u.d;nutH=u.d;wash=3;inch=true;}
+  else{const r=(EN1092[v.pn]||PN16)[v.dn];if(!r)return {err:"Choisis un DN."};[Df,K,nb]=[r[0],r[1],r[2]];const M=r[3];od=DNOD[v.dn];boltLbl=`${nb} × M${M}`;hole=HOLE[M];key=String((VIS.find(x=>x[0]==="M"+M)||[])[4]||"");P=(VIS.find(x=>x[0]==="M"+M)||[0,2])[1];d=M;nutH=NUTH[M];wash=WASH[M];}
+  const e=v.e>0?v.e:0,j=v.j>=0?v.j:0,w=v.rond==="1"?2*wash:0,proj=2*P;
+  const Lv=2*e+j+w+nutH+proj, Lg=2*e+j+w+2*(nutH+proj);
+  const Lvs=LSTD.find(x=>x>=Lv-0.01)||Math.ceil(Lv/10)*10, Lgs=Math.ceil(Lg/5)*5;
+  const seq=crossOrder(nb);
+  const res=[R("Boulons",boltLbl,"",1),R("Entraxe de perçage",fmt(K,1),"mm",1)];
+  if(e>0){ if(inch) res.push(R("Longueur de vis",`${fmt(Lv,0)} mm (≈ ${inchFrac(Math.ceil(Lv/25.4*4)/4)})`,"",1),R("Tige filetée (2 écrous)",`${fmt(Lg,0)} mm`,""));
+    else res.push(R("Vis H",`M${d} × ${Lvs}`,"",1),R("Tige filetée (2 écrous)",`M${d} × ${Lgs}`,"")); }
+  res.push(R("À prévoir",`${nb} vis, ${nb} écrous${w?`, ${2*nb} rondelles`:""}`),R("Ø des trous",fmt(hole,1),"mm"),R("Ø extérieur de la bride",fmt(Df,1),"mm"),R("Clé",key,inch?"":"mm"),R("Écart entre trous",`${fmt(360/nb,1)}° · corde ${fmt(K*Math.sin(Math.PI/nb),1)}`,"mm"),R("Ø ext. du tube",fmt(od,1),"mm"),R("Ordre de serrage",`1 → ${nb}, en croix (voir le dessin)`),R("Joint conseillé",JOINT[v.fl][1]));
+  const pad=Df*0.12,Dd=drawing([-Df/2-pad,-Df/2-pad,Df/2+pad,Df/2+pad],{H:260,pad:18});
+  Dd.circle([0,0],Df/2); if(v.type!=="05") Dd.circle([0,0],od/2,"hole"); Dd.circle([0,0],K/2,"cn");
+  Dd.line([-Df/2-pad*0.6,0],[Df/2+pad*0.6,0],"cn"); Dd.line([0,-Df/2-pad*0.6],[0,Df/2+pad*0.6],"cn");
+  for(let i=0;i<nb;i++){const a=rad(90-180/nb-i*360/nb),x=K/2*Math.cos(a),y=K/2*Math.sin(a);Dd.circle([x,y],hole/2,seq[i]===1?"wd":"hole");Dd.text([(Df/2+pad*0.5)*Math.cos(a),(Df/2+pad*0.5)*Math.sin(a)],String(seq[i]),seq[i]===1?"td":"tx");}
+  Dd.text([0,0],boltLbl.replace(" UNC",""),"td");
+  const notes=["Serrage : suis les numéros en 3 passes en croix (environ 30 %, 60 % puis 100 % du couple), puis un tour complet à 100 %. Couple selon la fiche du joint et de la boulonnerie.","Trous à cheval sur les axes : aucun trou sur la verticale ni sur l'horizontale.",
+    TYPEB[v.type][1],
+    "Épaisseur de bride : mesure-la ou prends-la sur la fiche de la bride, elle change selon le type et le fabricant. Longueur calculée avec 2 filets qui dépassent de l'écrou."];
+  if(v.norme==="en"&&v.dn==="65"&&v.pn!=="40") notes.push("DN 65 : les anciennes brides DIN n'ont que 4 trous.");
+  if(v.norme==="asme") notes.push("ASME B16.5 classe 150 seulement, boulonnerie en pouces (UNC).");
+  notes.push("Dimensions courantes : vérifie toujours sur la fiche de la bride avant de percer.");
+  return {res,svg:Dd.svg("Bride : perçage et ordre de serrage"),notes};
 }});
 
 /* Épreuve hydraulique */
@@ -1231,6 +1263,591 @@ calc(v){
 /* Historique (vue spéciale) */
 T.push({id:"historique",cat:"ref",special:true,name:"Historique",desc:"Tes derniers calculs, à rouvrir ou à enregistrer",kw:"historique derniers calculs recents",inputs:[],calc(){return {};}});
 
+Object.assign(ICONS,{
+ ajustements:'<path d="M4 7h40v10H4zM4 31h40v10H4z"/><path class="h" d="M2 20h44v8H2z" stroke-width="2.6"/>',
+ roulements:'<circle cx="24" cy="24" r="19"/><circle cx="24" cy="24" r="8"/><g class="hf"><circle cx="24" cy="10.5" r="3"/><circle cx="37.5" cy="24" r="3"/><circle cx="24" cy="37.5" r="3"/><circle cx="10.5" cy="24" r="3"/><circle cx="33.5" cy="14.5" r="3"/><circle cx="33.5" cy="33.5" r="3"/><circle cx="14.5" cy="33.5" r="3"/><circle cx="14.5" cy="14.5" r="3"/></g>',
+ couples:'<path d="M9 40l15-15" stroke-width="4"/><path d="M24 25l3-8 8-3 3 3-5 4 1 3 3 1 4-5 3 3-3 8-8 3z"/><path class="h" d="M6 22a18 18 0 0 1 14-14m-4-2l4 2-2 4"/>',
+ poulies:'<circle cx="12" cy="30" r="7"/><circle cx="34" cy="24" r="11"/><circle cx="12" cy="30" r="2" class="hf"/><circle cx="34" cy="24" r="2.5" class="hf"/><path class="h" d="M10.5 23.2L31.6 13.3M10.5 36.8l21.1 9.9"/>',
+ engrenages:'<circle cx="24" cy="24" r="12"/><path d="M24 5v7M24 36v7M5 24h7M36 24h7M10.6 10.6l5 5M32.4 32.4l5 5M37.4 10.6l-5 5M10.6 37.4l5-5" stroke-width="4.5"/><circle class="hf" cx="24" cy="24" r="4"/>',
+ chaine:'<circle cx="12" cy="24" r="7"/><circle cx="35" cy="24" r="9"/><path class="h" d="M12 17h23M12 31h23" stroke-width="3" stroke-dasharray="3 2.5"/>',
+ usinage:'<rect x="4" y="15" width="26" height="14" rx="2"/><path d="M30 18h6v8h-6"/><path class="h" d="M22 42l5-12 14 5z"/>',
+ clavettes:'<circle cx="24" cy="27" r="16"/><path class="hf" d="M19 7h10v12H19z"/><path d="M19 13h10"/>',
+ puissance:'<rect x="5" y="14" width="27" height="20" rx="3"/><path d="M32 24h11M9 34v6M28 34v6M11 14V9h15v5"/><path class="h" d="M20 17l-4 7h6l-4 7" stroke-width="2.6"/>',
+ verins:'<rect x="3" y="17" width="27" height="14" rx="2"/><path class="h" d="M30 24h14" stroke-width="4.5"/><path d="M8 17v-5M25 17v-5M20 17v14"/>',
+ dilatation:'<rect x="11" y="20" width="26" height="9" rx="1"/><path class="h" d="M9 24.5H2m3-3l-3 3 3 3M39 24.5h7m-3-3l3 3-3 3"/><path d="M24 4v10M20 8h8"/>'
+});
+
+/* ===================== MÉCANIQUE INDUSTRIELLE ===================== */
+/* Ajustements ISO 286 (≤ 500 mm) */
+const RG=[3,6,10,18,30,50,80,120,180,250,315,400,500];
+const IT={5:[4,5,6,8,9,11,13,15,18,20,23,25,27],6:[6,8,9,11,13,16,19,22,25,29,32,36,40],7:[10,12,15,18,21,25,30,35,40,46,52,57,63],8:[14,18,22,27,33,39,46,54,63,72,81,89,97],9:[25,30,36,43,52,62,74,87,100,115,130,140,155],10:[40,48,58,70,84,100,120,140,160,185,210,230,250],11:[60,75,90,110,130,160,190,220,250,290,320,360,400]};
+const SHAFT_ES={d:[-20,-30,-40,-50,-65,-80,-100,-120,-145,-170,-190,-210,-230],e:[-14,-20,-25,-32,-40,-50,-60,-72,-85,-100,-110,-125,-135],f:[-6,-10,-13,-16,-20,-25,-30,-36,-43,-50,-56,-62,-68],g:[-2,-4,-5,-6,-7,-9,-10,-12,-14,-15,-17,-18,-20],h:Array(13).fill(0)};
+const SHAFT_EI={k:[0,1,1,1,2,2,2,3,3,4,4,4,5],m:[2,4,6,7,8,9,11,13,15,17,20,21,23],n:[4,8,10,12,15,17,20,23,27,31,34,37,40],p:[6,12,15,18,22,26,32,37,43,50,56,62,68]};
+function tolShaft(code,ri){const m=code.match(/^([a-z]+)(\d+)$/);const L=m[1],g=+m[2],it=IT[g][ri];
+  if(L==="js")return [it/2,-it/2]; if(SHAFT_ES[L]){const es=SHAFT_ES[L][ri];return [es,es-it];}
+  let ei=SHAFT_EI[L][ri]; if(L==="k"&&(g>7||g<4))ei=0; return [ei+it,ei];}
+function tolHole(code,ri){const m=code.match(/^([A-Z]+)(\d+)$/);const L=m[1],g=+m[2],it=IT[g][ri];
+  if(L==="JS")return [it/2,-it/2]; if(L==="H")return [it,0]; const EI=-SHAFT_ES[L.toLowerCase()][ri];return [EI+it,EI];}
+const um=x=>(x>0?"+":"")+fmt(x,1);
+T.push({id:"ajustements",cat:"meca",name:"Ajustements ISO",desc:"Cotes mini et maxi, jeu ou serrage (H7/g6, H7/k6…)",
+kw:"ajustement tolerance iso 286 h7 g6 k6 m6 p6 alesage arbre jeu serrage incertain cote mini maxi",
+inputs:[N("D","Ø nominal","mm",40,{wide:1}),S("al","Alésage",["H6","H7","H8","H9","H11","G7","F7","F8","JS7"].map(x=>[x,x]),"H7"),S("ar","Arbre",["d9","e8","f7","g6","h6","h7","h9","h11","js6","k5","k6","m6","n6","p6"].map(x=>[x,x]),"g6")],
+calc(v){
+  const D=v.D; if(!(D>0&&D<=500)) return {err:"Ø entre 0 et 500 mm."};
+  const ri=RG.findIndex(x=>D<=x); const H=tolHole(v.al,ri),A=tolShaft(v.ar,ri);
+  const jmax=H[0]-A[1],jmin=H[1]-A[0];
+  const type=jmin>=0?"Avec jeu":jmax<=0?"Avec serrage":"Incertain";
+  const res=[R("Alésage",`${fmt(D+H[1]/1000,3)} à ${fmt(D+H[0]/1000,3)}`,"mm · "+v.al,1),R("Arbre",`${fmt(D+A[1]/1000,3)} à ${fmt(D+A[0]/1000,3)}`,"mm · "+v.ar,1),R("Ajustement",type,"",1),
+    R("Écarts alésage",`${um(H[1])} / ${um(H[0])}`,"µm"),R("Écarts arbre",`${um(A[1])} / ${um(A[0])}`,"µm"),
+    R(jmax>=0?"Jeu maxi":"Serrage mini",fmt(Math.abs(jmax),1),"µm"),R(jmin>=0?"Jeu mini":"Serrage maxi",fmt(Math.abs(jmin),1),"µm")];
+  const sc=v=>v/Math.max(Math.abs(H[0]),Math.abs(A[1]),Math.abs(A[0]),20)*60;
+  const W=360,Hh=190,y0=110;let s=`<svg viewBox="0 0 ${W} ${Hh}" role="img" aria-label="Zones de tolérance"><line class="ln" x1="20" y1="${y0}" x2="${W-20}" y2="${y0}"/><text class="tm" x="${W-22}" y="${y0-8}" text-anchor="end">Ø ${esc(fmt(D,1))}</text>`;
+  const zone=(x,top,bot,cls,lbl)=>{const y1=y0-sc(top),y2=y0-sc(bot);s+=`<rect class="${cls}" x="${x}" y="${Math.min(y1,y2).toFixed(1)}" width="90" height="${Math.max(2,Math.abs(y2-y1)).toFixed(1)}"/><text class="tx" x="${x+45}" y="${(Math.min(y1,y2)-10).toFixed(1)}" text-anchor="middle">${esc(lbl)}</text>`;};
+  zone(80,H[0],H[1],"pc",v.al); zone(190,A[0],A[1],"seg",v.ar); s+="</svg>";
+  return {res,svg:s,notes:["Valeurs ISO 286 courantes jusqu'à 500 mm. Pour une pièce critique, vérifie dans le tableau officiel.","Repères : H7/g6 glissant, H7/h6 glissant juste, H7/k6 légèrement serré (roulements), H7/p6 serré (à la presse ou en chauffant)."]};
+}});
+
+/* Roulements */
+const BRG={"0":{name:"60",D:[26,28,32,35,42,47,55,62,68,75,80,90,95],B:[8,8,9,10,12,12,13,14,15,16,16,18,18]},"2":{name:"62",D:[30,32,35,40,47,52,62,72,80,85,90,100,110],B:[9,10,11,12,14,15,16,17,18,19,20,21,22]},"3":{name:"63",D:[35,37,42,47,52,62,72,80,90,100,110,120,130],B:[11,12,13,14,15,17,19,21,23,25,27,29,31]}};
+T.push({id:"roulements",cat:"meca",name:"Roulements",desc:"Lire une référence : cotes, joints, jeu, montage",
+kw:"roulement roulements 6205 2rs zz c3 billes reference dimensions bague montage ajustement skf fag",
+inputs:[X("ref","Référence","6205-2RS C3")],
+calc(v){
+  const r=v.ref.toUpperCase().replace(/\s+/g," ").trim(); const m=r.replace(/[\s-]/g,"").match(/^6([023])(\d{2})(.*)$/);
+  if(!m) return {err:"Tape une référence de roulement rigide à billes : 60xx, 62xx ou 63xx (ex. 6205-2RS)."};
+  const ser=BRG[m[1]],code=+m[2],suf=m[3];
+  const d=code===0?10:code===1?12:code===2?15:code===3?17:code*5;
+  const D=ser.D[code],B=ser.B[code];
+  const res=[R("Ø intérieur (d)",String(d),"mm",1)];
+  if(D) res.push(R("Ø extérieur",String(D),"mm",1),R("Largeur",String(B),"mm",1)); else res.push(R("Ø extérieur","hors table (consulte le catalogue)",""));
+  res.push(R("Type",`Roulement rigide à billes, série ${ser.name}`));
+  let et="Ouvert (sans protection)";
+  if(/2RS|LLU|DDU|2RSH|2RSR|2RS1/.test(suf)) et="2 joints caoutchouc (étanche, graissé à vie)";
+  else if(/RS|LU|DU/.test(suf)) et="1 joint caoutchouc";
+  else if(/ZZ|2Z/.test(suf)) et="2 flasques métal (protégé, graissé à vie)";
+  else if(/Z/.test(suf)) et="1 flasque métal";
+  res.push(R("Protection",et));
+  const jeu=/C4/.test(suf)?"C4 : jeu interne très augmenté":/C3/.test(suf)?"C3 : jeu interne augmenté (moteurs, chaleur)":/C2/.test(suf)?"C2 : jeu réduit":"Normal (CN)";
+  res.push(R("Jeu interne",jeu));
+  if(/NR/.test(suf)) res.push(R("Bague extérieure","Rainure + segment d'arrêt")); else if(/N/.test(suf.replace(/CN/,""))) res.push(R("Bague extérieure","Rainure pour segment d'arrêt"));
+  res.push(R("Arbre (bague intérieure tournante)",`k5 ou j6 → ${fmt(d+tolShaft(d<=18?"j6":"k5",RG.findIndex(x=>d<=x))[1]/1000,3)} à ${fmt(d+tolShaft(d<=18?"j6":"k5",RG.findIndex(x=>d<=x))[0]/1000,3)} mm`),R("Logement",D?`H7 → ${fmt(D,3)} à ${fmt(D+tolHole("H7",RG.findIndex(x=>D<=x))[0]/1000,3)} mm`:"H7"));
+  let svg="";if(D){const Dd=drawing([-D/2-4,-B/2-14,D/2+4,B/2+14],{H:180,pad:30});const ri=(d/2+D/2)/2,bw=(D-d)/2*0.42;
+    Dd.poly([[-D/2,-B/2],[-ri-bw*0.5,-B/2],[-ri-bw*0.5,B/2],[-D/2,B/2]]);Dd.poly([[D/2,-B/2],[ri+bw*0.5,-B/2],[ri+bw*0.5,B/2],[D/2,B/2]]);
+    Dd.poly([[-ri+bw*0.5,-B/2],[-d/2,-B/2],[-d/2,B/2],[-ri+bw*0.5,B/2]]);Dd.poly([[ri-bw*0.5,-B/2],[d/2,-B/2],[d/2,B/2],[ri-bw*0.5,B/2]]);
+    Dd.circle([-ri,0],bw*0.45,"wd");Dd.circle([ri,0],bw*0.45,"wd");Dd.line([-D/2-4,0],[D/2+4,0],"cn");
+    Dd.dim([-D/2,-B/2],[D/2,-B/2],"D "+D,-14);Dd.dim([-d/2,B/2],[d/2,B/2],"d "+d,14);svg=Dd.svg("Coupe du roulement");}
+  return {res,svg,notes:["Équivalences de suffixes : 2RS (SKF 2RSH/2RS1, FAG 2RSR, NSK DDU, NTN LLU) ; ZZ (SKF/FAG 2Z, 2ZR).","Montage : chauffe le roulement à 80–110 °C (plaque ou induction, jamais au chalumeau), ou pousse sur la bague que tu montes, jamais à travers les billes."]};
+}});
+
+/* Couples de serrage */
+const TQ={"8.8":{5:5.9,6:10.1,8:24.6,10:48,12:84,14:133,16:206,18:295,20:415,22:567,24:714,27:1050,30:1420},"10.9":{5:8.6,6:14.9,8:36.1,10:71,12:123,14:195,16:302,18:421,20:592,22:807,24:1017,27:1496,30:2033},"12.9":{5:10,6:17.4,8:42.2,10:83,12:144,14:229,16:354,18:492,20:692,22:945,24:1190,27:1750,30:2380}};
+const ALLEN={5:4,6:5,8:6,10:8,12:10,14:12,16:14,18:14,20:17,22:17,24:19,27:19,30:22};
+T.push({id:"couples",cat:"meca",name:"Couples de serrage",desc:"Vis 8.8, 10.9, 12.9 : couple, clé, embout",
+kw:"couple serrage vis boulon 8.8 10.9 12.9 nm cle dynamometrique allen chc precontrainte",
+inputs:[S("M","Vis",Object.keys(TQ["8.8"]).map(k=>[k,"M"+k]),"12"),S("cl","Classe",[["8.8","8.8"],["10.9","10.9"],["12.9","12.9"]],"8.8"),S("lub","État du filetage",[["sec","Propre, légèrement huilé"],["graisse","Graissé, pâte ou bisulfure"]],"sec",{wide:1})],
+calc(v){
+  const t=TQ[v.cl][v.M]; if(!t) return {err:"Choisis une vis."};
+  const k=v.lub==="graisse"?0.8:1, row=VIS.find(r=>r[0]==="M"+v.M);
+  const res=[R("Couple de serrage",fmt(t*k,0),"N·m",1),R("Clé (tête H)",row?String(row[4]):"—","mm",1),R("Embout 6 pans creux (CHC)",String(ALLEN[v.M]),"mm"),R("Pas",row?fmt(row[1],2):"—","mm"),R("Couple maxi conseillé à la clé à cliquet",fmt(t*k*0.9,0)+" à "+fmt(t*k,0),"N·m")];
+  return {res,notes:["Couple indicatif pour un serrage à 90 % de la limite élastique, frottement µ ≈ 0,14."+(k<1?" Filetage graissé : ≈ 20 % de moins pour ne pas trop tendre la vis.":""),"Sur une bride avec joint, sur de l'alu ou dans un taraudage court, serre moins : suis la fiche du joint ou de la pièce."]};
+}});
+
+/* Poulies et courroie */
+T.push({id:"poulies",cat:"meca",name:"Poulies et courroie",desc:"Vitesse de sortie, longueur de courroie, enroulement",
+kw:"poulie poulies courroie trapezoidale longueur entraxe rapport vitesse tr/min transmission",
+inputs:[N("d1","Ø poulie motrice","mm",100),N("n1","Vitesse moteur","tr/min",1450),N("d2","Ø poulie menée","mm",200),N("C","Entraxe","mm",400)],
+calc(v){
+  const {d1,n1,d2,C}=v; if(!(d1>0&&d2>0&&C>0)) return {err:"Remplis les deux Ø et l'entraxe."};
+  if(C<=Math.abs(d2-d1)/2) return {err:"Entraxe trop court pour ces poulies."};
+  const L=2*C+Math.PI*(d1+d2)/2+(d2-d1)**2/(4*C), wrap=180-2*deg(Math.asin(Math.abs(d2-d1)/(2*C)));
+  const res=[R("Longueur de courroie",fmt(L,0),"mm",1)];
+  if(n1>0) res.push(R("Vitesse de sortie",fmt(n1*d1/d2,0),"tr/min",1),R("Vitesse de courroie",fmt(Math.PI*d1*n1/60000,1),"m/s"));
+  res.push(R("Rapport",`1 : ${fmt(d2/d1,2)}`),R("Enroulement petite poulie",fmt(wrap,0),"°"));
+  const warn=[]; if(wrap<120) warn.push("Enroulement sous 120° : la courroie risque de patiner. Augmente l'entraxe.");
+  if(n1>0&&Math.PI*d1*n1/60000>30) warn.push("Plus de 30 m/s : trop rapide pour une courroie trapézoïdale classique.");
+  const r1=d1/2,r2=d2/2,Dd=drawing([-r1-10,-Math.max(r1,r2)-10,C+r2+10,Math.max(r1,r2)+10],{H:190,pad:20});
+  const a=Math.asin((r2-r1)/C),t1=[-r1*Math.sin(a),r1*Math.cos(a)],t2=[C-r2*Math.sin(a),r2*Math.cos(a)];
+  Dd.circle([0,0],r1);Dd.circle([C,0],r2);Dd.circle([0,0],r1*0.2,"wd");Dd.circle([C,0],r2*0.15,"wd");
+  Dd.line(t1,t2,"ac");Dd.line([t1[0],-t1[1]],[t2[0],-t2[1]],"ac");Dd.dim([0,-Math.max(r1,r2)],[C,-Math.max(r1,r2)],"entraxe "+fmt(C,0),-10);
+  return {res,warn,svg:Dd.svg("Poulies et courroie"),notes:["Pour une courroie trapézoïdale, prends les Ø primitifs (Ø de référence) et choisis la longueur standard la plus proche, puis ajuste l'entraxe avec le tendeur."]};
+}});
+
+/* Engrenages */
+T.push({id:"engrenages",cat:"meca",name:"Engrenages",desc:"Module, diamètres, entraxe, rapport",
+kw:"engrenage engrenages pignon module dents entraxe diametre primitif tete pied rapport reduction",
+inputs:[N("m","Module","mm",2),N("n1","Vitesse d'entrée","tr/min",1450),N("z1","Dents pignon","",20),N("z2","Dents roue","",40)],
+calc(v){
+  const {m,z1,z2,n1}=v; if(!(m>0&&z1>=6&&z2>=6)) return {err:"Remplis le module et le nombre de dents (6 mini)."};
+  const res=[R("Entraxe",fmt(m*(z1+z2)/2,2),"mm",1),R("Rapport",`1 : ${fmt(z2/z1,3)}`,"",1)];
+  if(n1>0) res.push(R("Vitesse de sortie",fmt(n1*z1/z2,0),"tr/min",1));
+  res.push(R("Ø primitif pignon",fmt(m*z1,2),"mm"),R("Ø de tête pignon",fmt(m*(z1+2),2),"mm"),R("Ø de pied pignon",fmt(m*(z1-2.5),2),"mm"),R("Ø primitif roue",fmt(m*z2,2),"mm"),R("Ø de tête roue",fmt(m*(z2+2),2),"mm"),R("Ø de pied roue",fmt(m*(z2-2.5),2),"mm"),R("Pas",fmt(Math.PI*m,2),"mm"),R("Hauteur de dent",fmt(2.25*m,2),"mm"));
+  const warn=z1<17?["Moins de 17 dents : risque d'interférence, sauf denture corrigée."]:[];
+  const d1=m*z1,d2=m*z2,a=(d1+d2)/2,Dd=drawing([-d1/2-m*2,-d2/2-m*2,a+d2/2+m*2,d2/2+m*2],{H:190,pad:20});
+  const gear=(cx,z,dp)=>{const pts=[],ra=dp/2+m,rf=dp/2-1.25*m;for(let i=0;i<z;i++){const b=2*Math.PI*i/z,s=Math.PI/z;[[b-s*0.55,rf],[b-s*0.3,ra],[b+s*0.3,ra],[b+s*0.55,rf],[b+s*1.45,rf]].forEach(q=>pts.push([cx+q[1]*Math.cos(q[0]),q[1]*Math.sin(q[0])]));}return pts;};
+  Dd.poly(gear(0,Math.round(z1),d1));Dd.poly(gear(a,Math.round(z2),d2));Dd.circle([0,0],d1/2,"cn");Dd.circle([a,0],d2/2,"cn");Dd.circle([0,0],d1*0.1,"wd");Dd.circle([a,0],d2*0.08,"wd");
+  return {res,warn,svg:Dd.svg("Engrenages"),notes:["Denture droite normale, angle de pression 20°, sans correction."]};
+}});
+
+/* Chaîne et pignons */
+T.push({id:"chaine",cat:"meca",name:"Chaîne et pignons",desc:"Nombre de maillons, entraxe réel, Ø primitifs",
+kw:"chaine chaines pignon maillons 08b 10b asa 40 50 60 pas entraxe transmission",
+inputs:[S("p","Chaîne",[["9.525","06B · pas 9,525"],["12.7","08B / ASA 40 · pas 12,7"],["15.875","10B / ASA 50 · pas 15,875"],["19.05","12B / ASA 60 · pas 19,05"],["25.4","16B / ASA 80 · pas 25,4"]],"12.7",{wide:1}),N("z1","Dents pignon","",15),N("z2","Dents couronne","",30),N("C","Entraxe visé","mm",500),N("n1","Vitesse du pignon","tr/min",300)],
+calc(v){
+  const p=+v.p,{z1,z2,C,n1}=v; if(!(z1>=8&&z2>=8&&C>0)) return {err:"Remplis les dents (8 mini) et l'entraxe."};
+  const s=(z1+z2)/2,k=((z2-z1)/(2*Math.PI))**2;let X=Math.ceil(2*C/p+s+k*p/C);if(X%2)X++;
+  const Cr=p/4*((X-s)+Math.sqrt((X-s)**2-8*k));
+  const res=[R("Maillons",String(X),"",1),R("Entraxe réel",fmt(Cr,1),"mm",1),R("Longueur de chaîne",fmt(X*p,0),"mm"),R("Ø primitif pignon",fmt(p/Math.sin(Math.PI/z1),1),"mm"),R("Ø primitif couronne",fmt(p/Math.sin(Math.PI/z2),1),"mm")];
+  if(n1>0) res.push(R("Vitesse de sortie",fmt(n1*z1/z2,0),"tr/min"),R("Vitesse de chaîne",fmt(z1*p*n1/60000,2),"m/s"));
+  return {res,notes:["Nombre pair de maillons pour éviter le maillon coudé.","Prévois un tendeur ou un réglage d'entraxe ; flèche du brin mou ≈ 2 % de l'entraxe."]};
+}});
+
+/* Tournage et fraisage */
+const VCT2={tour:{hss:{doux:30,dur:20,inox:15,alu:100,fonte:20,laiton:60},carb:{doux:180,dur:140,inox:110,alu:400,fonte:120,laiton:250}},fraise:{hss:{doux:25,dur:18,inox:12,alu:80,fonte:18,laiton:50},carb:{doux:150,dur:120,inox:90,alu:350,fonte:100,laiton:200}}};
+T.push({id:"usinage",cat:"meca",name:"Tournage, fraisage",desc:"Vitesse de rotation et avance",
+kw:"tournage fraisage usinage vitesse de coupe rotation tr/min avance fz plaquette carbure hss tour fraiseuse",
+inputs:[S("op","Usinage",[["tour","Tournage"],["fraise","Fraisage"]],"tour"),S("outil","Outil",[["carb","Carbure"],["hss","HSS"]],"carb"),S("mat","Matière",[["doux","Acier S235"],["dur","Acier S355 / dur"],["inox","Inox"],["alu","Aluminium"],["fonte","Fonte"],["laiton","Laiton / bronze"]],"doux",{wide:1}),N("D","Ø pièce ou fraise","mm",50),N("z","Dents de la fraise","",4,{show:v=>v.op==="fraise"}),N("f","Avance","mm/tr",0.2,{show:v=>v.op==="tour"}),N("fz","Avance par dent","mm",0.08,{show:v=>v.op==="fraise"})],
+calc(v){
+  const D=v.D; if(!(D>0)) return {err:"Indique le Ø."};
+  const vc=VCT2[v.op][v.outil][v.mat],n=1000*vc/(Math.PI*D);
+  const res=[R("Vitesse de rotation",fmt(n,0),"tr/min",1)];
+  if(v.op==="tour"){if(v.f>0)res.push(R("Avance",fmt(v.f*n,0),"mm/min",1));}
+  else{const z=v.z>0?v.z:1;if(v.fz>0)res.push(R("Avance table",fmt(v.fz*z*n,0),"mm/min",1));}
+  res.push(R("Vitesse de coupe",fmt(vc,0),"m/min"));
+  return {res,notes:["Vitesses de départ moyennes : ajuste selon la machine, la rigidité et la fiche des plaquettes.","Tournage : diminue l'avance en finition (0,05 à 0,1 mm/tr)."]};
+}});
+
+/* Clavettes */
+const KEY=[[8,2,2,1.2,1],[10,3,3,1.8,1.4],[12,4,4,2.5,1.8],[17,5,5,3,2.3],[22,6,6,3.5,2.8],[30,8,7,4,3.3],[38,10,8,5,3.3],[44,12,8,5,3.3],[50,14,9,5.5,3.8],[58,16,10,6,4.3],[65,18,11,7,4.4],[75,20,12,7.5,4.9],[85,22,14,9,5.4],[95,25,14,9,5.4],[110,28,16,10,6.4],[130,32,18,11,7.4]];
+T.push({id:"clavettes",cat:"meca",name:"Clavettes",desc:"Clavette parallèle et profondeur des rainures",
+kw:"clavette clavettes rainure arbre moyeu din 6885 parallele b h t1 t2 poulie accouplement",
+inputs:[N("d","Ø de l'arbre","mm",30),N("Lm","Longueur du moyeu","mm","")],
+calc(v){
+  const d=v.d; if(!(d>6&&d<=130)) return {err:"Ø d'arbre entre 6 et 130 mm."};
+  const k=KEY.find(r=>d<=r[0]); const [,b,h,t1,t2]=k;
+  const res=[R("Clavette",`${b} × ${h}`,"mm",1),R("Profondeur rainure arbre t1",fmt(t1,1),"mm",1),R("Profondeur rainure moyeu t2",fmt(t2,1),"mm",1),R("Cote arbre (fond de rainure)",fmt(d-t1,1),"mm"),R("Cote moyeu (fond de rainure)",fmt(d+t2,1),"mm")];
+  if(v.Lm>0) res.push(R("Longueur de clavette conseillée",`≈ ${fmt(Math.max(v.Lm-8,b*1.5),0)}`,"mm"));
+  const Dd=drawing([-d/2-h*1.5,-d/2-h*1.5,d/2+h*1.5,d/2+h*2],{H:190,pad:24});
+  Dd.circle([0,0],d/2+h*1.3,"sh");Dd.circle([0,0],d/2,"hole");
+  Dd.poly([[-b/2,d/2-t1],[b/2,d/2-t1],[b/2,d/2-t1+h],[-b/2,d/2-t1+h]],"wd");
+  Dd.dim([-b/2,d/2-t1+h],[b/2,d/2-t1+h],"b "+b,12);
+  return {res,svg:Dd.svg("Clavette dans l'arbre et le moyeu"),notes:["Clavette parallèle forme A (DIN 6885).","Tolérances usuelles : rainure d'arbre N9, rainure de moyeu JS9 (ajustement normal)."]};
+}});
+
+/* Puissance et couple */
+T.push({id:"puissance",cat:"meca",name:"Puissance et couple",desc:"Couple ↔ puissance, courant d'un moteur",
+kw:"puissance couple moteur kw nm vitesse tr/min courant intensite triphase 400 v cos phi rendement",
+inputs:[S("mode","Calcul",[["cp","Puissance → couple"],["pc","Couple → puissance"]],"cp",{wide:1}),N("P","Puissance","kW",5.5,{show:v=>v.mode==="cp"}),N("C","Couple","N·m",36,{show:v=>v.mode==="pc"}),N("n","Vitesse","tr/min",1450),N("cos","cos φ","",0.85),N("eta","Rendement","%",88)],
+calc(v){
+  const n=v.n; if(!(n>0)) return {err:"Indique la vitesse."};
+  let P,C; if(v.mode==="cp"){P=v.P;if(!(P>0))return {err:"Indique la puissance."};C=9550*P/n;}else{C=v.C;if(!(C>0))return {err:"Indique le couple."};P=C*n/9550;}
+  const cos=v.cos>0?v.cos:0.85,eta=(v.eta>0?v.eta:88)/100;
+  const res=[R(v.mode==="cp"?"Couple":"Puissance",v.mode==="cp"?fmt(C,1):fmt(P,2),v.mode==="cp"?"N·m":"kW",1),R("Courant en 400 V triphasé",fmt(P*1000/(Math.sqrt(3)*400*cos*eta),1),"A",1),R("Courant en 230 V monophasé",fmt(P*1000/(230*cos*eta),1),"A"),R("Puissance",fmt(P/0.736,2),"ch")];
+  return {res,notes:["Vitesses typiques à 50 Hz : 2 pôles ≈ 2900, 4 pôles ≈ 1450, 6 pôles ≈ 960 tr/min.","Courant estimé à pleine charge : la plaque du moteur fait foi."]};
+}});
+
+/* Vérins */
+T.push({id:"verins",cat:"meca",name:"Vérins",desc:"Force, vitesse et temps de sortie (hydraulique ou air)",
+kw:"verin verins hydraulique pneumatique force pression bar tige piston vitesse debit pompe course",
+inputs:[S("type","Vérin",[["hyd","Hydraulique"],["pneu","Pneumatique"]],"hyd"),N("p","Pression","bar",160),N("D","Ø piston","mm",63),N("d","Ø tige","mm",36),N("Q","Débit de la pompe","l/min",10,{show:v=>v.type==="hyd"}),N("c","Course","mm",300)],
+calc(v){
+  const {p,D,d}=v; if(!(p>0&&D>0&&d>=0&&d<D)) return {err:"Remplis la pression et des Ø cohérents."};
+  const S1=Math.PI*D*D/4,S2=Math.PI*(D*D-d*d)/4,k=v.type==="pneu"?0.9:1;
+  const F1=p*0.1*S1*k,F2=p*0.1*S2*k;
+  const res=[R("Force en poussée",fmt(F1/1000,2),"kN",1),R("Force en traction",fmt(F2/1000,2),"kN",1),R("Poussée en tonnes",`≈ ${fmt(F1/9810,2)}`,"t")];
+  if(v.type==="hyd"&&v.Q>0){const q=v.Q*1e6/60,v1=q/S1,v2=q/S2;res.push(R("Vitesse de sortie",fmt(v1,0),"mm/s"),R("Vitesse de rentrée",fmt(v2,0),"mm/s"));if(v.c>0)res.push(R("Temps de sortie",fmt(v.c/v1,1),"s"),R("Huile par course",fmt(S1*v.c/1e6,2),"l"));}
+  return {res,notes:[v.type==="pneu"?"Pneumatique : 90 % de la force théorique pour tenir compte des frottements.":"Force théorique sans pertes : garde une marge de 20 à 30 %.","Plusieurs vérins en parallèle : la force s'additionne, le débit se partage."]};
+}});
+
+/* Dilatation et frettage */
+const ALPHA={acier:12,inox:16.5,alu:23,fonte:10.5,laiton:19,cuivre:17};
+T.push({id:"dilatation",cat:"meca",name:"Dilatation, frettage",desc:"Allongement à la chaleur, température de chauffe",
+kw:"dilatation thermique allongement temperature frettage chauffe moyeu bague serrage montage a chaud",
+inputs:[S("mode","Calcul",[["dil","Dilatation d'une pièce"],["fret","Frettage : chauffe d'un moyeu"]],"dil",{wide:1}),S("mat","Matière",[["acier","Acier"],["inox","Inox"],["alu","Alu"],["fonte","Fonte"],["laiton","Laiton"],["cuivre","Cuivre"]],"acier"),
+  N("L","Longueur","mm",6000,{show:v=>v.mode==="dil"}),N("dT","Écart de température","°C",50,{show:v=>v.mode==="dil"}),
+  N("d","Ø d'ajustement","mm",50,{show:v=>v.mode==="fret"}),N("s","Serrage","µm",30,{show:v=>v.mode==="fret"}),N("jm","Jeu de montage voulu","µm",50,{show:v=>v.mode==="fret"}),N("Ta","Température ambiante","°C",20,{show:v=>v.mode==="fret"})],
+calc(v){
+  const a=ALPHA[v.mat]*1e-6;
+  if(v.mode==="dil"){const {L,dT}=v;if(!(L>0&&isFinite(dT)))return {err:"Indique la longueur et l'écart de température."};
+    return {res:[R("Allongement",fmt(a*L*dT,2),"mm",1),R("Par mètre",fmt(a*1000*dT,3),"mm"),R("Coefficient",fmt(ALPHA[v.mat],1),"µm/m·°C")],notes:["Une longue ligne de tube ou un rail chaud doit pouvoir glisser : prévois un point fixe et des appuis glissants, ou une lyre."]};}
+  const {d,s,jm}=v,Ta=isFinite(v.Ta)?v.Ta:20; if(!(d>0&&s>=0)) return {err:"Indique le Ø et le serrage."};
+  const dT=((s+(jm>0?jm:0))/1000)/(a*d),T=Ta+dT;
+  const warn=[]; if(T>120) warn.push("Plus de 120 °C : à ne pas faire sur un roulement."); if(T>300) warn.push("Plus de 300 °C : risque d'abîmer l'acier traité. Refroidis plutôt l'arbre (azote, carboglace).");
+  return {res:[R("Température de chauffe",fmt(T,0),"°C",1),R("Échauffement",fmt(dT,0),"°C",1),R("Dilatation obtenue",fmt(a*d*dT*1000,0),"µm")],warn,notes:["Jeu de montage : environ 1 µm par mm de Ø pour enfiler sans forcer.","Chauffe de façon homogène (four, plaque, induction) et contrôle au thermomètre ou au crayon thermique."]};
+}});
+
+/* ===================== FICHE MACHINE (photo de plaque) ===================== */
+ICONS.machine='<rect x="5" y="13" width="38" height="27" rx="4"/><path d="M17 13l3-5h8l3 5"/><circle class="h" cx="24" cy="26.5" r="7.5" stroke-width="2.6"/><circle class="hf" cx="24" cy="26.5" r="2.5"/>';
+T.push({id:"machine",cat:"meca",special:true,name:"Fiche machine",desc:"Photo de la plaque : caractéristiques et liens vers la fiche technique",kw:"machine plaque signaletique photo fiche technique notice manuel moteur compresseur poste a souder pompe identification pieces detachees",inputs:[],calc(){return {};}});
+let MACH={file:null,last:null,ctl:null};
+async function getSample(){try{if(!window.claude||typeof window.claude.use!=="function")return null;const s=await window.claude.use("sample");if(!s)return null;const lim=await s.limits().catch(()=>null);return lim&&lim.images?s:null;}catch(e){return null;}}
+function machineLinks(q,brand){const g=t=>"https://www.google.com/search?q="+encodeURIComponent(t);const L=[["Fiche technique (PDF)",g(q+" fiche technique pdf")],["Notice / manuel",g(q+" notice manuel pdf")],["Pièces détachées",g(q+" pièces détachées vue éclatée")]];if(brand)L.push(["Site du fabricant",g(brand+" site officiel")]);return L;}
+function linksHTML(q,brand){return `<div class="card"><h3>Trouver la documentation</h3><p class="lede">Recherche : « ${esc(q)} ». Les liens s'ouvrent dans ton navigateur.</p><div class="actions">${machineLinks(q,brand).map(l=>`<a class="btn small" href="${esc(l[1])}" target="_blank" rel="noopener">${esc(l[0])}</a>`).join("")}</div></div>`;}
+function renderMachine(){
+  app.onclick=null;app.classList.remove("tool");
+  topbar.innerHTML=`<a class="back" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>Outils</a><div class="sp"></div>${themeBtn()}`;
+  app.innerHTML=`<div class="tool-head th" style="--cat:${CATCOL.meca}"><span class="ib">${ico("machine")}</span><div><h1>Fiche machine</h1><p class="lede" style="margin-top:2px">Photo de la plaque signalétique, lecture des caractéristiques, liens vers la fiche technique.</p></div></div>
+  <section class="card" id="mAI" hidden><h3>Photo de la plaque</h3>
+    <label class="btn primary" for="mPhoto" style="width:100%;margin-top:10px">Prendre ou choisir une photo</label>
+    <input type="file" id="mPhoto" accept="image/jpeg,image/png,image/webp,image/heic,image/*" hidden>
+    <img id="mPrev" alt="Photo de la plaque" hidden style="display:block;max-width:100%;max-height:260px;margin:10px auto 0;border-radius:12px">
+    <div class="actions"><button class="btn" id="mGo" style="flex:1" disabled>Lire la plaque</button><button class="btn" id="mStop" hidden>Arrêter</button></div>
+    <p class="lede" id="mState" role="status" style="margin-top:8px">Cadre bien la plaque, sans reflet, et assez près pour lire les chiffres.</p></section>
+  <p class="msg warn" id="mNoAI">La lecture de la plaque par photo marche dans la version Claude de l'appli. Ici, tape la marque et le modèle.</p>
+  <section class="card"><h3>Recherche par marque et modèle</h3><div class="fields" style="margin-top:10px"><label class="fld"><span>Marque</span><input id="mBrand" type="text" autocomplete="off" style="font-size:18px" placeholder="ex. Lincoln"></label><label class="fld"><span>Modèle / référence</span><input id="mModel" type="text" autocomplete="off" style="font-size:18px" placeholder="ex. Powertec i320C"></label></div>
+    <button class="btn" id="mSearch" style="width:100%;margin-top:10px">Chercher la documentation</button></section>
+  <div id="mOut"></div>`;
+  const out=document.getElementById("mOut");
+  document.getElementById("mSearch").addEventListener("click",()=>{const b=document.getElementById("mBrand").value.trim(),m=document.getElementById("mModel").value.trim();if(!b&&!m){toast("Tape au moins une marque ou un modèle.");return;}out.innerHTML=linksHTML((b+" "+m).trim(),b);});
+  getSample().then(sample=>{
+    if(!sample||!document.getElementById("mAI"))return;
+    document.getElementById("mAI").hidden=false;document.getElementById("mNoAI").hidden=true;
+    const inp=document.getElementById("mPhoto"),prev=document.getElementById("mPrev"),go=document.getElementById("mGo"),stop=document.getElementById("mStop"),st=document.getElementById("mState");
+    inp.addEventListener("change",()=>{const f=inp.files&&inp.files[0];if(!f)return;MACH.file=f;try{prev.src=URL.createObjectURL(f);prev.hidden=false;}catch(e){}go.disabled=false;st.textContent="Photo prête. Touche « Lire la plaque ».";});
+    stop.addEventListener("click",()=>{if(MACH.ctl)MACH.ctl.abort();});
+    go.addEventListener("click",async()=>{
+      if(!MACH.file)return;go.disabled=true;stop.hidden=false;st.textContent="Lecture de la plaque… (10 à 60 secondes)";MACH.ctl=new AbortController();
+      const prompt=`Tu reçois la photo d'une plaque signalétique de machine d'atelier ou industrielle (moteur, compresseur, poste à souder, pompe, machine-outil…). Lis-la et réponds UNIQUEMENT par un objet JSON de cette forme :
+{"lisible":true,"marque":"","modele":"","type":"","numero_serie":"","annee":"","plaque":[{"nom":"Puissance","valeur":"5,5 kW"}],"connu":[{"nom":"","valeur":""}],"recherche":"","remarques":""}
+Règles : "plaque" = toutes les valeurs lisibles sur la plaque, telles qu'écrites, avec leurs unités, en français pour les noms. "type" = le genre de machine en français. "connu" = d'autres caractéristiques de CE modèle précis uniquement si tu en es certain, sinon tableau vide. "recherche" = une requête courte (marque + modèle + référence) pour trouver la fiche technique. "remarques" = une phrase utile (ce qui est illisible, alimentation, sécurité). N'invente aucune valeur : laisse vide ce que tu ne lis pas. Si la photo n'est pas une plaque lisible, mets "lisible":false et explique dans "remarques".`;
+      try{
+        const r=await sample.json(prompt,{images:[MACH.file],signal:MACH.ctl.signal});
+        MACH.last=r;showMachine(r);st.textContent=r&&r.lisible===false?"Plaque difficile à lire.":"Plaque lue.";
+      }catch(e){
+        const c=e&&e.code;st.textContent=c==="cancelled"?"Lecture arrêtée.":c==="not_granted"||c==="sampling_disabled"?"La lecture par Claude n'est pas autorisée ici : utilise la recherche par marque et modèle.":c==="rate_limited"?"Trop de demandes pour l'instant : réessaie dans un moment.":c==="image_rejected"?"Photo refusée : prends-en une autre (JPEG ou PNG, pas trop lourde).":c==="invalid_json"||c==="empty_completion"?"Lecture impossible : réessaie avec une photo plus nette et plus proche.":c==="refused"?"Claude n'a pas pu traiter cette photo.":"Problème de connexion : réessaie.";
+        if(c==="not_granted"||c==="sampling_disabled"){document.getElementById("mAI").hidden=true;document.getElementById("mNoAI").hidden=false;}
+      }finally{go.disabled=false;stop.hidden=true;}
+    });
+  });
+}
+function showMachine(r){
+  const out=document.getElementById("mOut");if(!out||!r)return;
+  const arr=x=>Array.isArray(x)?x.filter(i=>i&&i.nom&&i.valeur):[];
+  const pl=arr(r.plaque),kn=arr(r.connu),q=(r.recherche||[r.marque,r.modele].filter(Boolean).join(" ")).trim();
+  if(r.marque)document.getElementById("mBrand").value=r.marque;if(r.modele)document.getElementById("mModel").value=r.modele;
+  const act=Store.get(Store.active);
+  out.innerHTML=`<div class="tiles" style="margin-top:12px">${[["Marque",r.marque],["Modèle",r.modele],["Type",r.type]].filter(x=>x[1]).map(x=>`<div class="tile"><div class="l">${x[0]}</div><div class="v" style="font-size:24px">${esc(x[1])}</div></div>`).join("")}</div>
+  ${(pl.length||r.numero_serie||r.annee)?`<div class="card"><h3>Sur la plaque</h3><dl class="rlist" style="margin-top:4px">${r.numero_serie?`<div><dt>N° de série</dt><dd>${esc(r.numero_serie)}</dd></div>`:""}${r.annee?`<div><dt>Année</dt><dd>${esc(r.annee)}</dd></div>`:""}${pl.map(i=>`<div><dt>${esc(i.nom)}</dt><dd>${esc(i.valeur)}</dd></div>`).join("")}</dl></div>`:""}
+  ${kn.length?`<div class="card"><h3>Ce que Claude connaît de ce modèle</h3><p class="lede">À vérifier sur la fiche du fabricant.</p><dl class="rlist" style="margin-top:4px">${kn.map(i=>`<div><dt>${esc(i.nom)}</dt><dd>${esc(i.valeur)}</dd></div>`).join("")}</dl></div>`:""}
+  ${r.remarques?`<div class="msg warn">${esc(r.remarques)}</div>`:""}
+  ${q?linksHTML(q,r.marque):""}
+  <div class="card"><h3>Garder la fiche</h3>${act?`<button class="btn primary" id="mSave" style="width:100%;margin-top:10px">Ajouter au chantier « ${esc(act.name)} »</button>`:`<p class="lede">Crée ou choisis un chantier actif (onglet Chantiers) pour y ranger cette fiche.</p>`}</div>`;
+  const sv=document.getElementById("mSave");if(sv)sv.addEventListener("click",()=>{const j=JSON.parse(JSON.stringify(Store.get(Store.active)));
+    const res=[["Marque",r.marque||"",""],["Modèle",r.modele||"",""],["Type",r.type||"",""]].filter(x=>x[1]).concat(r.numero_serie?[["N° de série",r.numero_serie,""]]:[],r.annee?[["Année",r.annee,""]]:[],pl.map(i=>[i.nom,i.valeur,""]));
+    j.items.unshift({id:newId(),tool:"machine",toolName:"Fiche machine",date:Date.now(),note:[r.marque,r.modele].filter(Boolean).join(" "),inputs:[],results:res});Store.put(j);toast(`Fiche ajoutée à « ${j.name} ».`);sv.disabled=true;});
+}
+
+/* ===================== FERRONNERIE ===================== */
+Object.assign(ICONS,{
+ escalier:'<path d="M4 42h9v-8h9v-8h9v-8h9v-8h4"/><path class="h" d="M4 36L40 8" stroke-dasharray="3 3"/>',
+ rampant:'<path d="M4 34L44 12M4 44L44 22"/><path class="h" d="M12 30v10M20 25.5v10M28 21v10M36 16.5v10"/><path stroke-width="4" d="M4 30v16M44 8v16"/>',
+ portail:'<path stroke-width="4" d="M3 6v38M45 6v38"/><rect x="7" y="12" width="16" height="28"/><rect x="25" y="12" width="16" height="28"/><path class="h" d="M7 40l16-28M41 40L25 12"/>',
+ arc:'<path d="M5 42V18a40 40 0 0 1 38 0v24z"/><path class="h" d="M13 42V14M20 42V12M28 42V12M35 42V14"/>',
+ cintrageplat:'<path class="h" d="M24 24a3 3 0 0 1 3 3 6 6 0 0 1-6 6 9 9 0 0 1-9-9 12 12 0 0 1 12-12 15 15 0 0 1 15 15 18 18 0 0 1-9 15.6" stroke-width="3"/>',
+ peinture:'<rect x="6" y="6" width="26" height="12" rx="2"/><path d="M32 12h6v10H21v6"/><rect x="18" y="28" width="6" height="15" rx="1"/><path class="h" d="M8 18v6M14 18v9M20 18v5M26 18v7"/>'
+});
+CATS.splice(CATS.findIndex(c=>c[0]==="ref"),0,["fer","Ferronnerie"]);
+CATCOL.fer="var(--c-fer)";
+T.forEach(t=>{if(t.id==="barreaux"||t.id==="cadre")t.cat="fer";});
+
+/* Escalier */
+T.push({id:"escalier",cat:"fer",name:"Escalier",desc:"Nombre de marches, hauteur, giron, Blondel, limon",
+kw:"escalier marche marches giron hauteur blondel limon reculement echappee pente volee contremarche",
+inputs:[N("H","Hauteur à monter","mm",2490),N("L","Reculement disponible (vide = libre)","mm",""),N("hm","Hauteur de marche visée","mm",175,{wide:1})],
+calc(v){
+  const H=v.H; if(!(H>0)) return {err:"Indique la hauteur à monter."};
+  const hm=v.hm>0?v.hm:175, n=Math.max(2,Math.round(H/hm)), h=H/n, nm=n-1;
+  let g; if(v.L>0) g=v.L/nm; else g=clamp(630-2*h,220,330);
+  const M=2*h+g, ang=deg(Math.atan(h/g)), run=g*nm, lim=Math.hypot(H,run);
+  const res=[R("Hauteurs de marche",String(n),"",1),R("Hauteur de marche",fmt(h,1),"mm",1),R("Giron",fmt(g,1),"mm",1),R("Blondel (2h + g)",fmt(M,0),"mm"),R("Angle",fmt(ang,1),"°"),R("Marches (girons)",String(nm)),R("Reculement",fmt(run,0),"mm"),R("Longueur de la ligne de pente",fmt(lim,0),"mm"),R("Pente",fmt(h/g*100,0),"%")];
+  const warn=[]; if(M<600||M>650) warn.push("Blondel hors de 600–650 mm : l'escalier sera inconfortable. Ajuste la hauteur visée ou le reculement.");
+  if(h>200) warn.push("Marches de plus de 20 cm : escalier raide."); if(g<220) warn.push("Giron sous 22 cm : le pied ne tient pas bien.");
+  const pts=[[0,0]];for(let k=1;k<=n;k++){pts.push([(k-1)*g,(k-1)*h+h]);if(k<n)pts.push([k*g,k*h]);}
+  const prof=[[0,0]];for(let k=1;k<n;k++){prof.push([(k-1)*g,k*h]);prof.push([k*g,k*h]);}prof.push([run,H]);
+  const step=[];let x=0,y=0;step.push([0,0]);for(let k=0;k<nm;k++){y+=h;step.push([x,y]);x+=g;step.push([x,y]);}y+=h;step.push([x,y]);
+  const Dd=drawing([-g*0.3,0,run+g*0.6,H],{H:220,pad:44});
+  Dd.pl(step,"ln");Dd.line([0,0],[run+g*0.6,0],"ln");Dd.line([0,h],[run,H],"cn");
+  Dd.dim([0,0],[run,0],"reculement "+fmt(run,0),-14);Dd.dim([run+g*0.6,0],[run+g*0.6,H],"H "+fmt(H,0),-12);
+  const rows=[];for(let k=1;k<=nm;k++)rows.push([String(k),`<b>${fmt(k*h,1)}</b>`,fmt((k-1)*g,1)]);rows.push(["Arrivée",`<b>${fmt(H,1)}</b>`,fmt(run,1)]);
+  return {res,warn,svg:Dd.svg("Profil de l'escalier"),extra:tableHTML("Repères de traçage du limon",["Marche","Dessus de marche (mm)","Nez depuis la 1re contremarche (mm)"],rows,"Hauteurs depuis le sol fini du bas, à reporter sur le limon."),notes:["Pour un escalier à deux volées, calcule chaque volée avec sa propre hauteur, et garde la même hauteur de marche partout.","Vérifie l'échappée (passage pour la tête) : prévois souvent au moins 2 m au-dessus de chaque nez de marche."]};
+}});
+
+/* Barreaux en rampant */
+T.push({id:"rampant",cat:"fer",name:"Barreaux en rampant",desc:"Garde-corps d'escalier : barreaux, positions sur la lisse, coupes",
+kw:"rampant garde-corps escalier barreaux lisse main courante inclinee angle coupe repartition",
+inputs:[N("a","Angle de l'escalier","°",33),N("Lh","Vide horizontal entre poteaux","mm",1500),N("b","Largeur d'un barreau","mm",16),N("g","Vide maxi entre barreaux","mm",110),N("Hv","Hauteur verticale entre lisses","mm",800,{wide:1})],
+calc(v){
+  const {a,Lh,b,g,Hv}=v; if(!(a>0&&a<60&&Lh>0&&b>0&&g>0)) return {err:"Remplis l'angle (0–60°), le vide, la largeur et le vide maxi."};
+  const n=Math.max(0,Math.ceil((Lh-g)/(b+g))),gap=(Lh-n*b)/(n+1),ca=Math.cos(rad(a)),xs=[];for(let i=1;i<=n;i++)xs.push(gap*i+b*(i-0.5));
+  const res=[R("Barreaux",String(n),"",1),R("Vide réel (horizontal)",fmt(gap,1),"mm",1),R("Entraxe sur la lisse",fmt((b+gap)/ca,1),"mm",1),R("Entraxe horizontal",fmt(b+gap,1),"mm"),R("Coupe des barreaux",`${fmt(a,1)}° (coupes parallèles)`,""),R("Longueur de lisse rampante",fmt(Lh/ca,1),"mm")];
+  if(Hv>0) res.push(R("Longueur des barreaux",`${fmt(Hv,0)} sur chaque arête`,"mm"));
+  const t=Math.tan(rad(a)),H0=Hv>0?Hv:Lh*0.4,Dd=drawing([-30,0,Lh+30,Lh*t+H0],{H:220,pad:24});
+  Dd.poly([[-30,-30*t],[0,0],[0,H0+40],[-30,H0+40-30*t]].map(p=>[p[0],p[1]]),"sh");
+  Dd.line([0,0],[Lh,Lh*t],"ln");Dd.line([0,H0],[Lh,Lh*t+H0],"ln");
+  xs.forEach(x=>Dd.poly([[x-b/2,(x-b/2)*t],[x+b/2,(x+b/2)*t],[x+b/2,(x+b/2)*t+H0],[x-b/2,(x-b/2)*t+H0]],"wd"));
+  Dd.text([0,0],fmt(a,0)+"°","td","start",10,8);
+  const rows=xs.map((x,i)=>[String(i+1),`<b>${fmt(x/ca,1)}</b>`,fmt(x,1)]);
+  return {res,svg:Dd.svg("Barreaux en rampant"),extra:tableHTML("Positions des axes",["Barreau","Sur la lisse (mm)","À l'horizontale (mm)"],rows,"Mesuré depuis la face du poteau bas."),notes:["Le vide est mesuré à l'horizontale entre barreaux. Vérifie la règle applicable à ton chantier (souvent 110 mm)."]};
+}});
+
+/* Portail */
+T.push({id:"portail",cat:"fer",name:"Portail",desc:"Vantaux, jeux, liste de coupe, écharpe, poids",
+kw:"portail portillon battant coulissant autoportant vantail jeu gonds echarpe cadre poids",
+inputs:[S("type","Portail",[["b2","Battant 2 vantaux"],["b1","Battant 1 vantail"],["cou","Coulissant autoportant"]],"b2",{wide:1}),N("O","Ouverture entre piliers","mm",3000),N("Ht","Hauteur des vantaux","mm",1500),
+  N("jg","Jeu côté gonds","mm",15,{show:v=>v.type!=="cou"}),N("jc","Jeu central / côté serrure","mm",15,{show:v=>v.type!=="cou"}),N("q","Queue de contrepoids","%",45,{show:v=>v.type==="cou"}),
+  N("w","Largeur du profilé de cadre","mm",60),N("kg","Poids du profilé","kg/m","")],
+calc(v){
+  const {O,Ht,w}=v; if(!(O>0&&Ht>0&&w>0)) return {err:"Remplis l'ouverture, la hauteur et le profilé."};
+  let nv,W,note=[];
+  if(v.type==="b2"){nv=2;W=(O-2*(v.jg||0)-(v.jc||0))/2;note.push("Jeu au sol : 50 à 80 mm selon la pente de l'allée.");}
+  else if(v.type==="b1"){nv=1;W=O-(v.jg||0)-(v.jc||0);note.push("Jeu au sol : 50 à 80 mm selon la pente de l'allée.");}
+  else{nv=1;W=O*(1+(v.q>0?v.q:45)/100);note.push(`Queue de contrepoids : ${fmt(O*(v.q>0?v.q:45)/100,0)} mm derrière le pilier ; vérifie avec la notice du kit de guidage.`);}
+  if(!(W>2*w)) return {err:"Vantail trop étroit pour ce profilé."};
+  const iw=W-2*w,ih=Ht-2*w,diag=Math.hypot(iw,ih);
+  const P=[["Montants",2*nv,Ht,"coupe droite"],["Traverses haut et bas",2*nv,iw,"entre montants"]];
+  if(v.type!=="cou") P.push(["Écharpe (diagonale)",nv,diag,`coupes à ${fmt(deg(Math.atan(ih/iw)),1)}° / ${fmt(90-deg(Math.atan(ih/iw)),1)}°, à ajuster`]);
+  else P.push(["Traverse intermédiaire",1,iw,"entre montants"]);
+  const tot=P.reduce((a,p)=>a+p[1]*p[2],0);
+  const res=[R(nv>1?"Largeur d'un vantail":"Largeur du vantail",fmt(W,0),"mm",1),R("Hauteur",fmt(Ht,0),"mm",1),R("Profilé de cadre",fmt(tot/1000,2),"m")];
+  if(v.kg>0) res.push(R("Poids du cadre",fmt(tot/1000*v.kg,1),"kg"));
+  const gap=v.type==="b2"?(v.jc||0):0,Dd=drawing([0,0,nv*W+gap,Ht],{H:200,pad:34});
+  for(let k=0;k<nv;k++){const x0=k*(W+gap);Dd.poly([[x0,0],[x0+W,0],[x0+W,Ht],[x0,Ht]]);Dd.poly([[x0+w,w],[x0+W-w,w],[x0+W-w,Ht-w],[x0+w,Ht-w]],"hole");
+    if(v.type!=="cou"){const hingeLeft=(k===0);Dd.line(hingeLeft?[x0+w,w]:[x0+W-w,w],hingeLeft?[x0+W-w,Ht-w]:[x0+w,Ht-w],"ac");}else Dd.line([x0+w,Ht/2],[x0+W-w,Ht/2],"ln");}
+  Dd.dim([0,0],[W,0],fmt(W,0),-14);
+  const rows=P.map(p=>[esc(p[0]),String(p[1]),`<b>${fmt(p[2],1)}</b>`,esc(p[3])]);
+  if(v.type!=="cou") note.unshift("Écharpe : du bas côté gonds vers le haut côté libre, pour qu'elle travaille en compression et empêche le vantail de tomber.");
+  return {res,svg:Dd.svg("Portail"),extra:tableHTML("Liste de coupe du cadre",["Pièce","Qté","Longueur (mm)","Coupe"],rows),notes:note.concat(["Remplissage : utilise l'outil Barreaux avec la largeur intérieure "+fmt(iw,0)+" mm."])};
+}});
+
+/* Arc cintré + barreaux */
+T.push({id:"arc",cat:"fer",name:"Arc et barreaux cintrés",desc:"Rayon, longueur d'arc et longueur de chaque barreau",
+kw:"arc cintre cintré chapeau de gendarme portail rayon fleche corde longueur barreaux cintrage",
+inputs:[N("c","Largeur (corde)","mm",3000),N("f","Flèche","mm",300),S("sens","Forme",[["conv","Bombé vers le haut"],["conc","Creux (chapeau inversé)"]],"conv",{wide:1}),N("He","Hauteur des barreaux aux bords","mm",1200),N("b","Largeur d'un barreau","mm",20),N("g","Vide maxi","mm",110)],
+calc(v){
+  const {c,f,He,b,g}=v; if(!(c>0&&f>0&&f<=c/2)) return {err:"La flèche doit être positive et au plus la moitié de la largeur."};
+  const Rr=(c*c/4+f*f)/(2*f),th=2*Math.asin(c/(2*Rr)),arc=Rr*th,cv=v.sens==="conv"?1:-1;
+  const res=[R("Rayon",fmt(Rr,1),"mm",1),R("Longueur d'arc",fmt(arc,1),"mm",1),R("Angle",fmt(deg(th),1),"°")];
+  const y=x=>Math.sqrt(Math.max(0,Rr*Rr-(x-c/2)**2))-(Rr-f);
+  let xs=[];if(b>0&&g>0){const n=Math.max(0,Math.ceil((c-g)/(b+g))),gap=(c-n*b)/(n+1);for(let i=1;i<=n;i++)xs.push(gap*i+b*(i-0.5));res.push(R("Barreaux",String(n),"",1),R("Vide réel",fmt(gap,1),"mm"));}
+  const He0=He>0?He:c*0.3,top=x=>He0+cv*y(x),pts=[];for(let i=0;i<=60;i++){const x=c*i/60;pts.push([x,top(x)]);}
+  const Dd=drawing([0,0,c,He0+Math.max(0,cv)*f+10],{H:220,pad:34});
+  Dd.poly([[0,0],[c,0],...pts.slice().reverse()],"sh");
+  xs.forEach(x=>Dd.line([x,0],[x,top(x)],"ac"));
+  Dd.dim([0,0],[c,0],fmt(c,0),-14);
+  const rows=xs.map((x,i)=>[String(i+1),fmt(x,1),`<b>${fmt(top(x),1)}</b>`]);
+  return {res,svg:Dd.svg("Arc cintré"),extra:xs.length?tableHTML("Longueur des barreaux",["Barreau","Axe depuis la gauche (mm)","Longueur à l'axe (mm)"],rows,He>0?"Du bas jusqu'à l'intérieur de l'arc, à l'axe du barreau.":"Indique la hauteur aux bords pour avoir les longueurs réelles."):"",notes:["Coupe chaque barreau un peu plus long et ajuste le haut à la forme de l'arc, ou entaille-le pour qu'il traverse le fer cintré."]};
+}});
+
+/* Cintrage de plat et volutes */
+T.push({id:"cintrageplat",cat:"fer",name:"Cintrage de plat, volutes",desc:"Longueur de fer pour un anneau, un arc ou une volute",
+kw:"cintrage plat fer plat anneau cercle arc volute spirale enroulement ferronnerie longueur developpee chant",
+inputs:[S("mode","Forme",[["anneau","Anneau (cercle complet)"],["arc","Arc"],["volute","Volute (spirale)"]],"anneau",{wide:1}),
+  S("sens","Cintré",[["plat","À plat (sur l'épaisseur)"],["chant","Sur chant (sur la largeur)"]],"plat",{wide:1,show:v=>v.mode!=="volute"}),
+  N("b","Largeur du plat","mm",30),N("e","Épaisseur du plat","mm",8),
+  N("Di","Ø intérieur","mm",300,{show:v=>v.mode!=="volute"}),N("ang","Angle de l'arc","°",90,{show:v=>v.mode==="arc"}),
+  N("De","Ø extérieur de la volute","mm",200,{show:v=>v.mode==="volute"}),N("Do","Ø de l'œil","mm",40,{show:v=>v.mode==="volute"}),N("tours","Nombre de tours","",2.5,{show:v=>v.mode==="volute"})],
+calc(v){
+  const {b,e}=v; if(!(b>0&&e>0)) return {err:"Indique la largeur et l'épaisseur du plat."};
+  if(v.mode==="volute"){const {De,Do,tours}=v;if(!(De>Do&&Do>=0&&tours>0))return {err:"Ø extérieur plus grand que l'œil, et un nombre de tours."};
+    const L=Math.PI*tours*(De+Do)/2,kg=b*e*L*7.85/1e6;
+    const pts=[],a0=0,r0=Do/2,r1=De/2,N2=Math.round(tours*60);for(let i=0;i<=N2;i++){const t=i/N2,a=a0+2*Math.PI*tours*t,r=r0+(r1-r0)*t;pts.push([r*Math.cos(a),r*Math.sin(a)]);}
+    const Dd=drawing(bbox(pts),{H:200,pad:24});Dd.pl(pts,"ac");
+    return {res:[R("Longueur de fer",fmt(L,0),"mm",1),R("Poids",fmt(kg,2),"kg",1),R("Pas entre spires",fmt((De-Do)/2/tours,1),"mm")],svg:Dd.svg("Volute"),notes:["Spirale régulière (approximation). Ajoute la longueur de prise nécessaire pour enrouler à la main ou à la machine, puis coupe à la fin."]};}
+  const Di=v.Di; if(!(Di>0)) return {err:"Indique le Ø intérieur."};
+  const t=v.sens==="plat"?e:b, Lc=Math.PI*(Di+t), L=v.mode==="arc"?Lc*(v.ang>0?v.ang:90)/360:Lc, kg=b*e*L*7.85/1e6;
+  const res=[R("Longueur de fer",fmt(L,1),"mm",1),R("Poids",fmt(kg,2),"kg",1),R("Ø à la fibre neutre",fmt(Di+t,1),"mm"),R("Ø extérieur",fmt(Di+2*t,1),"mm")];
+  const ro=Di/2+t,ri=Di/2,a=v.mode==="arc"?(v.ang>0?v.ang:90):359.9,ptsO=arcPts([0,0],ro,90-a/2,90+a/2,60),ptsI=arcPts([0,0],ri,90+a/2,90-a/2,60);
+  const Dd=drawing(bbox(ptsO.concat(ptsI)),{H:200,pad:24});Dd.poly(ptsO.concat(ptsI),"wd");
+  return {res,svg:Dd.svg("Cintrage"),notes:["Longueur prise à la fibre neutre (milieu de la matière). Garde un peu de longueur en plus pour les bouts qui restent droits à la cintreuse."]};
+}});
+
+/* Peinture et galvanisation */
+T.push({id:"peinture",cat:"fer",name:"Peinture, galva",desc:"Surface à traiter, litres de peinture, poids à galvaniser",
+kw:"peinture galvanisation galva surface m2 litres couches rendement antirouille thermolaquage poids",
+inputs:[S("f","Profilé",[["plat","Plat"],["tube","Tube rond"],["carre","Carré / tube carré"],["rect","Tube rectangulaire"],["corn","Cornière"],["rond","Rond plein"]],"carre"),N("L","Longueur totale","m",30),
+  N("b","Largeur","mm",40,{show:v=>["plat","carre","rect","corn"].includes(v.f)}),N("h","Hauteur","mm",20,{show:v=>["rect","corn"].includes(v.f)}),N("D","Diamètre","mm",42.4,{show:v=>["tube","rond"].includes(v.f)}),N("e","Épaisseur","mm",2,{show:v=>v.f!=="rond"}),
+  N("c","Couches","",2),N("r","Rendement de la peinture","m²/l",8)],
+calc(v){
+  const {L,b,h,D,e}=v; if(!(L>0)) return {err:"Indique la longueur totale."};
+  let per,A;
+  if(v.f==="plat"){if(!(b>0&&e>0))return {err:"Largeur et épaisseur."};per=2*(b+e);A=b*e;}
+  else if(v.f==="tube"){if(!(D>0&&e>0))return {err:"Ø et épaisseur."};per=Math.PI*D;A=Math.PI*(D-e)*e;}
+  else if(v.f==="rond"){if(!(D>0))return {err:"Ø."};per=Math.PI*D;A=Math.PI*D*D/4;}
+  else if(v.f==="carre"){if(!(b>0&&e>0))return {err:"Côté et épaisseur."};per=4*b;A=4*e*(b-e);}
+  else if(v.f==="rect"){if(!(b>0&&h>0&&e>0))return {err:"Cotes et épaisseur."};per=2*(b+h);A=2*e*(b+h-2*e);}
+  else {if(!(b>0&&h>0&&e>0))return {err:"Ailes et épaisseur."};per=2*(b+h);A=e*(b+h-e);}
+  const S=per/1000*L,c=v.c>0?v.c:1,r=v.r>0?v.r:8,kg=A*L*7.85/1000;
+  return {res:[R("Surface à peindre",fmt(S,2),"m²",1),R("Peinture",fmt(S*c/r,2),"l",1),R("Poids à galvaniser",fmt(kg,1),"kg",1),R("Surface par mètre",fmt(per/1000,3),"m²/m")],notes:["Surface extérieure seulement (l'intérieur des tubes n'est pas compté pour la peinture).","Galvanisation à chaud : perce des trous d'évent et de vidange dans les tubes et cadres fermés."]};
+}});
+
+/* ===================== IMPRESSION À L'ÉCHELLE 1 ===================== */
+function PDFDoc(){
+  const pages=[],K=72/25.4,c3=c=>c.map(v=>(v/255).toFixed(3)).join(" ");
+  const enc=s=>{let r="";for(const ch of pdfSafe(s)){const x=ch.charCodeAt(0);if(ch==="("||ch===")"||ch==="\\")r+="\\"+ch;else if(x>126)r+="\\"+x.toString(8).padStart(3,"0");else r+=ch;}return r;};
+  const width=(s,pt,bold)=>{let w=0;for(const ch of pdfSafe(s))w+=hwChar(ch);return w/1000*pt*(bold?1.06:1)/K;};
+  function Page(wmm,hmm){
+    const ops=[],N=x=>(x*K).toFixed(2),Yp=y=>((hmm-y)*K).toFixed(2);
+    const P={w:wmm,h:hmm,ops,
+      lw(w){ops.push(`${N(w)} w`);},rgb(c){ops.push(`${c3(c)} RG`);},frgb(c){ops.push(`${c3(c)} rg`);},
+      dash(a){ops.push(a?`[${a.map(N).join(" ")}] 0 d`:"[] 0 d");},
+      line(a,b){ops.push(`${N(a[0])} ${Yp(a[1])} m ${N(b[0])} ${Yp(b[1])} l S`);},
+      pl(pts,close,mode){if(pts.length<2)return;ops.push(pts.map((q,i)=>`${N(q[0])} ${Yp(q[1])} ${i?"l":"m"}`).join(" ")+(close?" h":"")+" "+(mode||"S"));},
+      rect(x,y,w,h,mode){ops.push(`${N(x)} ${Yp(y+h)} ${N(w)} ${N(h)} re ${mode||"S"}`);},
+      circle(c,r,mode){const k=0.5523*r,[x,y]=c,pt=(a,b)=>`${N(a)} ${Yp(b)}`;ops.push(`${pt(x+r,y)} m ${pt(x+r,y-k)} ${pt(x+k,y-r)} ${pt(x,y-r)} c ${pt(x-k,y-r)} ${pt(x-r,y-k)} ${pt(x-r,y)} c ${pt(x-r,y+k)} ${pt(x-k,y+r)} ${pt(x,y+r)} c ${pt(x+k,y+r)} ${pt(x+r,y+k)} ${pt(x+r,y)} c h ${mode||"S"}`);},
+      text(str,x,y,pt,o={}){const w=width(str,pt,o.bold),xx=o.align==="center"?x-w/2:o.align==="right"?x-w:x;ops.push(`BT /${o.bold?"F2":"F1"} ${pt.toFixed(2)} Tf ${c3(o.color||[20,24,28])} rg ${N(xx)} ${Yp(y+pt/K*0.35)} Td (${enc(str)}) Tj ET`);},
+      clip(x,y,w,h){ops.push(`q ${N(x)} ${Yp(y+h)} ${N(w)} ${N(h)} re W n`);},unclip(){ops.push("Q");}};
+    return P;}
+  return {page(w,h){const p=Page(w,h);pages.push(p);return p;},count(){return pages.length;},
+    output(){const objs=["<< /Type /Catalog /Pages 2 0 R >>",null,"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>","<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>"];
+      const kids=[];pages.forEach(p=>{const content=p.ops.join("\n");const pi=objs.length+1;kids.push(pi+" 0 R");objs.push(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${(p.w*K).toFixed(2)} ${(p.h*K).toFixed(2)}] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents ${pi+1} 0 R >>`);objs.push(`<< /Length ${content.length} >>\nstream\n${content}\nendstream`);});
+      objs[1]=`<< /Type /Pages /Kids [${kids.join(" ")}] /Count ${pages.length} >>`;
+      let out="%PDF-1.4\n";const off=[];objs.forEach((o,i)=>{off.push(out.length);out+=`${i+1} 0 obj\n${o}\nendobj\n`;});
+      const xr=out.length;out+=`xref\n0 ${objs.length+1}\n0000000000 65535 f \n`+off.map(x=>String(x).padStart(10,"0")+" 00000 n \n").join("")+`trailer\n<< /Size ${objs.length+1} /Root 1 0 R >>\nstartxref\n${xr}\n%%EOF`;return out;}};
+}
+const INK=[20,24,28],GREY=[130,136,142];
+function renderPrims(pg,prims,X,Y){
+  prims.forEach(p=>{
+    if(p.t==="pl"){const pts=p.pts.map(q=>[X(q[0]),Y(q[1])]);if(p.fill!=null){const g=Math.round(255*p.fill);pg.frgb([g,g,g]);pg.pl(pts,true,"f");}
+      if(p.w!==0){pg.lw(p.w||0.35);pg.rgb(p.col||INK);pg.dash(p.dash||null);pg.pl(pts,!!p.close,"S");if(p.dash)pg.dash(null);}}
+    else if(p.t==="line"){pg.lw(p.w||0.25);pg.rgb(p.col||INK);pg.dash(p.dash||null);pg.line([X(p.a[0]),Y(p.a[1])],[X(p.b[0]),Y(p.b[1])]);if(p.dash)pg.dash(null);}
+    else if(p.t==="circle"){pg.lw(p.w||0.3);pg.rgb(p.col||INK);pg.dash(p.dash||null);pg.circle([X(p.c[0]),Y(p.c[1])],p.r,"S");if(p.dash)pg.dash(null);}
+    else if(p.t==="cross"){pg.lw(p.w||0.2);pg.rgb(p.col||INK);const x=X(p.c[0]),y=Y(p.c[1]),s=p.s||3;pg.line([x-s,y],[x+s,y]);pg.line([x,y-s],[x,y+s]);}
+    else if(p.t==="text"){pg.text(p.str,X(p.p[0]),Y(p.p[1]),p.pt||8,{align:p.align,bold:p.bold,color:p.col});}
+  });
+}
+function scaleCheck(pg,x,y){pg.lw(0.3);pg.rgb(INK);pg.line([x,y],[x+100,y]);for(let i=0;i<=10;i++)pg.line([x+i*10,y],[x+i*10,y-(i%5?1.5:3)]);pg.text("100 mm : vérifie au réglet",x+104,y-1,7);}
+function tileLayout(tp,fmt){const [x0,y0,x1,y1]=tp.bbox,W=x1-x0,H=y1-y0,m=10,ov=10,[a,b]=fmt==="A3"?[297,420]:[210,297];
+  const samp=[];tp.prims.forEach(p=>{const seg=(u,w)=>{const k=Math.max(1,Math.ceil(Math.hypot(w[0]-u[0],w[1]-u[1])/15));for(let q=0;q<=k;q++)samp.push([u[0]+(w[0]-u[0])*q/k,u[1]+(w[1]-u[1])*q/k]);};
+    if(p.t==="pl"){for(let q=1;q<p.pts.length;q++)seg(p.pts[q-1],p.pts[q]);if(p.close||p.fill!=null)seg(p.pts[p.pts.length-1],p.pts[0]);}else if(p.t==="line")seg(p.a,p.b);
+    else if(p.t==="circle"){const k=Math.max(24,Math.ceil(2*Math.PI*p.r/15));for(let q=0;q<k;q++)samp.push([p.c[0]+p.r*Math.cos(2*Math.PI*q/k),p.c[1]+p.r*Math.sin(2*Math.PI*q/k)]);}
+    else if(p.t==="cross"||p.t==="text")samp.push(p.c||p.p);});
+  const lay=[[a,b],[b,a]].map(([pw,ph])=>{const aw=pw-2*m,ah=ph-2*m-6,nx=Math.max(1,Math.ceil((W-ov)/(aw-ov))),ny=Math.max(1,Math.ceil((H-ov)/(ah-ov))),L={pw,ph,aw,ah,nx,ny};
+    if(nx*ny>400)return {L,tiles:[],nUsed:nx*ny};
+    const tiles=[];for(let j=0;j<ny;j++)for(let i=0;i<nx;i++){const tx=x0+i*(aw-ov),tyTop=y1-j*(ah-ov),used=samp.some(q=>q[0]>=tx-1&&q[0]<=tx+aw+1&&q[1]<=tyTop+1&&q[1]>=tyTop-ah-1);tiles.push({i,j,tx,tyTop,used});}
+    let num=1;tiles.forEach(t=>{if(t.used)t.no=++num;});return {L,tiles,nUsed:num-1};});
+  return lay[0].nUsed<=lay[1].nUsed?lay[0]:lay[1];}
+function buildTemplatePDF(tp,fmt){
+  const doc=PDFDoc(),[x0,y0,x1,y1]=tp.bbox,W=x1-x0,H=y1-y0,m=10,head=22,foot=12;
+  const header=(pg,sub)=>{pg.text(tp.title,m,m+4,12,{bold:true});pg.text((tp.info||[]).map(i=>i[0]+" : "+i[1]).join("   ·   "),m,m+10,7.5,{color:[90,96,102]});pg.text(sub||"Échelle 1:1 · imprime à 100 % (taille réelle), sans « ajuster à la page »",m,m+15,7.5,{color:[185,80,12]});};
+  if(fmt==="plot"){const pw=Math.max(W+2*m,160),ph=H+2*m+head+foot,pg=doc.page(pw,ph);header(pg);
+    const ox=(pw-W)/2-x0,top=m+head;renderPrims(pg,tp.prims,x=>ox+x,y=>top+(y1-y));scaleCheck(pg,m,ph-m-2);return {pdf:doc.output(),pages:1};}
+  const [a,b]=fmt==="A3"?[297,420]:[210,297];
+  for(const [pw,ph] of [[a,b],[b,a]]){if(W<=pw-2*m&&H<=ph-2*m-head-foot){const pg=doc.page(pw,ph);header(pg);const ox=(pw-W)/2-x0,top=m+head+(ph-2*m-head-foot-H)/2;renderPrims(pg,tp.prims,x=>ox+x,y=>top+(y1-y));scaleCheck(pg,m,ph-m-2);return {pdf:doc.output(),pages:1};}}
+  const {L,tiles,nUsed}=tileLayout(tp,fmt),ov=10;
+  if(nUsed>80) return {err:`Il faudrait ${nUsed} pages : choisis A3 ou « une seule feuille » pour une reprographie.`};
+  const info=doc.page(a,b);header(info);
+  info.text("Assemblage",m,m+30,10,{bold:true});
+  [`1. Imprime les ${nUsed+1} pages à 100 % (taille réelle). Les cases vides du plan ne sont pas imprimées.`,"2. Contrôle la barre de 100 mm au réglet.","3. Coupe la marge d'une page sur le trait fin et superpose-la de 10 mm sur la voisine,","   en faisant coïncider les croix (tous les 50 mm) et les traits. Scotche."].forEach((t,i)=>info.text(t,m,m+37+i*5.5,8));
+  const s=Math.min((a-2*m)/W,(b-120-m)/H),gx=m,gy=m+65,tpt=clamp(Math.min(L.aw,L.ah)*s*0.3,6,14);
+  renderPrims(info,tp.prims.filter(p=>p.t!=="text"),x=>gx+(x-x0)*s,y=>gy+(y1-y)*s);
+  tiles.forEach(t=>{const lx=t.tx-x0,ly=y1-t.tyTop,w=Math.min(L.aw,W-lx),h=Math.min(L.ah,H-ly);info.lw(t.used?0.35:0.12);info.rgb(t.used?[185,80,12]:[200,204,208]);info.dash(t.used?null:[1,1]);info.rect(gx+lx*s,gy+ly*s,w*s,h*s);info.dash(null);
+    if(t.used)info.text(String(t.no),gx+(lx+w/2)*s,gy+(ly+h/2)*s,tpt,{align:"center",bold:true,color:[185,80,12]});});
+  scaleCheck(info,m,b-m-2);
+  tiles.filter(t=>t.used).forEach(t=>{
+    const pg=doc.page(L.pw,L.ph),tx=t.tx,tyTop=t.tyTop,X=x=>m+(x-tx),Y=y=>m+6+(tyTop-y);
+    pg.text(`${tp.title} · page ${t.no} / ${nUsed+1} · colonne ${t.i+1}, ligne ${t.j+1} · échelle 1:1, 100 %`,m,m+1,7,{color:[90,96,102]});
+    pg.lw(0.1);pg.rgb([180,186,190]);pg.rect(m,m+6,L.aw,L.ah);
+    pg.clip(m,m+6,L.aw,L.ah);
+    const reg=[];for(let gxm=Math.ceil(tx/50)*50;gxm<=tx+L.aw;gxm+=50)for(let gym=Math.ceil((tyTop-L.ah)/50)*50;gym<=tyTop;gym+=50)reg.push({t:"cross",c:[gxm,gym],s:2,w:0.15,col:[170,176,180]});
+    renderPrims(pg,reg.concat(tp.prims),X,Y);pg.unclip();
+  });
+  return {pdf:doc.output(),pages:doc.count()};
+}
+const tplTool=id=>T.find(t=>t.id===id);
+const band=(C,H,tab)=>[{t:"pl",pts:[[0,0],[C+tab,0],[C+tab,H],[0,H]],close:true,w:0.2},{t:"line",a:[C,0],b:[C,H],w:0.2,dash:[2,1.5]},{t:"text",p:[C+tab/2,H/2],str:"coller",pt:7,align:"center",col:GREY}];
+
+tplTool("piquage").tpl=function(v){const D=v.D,d=v.d,be=v.be>0?v.be:90;if(!(D>0&&d>0&&d<=D&&be>=20&&be<=90))return null;
+  const Rr=D/2,r=d/2,n=clamp(Math.round(v.n>=4?v.n:16),4,64),C=Math.PI*d,sb=Math.sin(rad(be)),cb=Math.cos(rad(be));
+  const sF=th=>(Math.sqrt(Math.max(0,Rr*Rr-r*r*Math.sin(th)**2))-r*Math.cos(th)*cb)/sb;
+  const N2=360,ys=[];for(let i=0;i<=N2;i++)ys.push(sF(2*Math.PI*i/N2));const mn=Math.min(...ys),curve=ys.map((s,i)=>[C*i/N2,s-mn]),ymax=Math.max(...curve.map(p=>p[1])),H=ymax+45,tab=15;
+  const pr=[{t:"pl",pts:[[0,0],...curve,[C,0]],close:true,fill:0.86,w:0},...band(C,H,tab),{t:"pl",pts:curve,w:0.5}];
+  for(let i=0;i<=n;i++){const x=C*i/n,y=sF(2*Math.PI*i/n)-mn;pr.push({t:"line",a:[x,0],b:[x,H],w:0.12,dash:[1,1.5],col:GREY},{t:"text",p:[x,-4],str:String(i%n),pt:7,align:"center"},{t:"text",p:[x+0.8,y+3],str:fmt(y,1),pt:5.5,col:GREY});}
+  pr.push({t:"text",p:[3,H-5],str:`Piquage Ø ${fmt(d,1)} sur Ø ${fmt(D,1)} à ${fmt(be,0)}°`,pt:9,bold:true},{t:"text",p:[3,H-10],str:"Enroule sur le tube piqué, trait du bas au bout du tube. Gris = à enlever. Génératrice 0 dans le plan des axes.",pt:6.5});
+  return {title:"Gabarit de piquage",file:`piquage-${fmt(d,1)}-sur-${fmt(D,1)}`,info:[["Tube principal","Ø "+fmt(D,1)],["Tube piqué","Ø "+fmt(d,1)],["Angle",fmt(be,0)+"°"],["Développé",fmt(C,1)+" mm"]],prims:pr,bbox:[0,-8,C+tab,H]};};
+
+tplTool("generatrices").tpl=function(v){const D=v.D,n=Math.round(v.n);if(!(D>0&&n>=2&&n<=360))return null;const C=Math.PI*D,H=40,tab=15,pr=[...band(C,H,tab)];
+  for(let i=0;i<=n;i++){const x=C*i/n;pr.push({t:"line",a:[x,0],b:[x,H],w:i%n===0?0.4:0.25},{t:"text",p:[x,-4],str:String(i%n),pt:7,align:"center"});}
+  pr.push({t:"text",p:[3,H-5],str:`Ø ${fmt(D,1)} · ${n} génératrices · pas ${fmt(C/n,2)} mm`,pt:8,bold:true});
+  return {title:"Bande de génératrices",file:`generatrices-${fmt(D,1)}`,info:[["Ø",fmt(D,1)],["Divisions",String(n)],["Développé",fmt(C,1)+" mm"]],prims:pr,bbox:[0,-8,C+tab,H]};};
+
+tplTool("segments").tpl=function(v){const D=v.D,Rr=v.R,th=v.th,n=Math.round(v.n);if(!(D>0&&Rr>0&&th>0&&th<=180&&n>=2&&n<=12))return null;
+  const b=rad(th/(2*(n-1))),tb=Math.tan(b),h=D/2,C=Math.PI*D,tab=15,N2=240,pr=[];let yoff=0;
+  const cutEnd=[];for(let i=0;i<=N2;i++){const ph=2*Math.PI*i/N2;cutEnd.push([C*i/N2,h*(1-Math.cos(ph))*tb]);}
+  const H1=2*h*tb+35;pr.push(...band(C,H1,tab),{t:"pl",pts:[[0,0],...cutEnd,[C,0]].map(p=>[p[0],p[1]]),close:true,fill:0.86,w:0},{t:"pl",pts:cutEnd,w:0.5},{t:"text",p:[3,H1-5],str:`Coupe d'onglet à ${fmt(deg(b),2)}° (pièces des bouts ×2) · Ø ${fmt(D,1)}`,pt:8,bold:true},{t:"text",p:[3,H1-10],str:"Enroule sur le tube, trait du bas au bout coupé d'équerre. Gris = à enlever. 0 = dos (extrados), 6 = ventre.",pt:6.5});
+  for(let k=0;k<=12;k++){const x=C*k/12;pr.push({t:"line",a:[x,0],b:[x,H1],w:0.12,dash:[1,1.5],col:GREY},{t:"text",p:[x,-4],str:String(k%12),pt:6.5,align:"center"});}
+  let y0=-8;
+  if(n>2){const Lm=2*tb*(Rr+h),H2=Lm+30,base=-(H2+18),top=[],bot=[];for(let i=0;i<=N2;i++){const ph=2*Math.PI*i/N2,L=2*tb*(Rr+h*Math.cos(ph));top.push([C*i/N2,base+15+(Lm/2)+L/2]);bot.push([C*i/N2,base+15+(Lm/2)-L/2]);}
+    pr.push({t:"pl",pts:[[0,base],[C+tab,base],[C+tab,base+H2],[0,base+H2]],close:true,w:0.2},{t:"line",a:[C,base],b:[C,base+H2],w:0.2,dash:[2,1.5]},{t:"line",a:[0,base+15+Lm/2],b:[C,base+15+Lm/2],w:0.2,dash:[3,2],col:GREY},{t:"pl",pts:top,w:0.5},{t:"pl",pts:bot,w:0.5},{t:"text",p:[3,base+H2-4],str:`Pièce centrale du coude (×${n-2}) · dos ${fmt(2*(Rr+h)*tb,1)} · ventre ${fmt(2*(Rr-h)*tb,1)}`,pt:8,bold:true},{t:"text",p:[3,base+H2-9],str:"Enroule sur le tube : la pièce est entre les deux courbes, pointillé = repère au milieu. Bord gauche = dos.",pt:6.5});
+    y0=base-4;}
+  return {title:"Gabarits du coude à segments",file:`coude-segments-${fmt(D,1)}`,info:[["Ø",fmt(D,1)],["Rayon",fmt(Rr,0)],["Angle",fmt(th,0)+"°"],["Pièces",String(n)]],prims:pr,bbox:[0,y0,C+tab,H1]};};
+
+tplTool("cintrageplat").tpl=function(v){const {b,e}=v;if(!(b>0&&e>0))return null;const pr=[];let bb;
+  if(v.mode==="volute"){const {De,Do,tours}=v;if(!(De>Do&&Do>=0&&tours>0))return null;const N2=Math.round(tours*120),pts=[];for(let i=0;i<=N2;i++){const t=i/N2,a=2*Math.PI*tours*t,r=Do/2+(De-Do)/2*t;pts.push([r*Math.cos(a),r*Math.sin(a)]);}
+    pr.push({t:"pl",pts,w:0.6},{t:"cross",c:[0,0],s:5,w:0.3},{t:"text",p:[0,-De/2-8],str:`Volute Ø ${fmt(De,0)} · œil Ø ${fmt(Do,0)} · ${fmt(tours,1)} tours`,pt:8,bold:true,align:"center"},{t:"text",p:[0,-De/2-13],str:"Trait = axe du plat. Pose le gabarit sous le marbre ou trace-le à la craie, centre sur la croix.",pt:6.5,align:"center"});const sb=bbox(pts);bb=[Math.min(sb[0],-58)-2,-De/2-17,Math.max(sb[2],58)+2,sb[3]+2];
+    return {title:"Gabarit de volute",file:`volute-${fmt(De,0)}`,info:[["Plat",`${fmt(b,0)} × ${fmt(e,0)}`],["Longueur de fer",fmt(Math.PI*tours*(De+Do)/2,0)+" mm"]],prims:pr,bbox:bb};}
+  const Di=v.Di;if(!(Di>0))return null;const t=v.sens==="plat"?e:b,ri=Di/2,ro=ri+t,a=v.mode==="arc"?(v.ang>0?v.ang:90):360;
+  const arcI=arcPts([0,0],ri,90-a/2,90+a/2,180),arcO=arcPts([0,0],ro,90-a/2,90+a/2,180);
+  pr.push({t:"pl",pts:arcI,w:0.5},{t:"pl",pts:arcO,w:0.25,dash:[2,1.5]},{t:"cross",c:[0,0],s:5,w:0.3},{t:"text",p:[0,ri-10],str:`Ø intérieur ${fmt(Di,0)} (trait plein) · Ø extérieur ${fmt(Di+2*t,0)} (pointillé)`,pt:7.5,align:"center"});
+  const pts=arcI.concat(arcO,[[0,0]]);bb=bbox(pts);bb=[bb[0]-5,bb[1]-5,bb[2]+5,bb[3]+5];
+  return {title:v.mode==="arc"?"Gabarit d'arc":"Gabarit d'anneau",file:`cintrage-${fmt(Di,0)}`,info:[["Plat",`${fmt(b,0)} × ${fmt(e,0)}`],["Longueur de fer",fmt(Math.PI*(Di+t)*a/360,1)+" mm"]],prims:pr,bbox:bb};};
+
+tplTool("brides").tpl=function(v){const r=this.calc(v);if(!r||r.err)return null;
+  let Df,K,nb,od,hole,lbl;if(v.norme==="asme"){const a=ASME150.find(x=>x[0]===v.nps);Df=a[1];K=a[2];nb=a[3];od=a[5];hole=UNC[a[4]].hole;lbl=`NPS ${a[0]}" classe 150`;}else{const a=(EN1092[v.pn]||PN16)[v.dn];Df=a[0];K=a[1];nb=a[2];od=DNOD[v.dn];hole=HOLE[a[3]];lbl=`DN ${v.dn} PN ${v.pn}`;}
+  const seq=crossOrder(nb),pr=[{t:"circle",c:[0,0],r:Df/2,w:0.4},{t:"circle",c:[0,0],r:K/2,w:0.15,dash:[2,1.5],col:GREY},{t:"line",a:[-Df/2-6,0],b:[Df/2+6,0],w:0.15,dash:[4,1.5,1,1.5],col:GREY},{t:"line",a:[0,-Df/2-6],b:[0,Df/2+6],w:0.15,dash:[4,1.5,1,1.5],col:GREY},{t:"cross",c:[0,0],s:6,w:0.3}];
+  if(v.type!=="05")pr.push({t:"circle",c:[0,0],r:od/2,w:0.3,dash:[2,1.5]});
+  for(let i=0;i<nb;i++){const a=rad(90-180/nb-i*360/nb),c=[K/2*Math.cos(a),K/2*Math.sin(a)];pr.push({t:"circle",c,r:hole/2,w:0.35},{t:"cross",c,s:hole/2+2,w:0.2},{t:"text",p:[(Df/2+4)*Math.cos(a),(Df/2+4)*Math.sin(a)],str:String(seq[i]),pt:8,bold:true,align:"center"});}
+  pr.push({t:"text",p:[0,-Df/2-10],str:`${lbl} · ${nb} trous Ø ${fmt(hole,1)} sur entraxe ${fmt(K,1)}`,pt:8,bold:true,align:"center"});
+  return {title:"Gabarit de perçage de bride",file:`bride-${lbl.replace(/[^A-Za-z0-9]+/g,"-")}`,info:[["Bride",lbl],["Entraxe",fmt(K,1)+" mm"],["Trous",`${nb} × Ø ${fmt(hole,1)}`]],prims:pr,bbox:[-Df/2-10,-Df/2-14,Df/2+10,Df/2+10]};};
+
+tplTool("cone").tpl=function(v){const {D,H,t}=v,d=v.d>0?v.d:0;if(!(D>0&&H>0&&t>=0))return null;const adj=v.ref==="ext"?-t:v.ref==="int"?t:0,Dm=D+adj,dm=d>0?d+adj:0;if(!(Dm>dm))return null;
+  const s=Math.hypot(H,(Dm-dm)/2),Rr=s*Dm/(Dm-dm),r=Rr-s,th=180*Dm/Rr,n=v.n>=1?Math.round(v.n):1,thp=th/n,a0=-90-thp/2;
+  const outer=arcPts([0,0],Rr,a0,a0+thp,Math.max(60,Math.round(thp*4))),inner=r>0?arcPts([0,0],r,a0+thp,a0,Math.max(30,Math.round(thp*3))):[[0,0]];
+  const pr=[{t:"pl",pts:outer.concat(inner),close:true,w:0.5},{t:"line",a:[0,r>0?-r:0],b:[0,-Rr],w:0.12,dash:[4,1.5,1,1.5],col:GREY}];if(!(r>0))pr.push({t:"cross",c:[0,0],s:5,w:0.3});
+  const lab=r>0?(r+Rr)/2-9:Rr*0.55;if(r>0)pr.push({t:"text",p:[0,-lab+18],str:`Centre des arcs à ${fmt(Rr,1)} mm du grand arc, sur l'axe.`,pt:6.5,align:"center",col:GREY});pr.push({t:"text",p:[0,-lab-12],str:`${n>1?`Une partie, à tracer ${n} fois · `:""}R ${fmt(Rr,1)} · r ${fmt(r,1)} · ${fmt(thp,2)}°`,pt:8,bold:true,align:"center"},{t:"text",p:[0,-lab-18],str:"Ajoute les surépaisseurs de soudure et d'agrafage si besoin.",pt:6.5,align:"center"});
+  const bb=bbox(outer.concat(inner));
+  return {title:"Développé de cône",file:`cone-${fmt(D,0)}-${fmt(d,0)}`,info:[["Grand Ø",fmt(D,0)],["Petit Ø",fmt(d,0)],["Hauteur",fmt(H,0)],["Épaisseur",fmt(t,1)],["Parties",String(n)]],prims:pr,bbox:[bb[0]-5,bb[1]-5,bb[2]+5,bb[3]+5]};};
+
+tplTool("reduction").tpl=function(v){const r=this.calc(v);if(!r||r.err)return null;
+  const {D1,D2,H,t}=v,adj=v.ref==="ext"?-t:v.ref==="int"?t:0,R1=(D1+adj)/2,R2=(D2+adj)/2;let n=Math.round(v.n>=8?v.n:24);n=clamp(n+(n%2),8,72);const e=v.type==="exc"?R1-R2:0;
+  const B=i=>{const f=Math.PI+2*Math.PI*i/n;return [R1*Math.cos(f),R1*Math.sin(f),0];},Tt=i=>{const f=Math.PI+2*Math.PI*i/n;return [e+R2*Math.cos(f),R2*Math.sin(f),H];};
+  const Bp=[[0,0]],Tp=[[0,d3(B(0),Tt(0))]];for(let i=0;i<n;i++){const b1=inter2(Bp[i],d3(B(i+1),B(i)),Tp[i],d3(B(i+1),Tt(i)),[Bp[i],Tp[i]],-1);Bp.push(b1);Tp.push(inter2(Tp[i],d3(Tt(i+1),Tt(i)),b1,d3(Tt(i+1),B(i+1)),[b1,Tp[i]],-1));}
+  const pr=[{t:"pl",pts:Bp.concat(Tp.slice().reverse()),close:true,w:0.5}];for(let i=1;i<n;i++)pr.push({t:"line",a:Bp[i],b:Tp[i],w:0.12,dash:[1.5,1.5],col:GREY});
+  for(let i=0;i<=n;i+=2)pr.push({t:"text",p:[Bp[i][0],Bp[i][1]-4],str:String(i),pt:6,align:"center",col:GREY});
+  const bb=bbox(Bp.concat(Tp));pr.push({t:"text",p:[(bb[0]+bb[2])/2,bb[3]+5],str:`Réduction ${v.type==="exc"?"excentrée":"concentrique"} Ø ${fmt(D1,1)} → Ø ${fmt(D2,1)} · L ${fmt(H,0)}`,pt:8,bold:true,align:"center"});
+  return {title:"Développé de réduction",file:`reduction-${fmt(D1,0)}-${fmt(D2,0)}`,info:[["Grand Ø",fmt(D1,1)],["Petit Ø",fmt(D2,1)],["Longueur",fmt(H,0)]],prims:pr,bbox:[bb[0]-5,bb[1]-8,bb[2]+5,bb[3]+9]};};
+
+tplTool("tremie").tpl=function(v){const {A,B,a,b,H}=v;if(!(A>0&&B>0&&a>=0&&b>=0&&H>0))return null;const h1=Math.hypot(H,(B-b)/2),h2=Math.hypot(H,(A-a)/2),gap=20,ox=A/2+gap+B/2;
+  const f1=[[-A/2,h1],[A/2,h1],[a/2,0],[-a/2,0]],f2=[[ox-B/2,h2],[ox+B/2,h2],[ox+b/2,0],[ox-b/2,0]];
+  const pr=[{t:"pl",pts:f1,close:true,w:0.5},{t:"pl",pts:f2,close:true,w:0.5},{t:"text",p:[0,h1/2],str:`Face A ×2 · h ${fmt(h1,1)}`,pt:8,bold:true,align:"center"},{t:"text",p:[ox,h2/2],str:`Face B ×2 · h ${fmt(h2,1)}`,pt:8,bold:true,align:"center"}];
+  const bb=bbox(f1.concat(f2));return {title:"Faces de trémie",file:`tremie-${fmt(A,0)}x${fmt(B,0)}`,info:[["Haut",`${fmt(A,0)} × ${fmt(B,0)}`],["Bas",`${fmt(a,0)} × ${fmt(b,0)}`],["Hauteur",fmt(H,0)]],prims:pr,bbox:[bb[0]-5,bb[1]-5,bb[2]+5,bb[3]+5]};};
+
+tplTool("arc").tpl=function(v){const {c,f}=v;if(!(c>0&&f>0&&f<=c/2))return null;const Rr=(c*c/4+f*f)/(2*f),cv=v.sens==="conv"?1:-1,y=x=>cv*(Math.sqrt(Math.max(0,Rr*Rr-(x-c/2)**2))-(Rr-f));
+  const pts=[];for(let i=0;i<=200;i++){const x=c*i/200;pts.push([x,y(x)]);}const pr=[{t:"pl",pts,w:0.6},{t:"line",a:[0,0],b:[c,0],w:0.25,dash:[3,2]},{t:"line",a:[c/2,0],b:[c/2,cv*f],w:0.2,dash:[1,1.5],col:GREY}];
+  for(let x=100;x<c;x+=100)pr.push({t:"line",a:[x,0],b:[x,y(x)],w:0.12,col:GREY},{t:"text",p:[x,-cv*4],str:fmt(Math.abs(y(x)),1),pt:6,align:"center",col:GREY});
+  if(v.b>0&&v.g>0){const nb=Math.max(0,Math.ceil((c-v.g)/(v.b+v.g))),gap=(c-nb*v.b)/(nb+1);for(let i=1;i<=nb;i++){const x=gap*i+v.b*(i-0.5);pr.push({t:"line",a:[x,0],b:[x,y(x)],w:0.35},{t:"text",p:[x,y(x)/2],str:`B${i}`,pt:6.5,bold:true,align:"center"});}}
+  pr.push({t:"text",p:[c/2,-cv*10],str:`Arc R ${fmt(Rr,1)} · corde ${fmt(c,0)} · flèche ${fmt(f,0)} · hauteurs en gris tous les 100 mm · B = axes des barreaux`,pt:8,bold:true,align:"center"});
+  const yy=pts.map(p=>p[1]).concat([0,-cv*14]);return {title:"Gabarit d'arc",file:`arc-${fmt(c,0)}-${fmt(f,0)}`,info:[["Corde",fmt(c,0)],["Flèche",fmt(f,0)],["Rayon",fmt(Rr,1)]],prims:pr,bbox:[-5,Math.min(...yy)-4,c+5,Math.max(...yy)+4]};};
+
+const PRTDESC={piquage:"Gabarit à enrouler sur le tube piqué, à découper sur la courbe.",generatrices:"Bande graduée à enrouler sur le tube pour tracer les génératrices.",segments:"Gabarits de coupe à enrouler sur le tube : pièces des bouts et pièces centrales.",cintrageplat:"Tracé en vraie grandeur pour cintrer sur le gabarit.",brides:"Gabarit de perçage avec les numéros de l'ordre de serrage.",cone:"Secteur développé en vraie grandeur, à reporter sur la tôle.",reduction:"Développé en vraie grandeur, à reporter sur la tôle.",tremie:"Les deux faces de la trémie en vraie grandeur.",arc:"Arc en vraie grandeur avec les axes des barreaux."};
+function tplPages(tp,fmt){const W=tp.bbox[2]-tp.bbox[0],H=tp.bbox[3]-tp.bbox[1],m=10;if(fmt==="plot")return {n:1,one:true,pw:Math.max(W+2*m,160),ph:H+2*m+34};
+  const [a,b]=fmt==="A3"?[297,420]:[210,297];for(const [pw,ph] of [[a,b],[b,a]])if(W<=pw-2*m&&H<=ph-2*m-34)return {n:1,one:true};
+  return {n:tileLayout(tp,fmt).nUsed,one:false};}
+const PRTICO=`<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M7 9V3h10v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M7 14h10v7H7z"/></svg>`;
+function printCardHTML(t){const f=ls.get("cs-prtfmt","A4");return `<section class="card prt" id="prt"><h3 class="prt-h">${PRTICO}<span>Imprimer en taille réelle</span></h3>
+<p class="lede">${esc(PRTDESC[t.id]||"Gabarit en vraie grandeur.")}</p>
+<div class="row"><select class="inp" id="prtF" aria-label="Papier">${[["A4","Papier A4"],["A3","Papier A3"],["plot","Grande feuille (traceur, reprographie)"]].map(o=>`<option value="${o[0]}"${o[0]===f?" selected":""}>${o[1]}</option>`).join("")}</select></div>
+<p class="prt-s" id="prtS"></p>
+<button type="button" class="btn" id="prtB" style="width:100%">${PRTICO}Créer le PDF à imprimer</button>
+<p class="prt-n">Imprime à <b>100 %</b> (« taille réelle »), jamais « ajuster à la page ». Contrôle la barre de 100 mm au réglet avant de découper.</p></section>`;}
+function prtUpdate(t,v){const S=document.getElementById("prtS"),B=document.getElementById("prtB");if(!S)return;let tp=null;try{tp=t.tpl(v);}catch(e){console.error(e);}
+  if(!tp){S.textContent="Corrige les valeurs pour pouvoir imprimer.";B.disabled=true;return;}B.disabled=false;
+  const fm=document.getElementById("prtF").value,W=tp.bbox[2]-tp.bbox[0],H=tp.bbox[3]-tp.bbox[1],L=tplPages(tp,fm),nm=fm==="plot"?"feuille":fm;
+  S.textContent=`Gabarit ${fmt(W,0)} × ${fmt(H,0)} mm · `+(fm==="plot"?`1 feuille de ${fmt(L.pw,0)} × ${fmt(L.ph,0)} mm`:L.one?`tient sur 1 page ${nm}`:L.n>80?`trop grand pour des ${nm} : choisis A3 ou une seule feuille`:`${L.n} pages ${nm} à assembler + 1 page de montage`);}
+function wirePrint(t){const B=document.getElementById("prtB");if(!B)return;
+  document.getElementById("prtF").addEventListener("change",e=>{ls.set("cs-prtfmt",e.target.value);prtUpdate(t,getV(t));});
+  B.addEventListener("click",()=>{let tp=null;try{tp=t.tpl(getV(t));}catch(e){console.error(e);}if(!tp){toast("Corrige d'abord les valeurs.");return;}
+    const fm=document.getElementById("prtF").value;let r;try{r=buildTemplatePDF(tp,fm);}catch(e){console.error(e);toast("Le PDF n'a pas pu être créé.");return;}
+    if(r.err){toast(r.err);return;}offerFile(safeName(tp.file)+".pdf",r.pdf);toast(r.pages>1?`PDF de ${r.pages} pages créé : la 1re explique l'assemblage.`:"PDF créé : imprime-le à 100 %.");});}
+
 T.push({id:"iso",cat:"tuy",special:true,name:"Plans iso",desc:"Dessine une ligne en iso : cotes, coupe, nomenclature, PDF",kw:"iso isometrique plan croquis dessin ligne tuyauterie liste de coupe nomenclature pdf cartouche soudures",inputs:[],calc(){return {};}});
 const TOOLMAP={}; T.forEach(t=>TOOLMAP[t.id]=t);
 
@@ -1277,11 +1894,11 @@ function createJob(name){const j={id:newId(),name:name.trim().slice(0,80)||"Chan
 const app=document.getElementById("app"), topbar=document.getElementById("topbar");
 let state={cat:ls.get("cs-cat","all"),q:"",openJob:null,confirm:null};
 let LAST=null;
-const THEMES=[["auto","Auto"],["light","Clair"],["dark","Sombre"]];
-function applyTheme(){const th=ls.get("cs-theme","auto");if(th==="auto")document.documentElement.removeAttribute("data-theme");else document.documentElement.setAttribute("data-theme",th);return th;}
+const THEMES=[["dark","Sombre"],["light","Clair"],["auto","Auto"]];
+function applyTheme(){const th=ls.get("cs-theme","dark");if(th==="auto")document.documentElement.removeAttribute("data-theme");else document.documentElement.setAttribute("data-theme",th);return th;}
 function themeBtn(){const th=applyTheme();const lbl=THEMES.find(x=>x[0]===th)[1];const ic=th==="dark"?'<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>':th==="light"?'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>':'<circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/>';
   return `<button class="iconbtn" id="themeBtn" aria-label="Thème : ${lbl}"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">${ic}</svg> ${lbl}</button>`;}
-document.addEventListener("click",e=>{const b=e.target.closest("#themeBtn");if(!b)return;const th=ls.get("cs-theme","auto");const nx=THEMES[(THEMES.findIndex(x=>x[0]===th)+1)%3][0];ls.set("cs-theme",nx);b.outerHTML=themeBtn();});
+document.addEventListener("click",e=>{const b=e.target.closest("#themeBtn");if(!b)return;const th=ls.get("cs-theme","dark");const nx=THEMES[(THEMES.findIndex(x=>x[0]===th)+1)%3][0];ls.set("cs-theme",nx);b.outerHTML=themeBtn();});
 
 function route(){
   const h=decodeURIComponent(location.hash.slice(1)),isIso=h==="iso"||h.indexOf("iso-")===0;
@@ -1289,6 +1906,7 @@ function route(){
   [["navTools","tools"],["navIso","iso"],["navJobs","jobs"]].forEach(([id,k])=>document.getElementById(id).setAttribute("aria-current",sec===k?"page":"false"));
   pushHist();LAST=null;ED=null;
   if(h==="historique") {renderHistory();window.scrollTo(0,0);return;}
+  if(h==="machine") {renderMachine();window.scrollTo(0,0);return;}
   if(h==="chantiers") renderJobs(); else if(h==="iso") renderIsoList(); else if(isIso&&Store.getIso(h.slice(4))) renderIsoEditor(Store.getIso(h.slice(4))); else if(isIso) renderIsoList(); else if(TOOLMAP[h]&&!TOOLMAP[h].special) renderTool(TOOLMAP[h]); else renderHome();
   window.scrollTo(0,0);
 }
@@ -1339,7 +1957,7 @@ function renderTool(t){
   app.innerHTML=`<div class="tool-head th" style="--cat:${CATCOL[t.cat]}"><span class="ib">${ico(t.id)}</span><div><h1>${esc(t.name)}</h1><p class="lede" style="margin-top:2px">${esc(t.desc)}</p></div></div>
   <div class="drw" id="drw" hidden></div>
   ${t.inputs.length?`<form class="card fields" id="form" autocomplete="off">${t.inputs.map(f=>fieldHTML(f,o)).join("")}</form>`:""}
-  <div id="res"></div><div id="extra"></div>
+  <div id="res"></div><div id="extra"></div>${t.tpl?printCardHTML(t):""}
   ${t.inputs.length?`<details class="card save" id="saveD"><summary>Enregistrer dans un chantier</summary><div id="save" style="margin-top:12px"></div></details>`:""}
   <div class="rbar" id="rbar" hidden><div class="in"><button type="button" id="rbarBtn"></button></div></div>`;
   document.getElementById("rbarBtn").addEventListener("click",()=>{const r=document.getElementById("res");if(r)r.scrollIntoView({behavior:"smooth",block:"start"});});
@@ -1355,13 +1973,14 @@ function renderTool(t){
       if(del){const k=del.dataset.delrow;oo[k].splice(+del.dataset.i,1);document.getElementById("rows-"+k).innerHTML=rowsHTML(t.inputs.find(f=>f.k===k),oo);persistVals();refresh(t);}});
   }
   document.getElementById("extra").addEventListener("click",e=>{const b=e.target.closest('[data-act="timer"]');if(b)toggleTimer(b);});
-  refresh(t); renderSave(t);
+  wirePrint(t); refresh(t); renderSave(t);
 }
 function refresh(t){
   const v=getV(t);
   t.inputs.forEach(f=>{const el=document.querySelector(`[data-f="${f.k}"]`);if(el)el.hidden=f.show?!f.show(v):false;});
   let r; try{r=t.calc(v)||{};}catch(e){console.error(e);r={err:"Calcul impossible avec ces valeurs."};}
   LAST={t,r,v,dirty:!!(LAST&&LAST.t===t&&LAST.dirty)};
+  if(t.tpl) prtUpdate(t,v);
   const drw=document.getElementById("drw"); drw.innerHTML=r.svg||""; drw.hidden=!r.svg||!!r.err;
   const res=document.getElementById("res");
   const rb=document.getElementById("rbar"),bigs=(r.res||[]).filter(x=>x.big);
@@ -1480,14 +2099,43 @@ const ISOVIEW={yaw:45,pitch:35.264};
 const DIRS={E:[1,0,0],O:[-1,0,0],N:[0,1,0],S:[0,-1,0],H:[0,0,1],B:[0,0,-1]};
 const DIRN={E:"Est",O:"Ouest",N:"Nord",S:"Sud",H:"Haut",B:"Bas"};
 const PERP={E:"NSHB",O:"NSHB",N:"EOHB",S:"EOHB",H:"NSEO",B:"NSEO"};
-const ACCN={vanne:"Vanne",clapet:"Clapet anti-retour",bride:"Paire de brides",reduc:"Réduction",filtre:"Filtre"};
+const ACCN={vanne:"Vanne (boisseau, opercule)",papillon:"Vanne papillon",v3:"Vanne 3 voies",clapet:"Clapet anti-retour",filtre:"Filtre en Y",purgeur:"Purgeur",compteur:"Compteur",pompe:"Pompe",reduc:"Réduction concentrique",reducx:"Réduction excentrique",bride:"Paire de brides",comp:"Compensateur de dilatation",mano:"Manomètre",thermo:"Thermomètre",event:"Évent / purge",soupape:"Soupape de sécurité",piq:"Piquage d'instrument"};
+const INLINE={vanne:150,papillon:50,v3:180,clapet:150,filtre:200,purgeur:150,compteur:200,pompe:300,reduc:90,reducx:90,bride:30,comp:200};
+const ENDN={libre:"Bout libre",bride:"Bride",pleine:"Bride pleine",fond:"Fond bombé",bouchon:"Bouchon fileté"};
+const accList=s=>s.accs||(s.acc?[{t:s.acc,pos:s.L/2,L:s.accL||0}]:[]);
+function accOptions(none){return (none?'<option value="">Aucun</option>':'')+'<optgroup label="Dans la ligne">'+Object.keys(INLINE).map(k=>`<option value="${k}">${ACCN[k]}</option>`).join("")+'</optgroup><optgroup label="Sur le tube">'+Object.keys(ACCN).filter(k=>INLINE[k]===undefined).map(k=>`<option value="${k}">${ACCN[k]}</option>`).join("")+'</optgroup>';}
+function drawAcc(G,t,M,u,n,k){const q=(a,b)=>[M[0]+u[0]*a*k+n[0]*b*k,M[1]+u[1]*a*k+n[1]*b*k],bow=()=>G.poly([q(-9,6),q(-9,-6),q(9,6),q(9,-6)],"sym","paper");
+  switch(t){
+    case "vanne":bow();break;
+    case "clapet":bow();G.poly([q(0,0),q(9,6),q(9,-6)],"sym","ink");break;
+    case "v3":bow();G.poly([q(0,0),q(-6,-12),q(6,-12)],"sym","paper");break;
+    case "papillon":G.line(q(-5,8),q(-5,-8),"sym");G.line(q(5,8),q(5,-8),"sym");G.circle(M,4*k,"sym","paper");G.line(q(-3,3),q(3,-3),"sym");break;
+    case "filtre":G.poly([q(-8,5),q(8,5),q(8,-5),q(-8,-5)],"sym","paper");G.line(q(-3,-5),q(4,-14),"sym");G.line(q(3,-5),q(10,-14),"sym");G.line(q(4,-14),q(10,-14),"sym");break;
+    case "purgeur":G.poly([q(-7,7),q(7,7),q(7,-7),q(-7,-7)],"sym","paper");G.circle(M,3.5*k,"sym","ink");break;
+    case "compteur":G.circle(M,8*k,"sym","paper");G.text(M,"M",9*k,"middle",true,"ink");break;
+    case "pompe":G.circle(M,9*k,"sym","paper");G.poly([q(-4,5),q(-4,-5),q(6,0)],"sym","ink");break;
+    case "reduc":G.poly([q(-8,7),q(8,4),q(8,-4),q(-8,-7)],"sym","paper");break;
+    case "reducx":G.poly([q(-8,7),q(8,7),q(8,-1),q(-8,-7)],"sym","paper");break;
+    case "bride":G.poly([q(-4,7),q(4,7),q(4,-7),q(-4,-7)],"sym","paper");G.line(q(-2,7),q(-2,-7),"sym");G.line(q(2,7),q(2,-7),"sym");break;
+    case "comp":G.poly([q(-9,6),q(9,6),q(9,-6),q(-9,-6)],"sym","paper");[-5,0,5].forEach(x=>G.line(q(x-2,6),q(x+2,-6),"sym"));break;
+    case "mano":G.line(M,q(0,-12),"sym");G.circle(q(0,-18),6*k,"sym","paper");G.line(q(0,-18),q(3,-21),"sym");break;
+    case "thermo":G.line(M,q(0,-10),"sym");G.poly([q(-2.5,-10),q(2.5,-10),q(2.5,-22),q(-2.5,-22)],"sym","paper");G.circle(q(0,-10),3*k,"sym","ink");break;
+    case "event":G.line(M,q(0,-8),"sym");G.poly([q(-5,-8),q(5,-8),q(-5,-18),q(5,-18)],"sym","paper");break;
+    case "soupape":G.line(M,q(0,-8),"sym");G.poly([q(-5,-8),q(5,-8),q(0,-16)],"sym","paper");G.line(q(0,-16),q(0,-25),"sym");G.line(q(-3,-19),q(3,-21),"sym");G.line(q(-3,-22),q(3,-24),"sym");break;
+    case "piq":G.line(M,q(0,-10),"sym");G.circle(q(0,-12),2.5*k,"sym","ink");break;
+  }}
+function drawEnd(G,t,p,u,n,k){const q=(a,b)=>[p[0]+u[0]*a*k+n[0]*b*k,p[1]+u[1]*a*k+n[1]*b*k];
+  if(t==="bride"){G.line(q(0,8),q(0,-8),"sym");G.line(q(3,8),q(3,-8),"sym");}
+  else if(t==="pleine"){G.poly([q(0,8),q(4,8),q(4,-8),q(0,-8)],"sym","ink");}
+  else if(t==="fond"){const pts=[];for(let i=0;i<=12;i++){const a=-Math.PI/2+Math.PI*i/12;pts.push(q(Math.cos(a)*6,Math.sin(a)*7));}G.poly(pts,"sym","paper");}
+  else if(t==="bouchon"){G.poly([q(0,5),q(5,5),q(5,-5),q(0,-5)],"sym","ink");}}
 const MATN={acier:"acier",inox:"inox",alu:"alu"};
 const v3={add:(p,u,t)=>[p[0]+u[0]*t,p[1]+u[1]*t,p[2]+u[2]*t],dot:(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2]};
 function segVec(s){const a=DIRS[s.d]||DIRS.E;if(!s.d2)return a.slice();const b=DIRS[s.d2],k=Math.SQRT1_2;return [(a[0]+b[0])*k,(a[1]+b[1])*k,(a[2]+b[2])*k];}
 function segName(s){return s.d2?`${DIRN[s.d]} + ${DIRN[s.d2]} à 45°`:DIRN[s.d];}
 function project(p,v){const ps=rad(v.yaw),ph=rad(v.pitch);return [p[0]*Math.cos(ps)+p[1]*Math.sin(ps),(-p[0]*Math.sin(ps)+p[1]*Math.cos(ps))*Math.sin(ph)+p[2]*Math.cos(ph)];}
 function newIso(name){return {id:newId(),kind:"iso",name:name||"Ligne",job:Store.active||null,D:60.3,R:76,tee:"te",C:64,gap:2,mat:"acier",page:"A4",nums:true,dims:true,created:Date.now(),segs:[]};}
-function exampleIso(){const i=newIso("Exemple — ligne L-01");i.segs=[{d:"E",L:1500,f:0},{d:"N",L:800,f:1,acc:"vanne",accL:150},{d:"H",L:600,f:2},{d:"E",L:1200,f:3},{d:"S",L:500,f:1}];return i;}
+function exampleIso(){const i=newIso("Exemple — ligne L-01");i.segs=[{d:"E",L:1500,f:0},{d:"N",L:800,f:1,acc:"vanne",accL:150},{d:"H",L:600,f:2},{d:"E",L:1200,f:3,accs:[{t:"mano",pos:400,L:0}]},{d:"S",L:500,f:1}];i.ends={"4":{t:"bride",L:0},"5":{t:"pleine",L:0}};return i;}
 
 /* ---- analyse : nœuds, pièces à couper, soudures, nomenclature ---- */
 function analyseIso(iso){
@@ -1503,17 +2151,19 @@ function analyseIso(iso){
     if(d===3){for(let p=0;p<3;p++)for(let q=p+1;q<3;q++)if(v3.dot(list[p].u,list[q].u)<-0.999)return {type:"te",run:[p,q],br:3-p-q,list};return {type:"te",run:null,list};}
     return {type:"croix",list};});
   const info=(n,ix)=>{const nd=nodes[n];
-    if(nd.type==="libre")return {take:0,g:0,kind:"libre",note:"bout libre"};
+    if(nd.type==="libre"){const en=(iso.ends||{})[n];if(en&&en.t&&en.t!=="libre"&&ENDN[en.t]){const tk=en.L>0?en.L:0;return en.t==="bouchon"?{take:tk,g:0,kind:"end",note:"bouchon fileté"}:{take:tk,g:gap,kind:"end",note:ENDN[en.t].toLowerCase()};}return {take:0,g:0,kind:"libre",note:"bout libre"};}
     if(nd.type==="droit")return {take:0,g:0,merge:true};
     if(nd.type==="coude")return R>0?{take:R*Math.tan(rad(Math.min(nd.th,170)/2)),g:gap,kind:"coude",note:`coude ${fmt(nd.th,0)}°`}:{take:0,g:gap/2,kind:"onglet",note:`onglet ${fmt(nd.th/2,1)}°`};
     if(nd.type==="te"&&piq&&nd.run){if(ix===nd.br)return {take:0,g:0,kind:"piquage",note:"gueule de loup"};return {take:0,g:0,merge:true};}
     return {take:Ct,g:gap,kind:"te",note:nd.type==="croix"?"croix":"té"};};
-  const subs=[],segSubs=[];
+  const subs=[],segSubs=[];let overlap=false;
   segs.forEach((s,i)=>{
     const e0={node:s.f,ix:nodes[s.f].list.findIndex(e=>e.i===i&&e.end===0)},e1={node:i+1,ix:nodes[i+1].list.findIndex(e=>e.i===i&&e.end===1)};
     e0.inf=info(e0.node,e0.ix);e1.inf=info(e1.node,e1.ix);
-    if(s.acc){const raw=(s.L-(s.accL||0))/2,ea={inf:{take:0,g:gap,kind:"acc",note:(ACCN[s.acc]||"accessoire").toLowerCase()}};segSubs[i]=[subs.length,subs.length+1];subs.push({i,raw,ends:[e0,ea]},{i,raw,ends:[ea,e1]});}
-    else{segSubs[i]=[subs.length,subs.length];subs.push({i,raw:s.L,ends:[e0,e1]});}
+    const ins=accList(s).filter(x=>INLINE[x.t]!==undefined).map(x=>({t:x.t,L:x.L||0,pos:clamp(x.pos,0,s.L)})).sort((x,y)=>x.pos-y.pos);
+    const first=subs.length;let st=0,pe=e0;
+    ins.forEach(x=>{const ea={inf:{take:0,g:gap,kind:"acc",note:(ACCN[x.t]||"accessoire").toLowerCase()}};const raw=x.pos-x.L/2-st;if(raw<-0.01)overlap=true;subs.push({i,raw,ends:[pe,ea]});st=x.pos+x.L/2;pe=ea;});
+    if(s.L-st<-0.01)overlap=true;subs.push({i,raw:s.L-st,ends:[pe,e1]});segSubs[i]=[first,subs.length-1];
   });
   const par=subs.map((_,k)=>k),find=k=>par[k]===k?k:(par[k]=find(par[k])),uni=(a,b)=>{a=find(a);b=find(b);if(a!==b)par[Math.max(a,b)]=Math.min(a,b);};
   nodes.forEach(nd=>{const pair=nd.type==="droit"?[0,1]:(nd.type==="te"&&piq&&nd.run)?nd.run:null;if(!pair)return;
@@ -1526,8 +2176,9 @@ function analyseIso(iso){
   const welds=[],done=new Set();
   const nodeW=n=>{if(done.has(n))return;done.add(n);const nd=nodes[n],p=P[n];
     if(nd.type==="coude"){if(R>0)nd.list.forEach(e=>welds.push({p:v3.add(p,e.u,R*Math.tan(rad(Math.min(nd.th,170)/2))),seg:e.i,dir:e.u}));else welds.push({p,seg:nd.list[0].i});}
-    else if(nd.type==="te"||nd.type==="croix"){if(piq&&nd.type==="te"&&nd.run){const e=nd.list[nd.br];welds.push({p:v3.add(p,e.u,D/2),seg:e.i,dir:e.u});}else nd.list.forEach(e=>welds.push({p:v3.add(p,e.u,Ct),seg:e.i,dir:e.u}));}};
-  segs.forEach((s,i)=>{nodeW(s.f);if(s.acc){const m=v3.add(P[s.f],V[i],s.L/2),h=(s.accL||0)/2;welds.push({p:v3.add(m,V[i],-h),seg:i,dir:V[i].map(c=>-c)},{p:v3.add(m,V[i],h),seg:i,dir:V[i]});}nodeW(i+1);});
+    else if(nd.type==="te"||nd.type==="croix"){if(piq&&nd.type==="te"&&nd.run){const e=nd.list[nd.br];welds.push({p:v3.add(p,e.u,D/2),seg:e.i,dir:e.u});}else nd.list.forEach(e=>welds.push({p:v3.add(p,e.u,Ct),seg:e.i,dir:e.u}));}
+    else if(nd.type==="libre"){const en=(iso.ends||{})[n];if(en&&["bride","pleine","fond"].includes(en.t)){const e=nd.list[0];welds.push({p:v3.add(p,e.u,en.L>0?en.L:0),seg:e.i});}}};
+  segs.forEach((s,i)=>{nodeW(s.f);accList(s).slice().sort((x,y)=>x.pos-y.pos).forEach(x=>{const m=v3.add(P[s.f],V[i],clamp(x.pos,0,s.L));if(INLINE[x.t]!==undefined){const h=(x.L||0)/2;welds.push({p:v3.add(m,V[i],-h),seg:i,dir:V[i].map(c=>-c)},{p:v3.add(m,V[i],h),seg:i,dir:V[i]});}else welds.push({p:m,seg:i});});nodeW(i+1);});
   welds.forEach((w,k)=>w.n=k+1);
   const tot=pieces.reduce((a,p)=>a+Math.max(0,p.len),0),bom=[];
   if(segs.length) bom.push([`Tube Ø ${fmt(D,1)} ${MATN[iso.mat]||""}`.trim(),`${fmt(tot/1000,2)} m`]);
@@ -1536,7 +2187,9 @@ function analyseIso(iso){
   const nte=nodes.filter(nd=>nd.type==="te").length,ncx=nodes.filter(nd=>nd.type==="croix").length;
   if(nte) bom.push([piq?"Piquage direct (gueule de loup)":"Té égal",String(nte)]);
   if(ncx) bom.push(["Croix",String(ncx)]);
-  const ac={};segs.forEach(s=>{if(s.acc)ac[s.acc]=(ac[s.acc]||0)+1;});Object.keys(ac).forEach(k=>bom.push([ACCN[k],String(ac[k])]));
+  const ac={};segs.forEach(s=>accList(s).forEach(x=>{ac[x.t]=(ac[x.t]||0)+1;}));Object.keys(ac).forEach(k=>bom.push([ACCN[k]||k,String(ac[k])]));
+  const ec={};Object.keys(iso.ends||{}).forEach(k=>{const en=iso.ends[k];if(en&&en.t&&en.t!=="libre"&&nodes[k]&&nodes[k].type==="libre")ec[en.t]=(ec[en.t]||0)+1;});Object.keys(ec).forEach(k=>bom.push([ENDN[k],String(ec[k])]));
+  if(overlap)warn.push("Des accessoires se chevauchent ou dépassent d'un tronçon : vérifie leurs positions et longueurs.");
   if(welds.length) bom.push(["Soudures",String(welds.length)]);
   pieces.forEach(p=>{if(p.len<0)warn.push(`${p.rep} sort négative : un tronçon est trop court pour ses raccords.`);});
   if(nodes.some(nd=>nd.type==="te"&&!nd.run))warn.push("Un té n'est pas sur une ligne droite : vérifie les directions.");
@@ -1562,20 +2215,18 @@ function drawIso(G,iso,A,o){
   // tubes
   segs.forEach((sg,i)=>G.line(geo[i].a,geo[i].b,o.sel===i?"pipeSel":"pipe",i));
   // accessoires
-  segs.forEach((sg,i)=>{if(!sg.acc)return;const g=geo[i],M=g.m,u=g.u,n=[u[1],-u[0]],q=(t,w)=>at(M,u,t*k,n,w*k);
-    if(sg.acc==="vanne"||sg.acc==="clapet"){G.poly([q(-9,6),q(-9,-6),q(9,6),q(9,-6)],"sym","paper");if(sg.acc==="clapet")G.poly([q(0,0),q(9,6),q(9,-6)],"sym","ink");}
-    else if(sg.acc==="bride"){G.poly([q(-4,7),q(4,7),q(4,-7),q(-4,-7)],"sym","paper");G.line(q(-2,7),q(-2,-7),"sym");G.line(q(2,7),q(2,-7),"sym");}
-    else if(sg.acc==="reduc"){G.poly([q(-8,7),q(8,4),q(8,-4),q(-8,-7)],"sym","paper");}
-    else if(sg.acc==="filtre"){G.poly([q(-8,6),q(8,6),q(8,-6),q(-8,-6)],"sym","paper");G.line(q(-8,6),q(8,-6),"sym");}});
+  segs.forEach((sg,i)=>{const g=geo[i];accList(sg).forEach(x=>{const pt=v3.add(A.P[sg.f],A.V[i],clamp(x.pos,0,sg.L)),M=T(project(pt,view));drawAcc(G,x.t,M,g.u,[g.u[1],-g.u[0]],k);});});
+  // extrémités
+  Object.keys(iso.ends||{}).forEach(key=>{const en=iso.ends[key],nd=A.nodes[key];if(!en||!nd||nd.type!=="libre"||en.t==="libre")return;const e=nd.list[0],g=geo[e.i];if(!g)return;const u0=e.end===0?[-g.u[0],-g.u[1]]:g.u;drawEnd(G,en.t,S[key],u0,[u0[1],-u0[0]],k);});
   // cotes
   if(o.dims!==false) segs.forEach((sg,i)=>{const g=geo[i];if(g.L<4*k)return;const off=17*k,n=g.n,u=g.u,A2=at(g.a,[0,0],0,n,off),B2=at(g.b,[0,0],0,n,off);
     G.line(at(g.a,[0,0],0,n,3*k),at(A2,[0,0],0,n,3*k),"ext");G.line(at(g.b,[0,0],0,n,3*k),at(B2,[0,0],0,n,3*k),"ext");G.line(A2,B2,"dim");
     const tk=[(u[0]+n[0])*2.4*k,(u[1]+n[1])*2.4*k];[A2,B2].forEach(p=>G.line([p[0]-tk[0],p[1]-tk[1]],[p[0]+tk[0],p[1]+tk[1]],"dim"));
     const anc=Math.abs(n[0])>0.8?(n[0]>0?"start":"end"):"middle";G.text(at(g.m,[0,0],0,n,off+(anc==="middle"?8:5)*k),fmt(sg.L,0),11*k,anc,true,"ink");});
   // repères de tronçon
-  if(o.segnums!==false) segs.forEach((sg,i)=>{const g=geo[i];if(g.L<14*k)return;const p=at(g.m,[0,0],0,g.n,-11*k);G.text(sg.acc?at(p,g.u,-16*k):p,"T"+(i+1),8.5*k,"middle",false,"muted");});
+  if(o.segnums!==false) segs.forEach((sg,i)=>{const g=geo[i];if(g.L<14*k)return;const p=at(g.m,[0,0],0,g.n,-11*k);G.text(accList(sg).length?at(p,g.u,-16*k):p,"T"+(i+1),8.5*k,"middle",false,"muted");});
   // nœuds
-  A.nodes.forEach((nd,j)=>{const p=S[j];if(nd.type==="libre")G.circle(p,3.2*k,"sym","paper");else if(nd.type==="te"||nd.type==="croix")G.circle(p,3*k,"sym","ink");});
+  A.nodes.forEach((nd,j)=>{const p=S[j],en=(iso.ends||{})[j];if(nd.type==="libre"&&!(en&&en.t&&en.t!=="libre"))G.circle(p,3.2*k,"sym","paper");else if(nd.type==="te"||nd.type==="croix")G.circle(p,3*k,"sym","ink");});
   if(segs.length){const g0=geo[0];G.text(at(S[0],g0.u,-12*k,g0.n,0),"A",11*k,"middle",true,"accent");}
   if(o.start!=null&&S[o.start]) G.circle(S[o.start],7*k,"start","none");
   // soudures
@@ -1696,7 +2347,7 @@ function renderIsoEditor(iso){
     <div class="dpad" role="group" aria-label="Direction">${["O","H","N","S","B","E"].map(d=>`<button type="button" data-dir="${d}" aria-pressed="${d==="E"}">${arrowSvg(d)}${DIRN[d]}</button>`).join("")}</div>
     <div class="sublbl">Incliner à 45° vers</div><div class="chips" id="d2chips" style="padding-bottom:4px"></div>
     <div class="fields" style="margin-top:6px"><label class="fld"><span>Longueur (axe) <em>mm</em></span><input id="fL" inputmode="decimal" autocomplete="off" value="1000"></label>
-      <label class="fld"><span>Accessoire</span><select id="fAcc"><option value="">Aucun</option>${Object.keys(ACCN).map(k=>`<option value="${k}">${ACCN[k]}</option>`).join("")}</select></label>
+      <label class="fld"><span>Accessoire</span><select id="fAcc">${accOptions(true)}</select></label>
       <label class="fld wide" id="fAccLw" hidden><span>Longueur de l'accessoire <em>mm</em></span><input id="fAccL" inputmode="decimal" autocomplete="off" value="150"></label></div>
     <div class="actions"><button class="btn primary" id="addBtn" style="flex:1">Ajouter</button><button class="btn" id="undoBtn">Annuler le dernier</button><button class="btn" id="cancelEdit" hidden>Abandonner</button></div>
   </section>
@@ -1720,7 +2371,7 @@ function renderIsoEditor(iso){
   renderD2();isoRefresh();
 }
 function renderD2(){const box=document.getElementById("d2chips");const opts=[["","Non"]].concat(PERP[ED.form.d].split("").map(c=>[c,DIRN[c]]));box.innerHTML=opts.map(o=>`<button type="button" class="chip" data-d2="${o[0]}" aria-pressed="${ED.form.d2===o[0]}">${o[1]}</button>`).join("");}
-function syncForm(){document.querySelectorAll("[data-dir]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.dir===ED.form.d));renderD2();document.getElementById("fL").value=ED.form.L;document.getElementById("fAcc").value=ED.form.acc;document.getElementById("fAccL").value=ED.form.accL;document.getElementById("fAccLw").hidden=!ED.form.acc;
+function syncForm(){document.querySelectorAll("[data-dir]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.dir===ED.form.d));renderD2();document.getElementById("fL").value=ED.form.L;document.getElementById("fAcc").value=ED.form.acc;document.getElementById("fAccL").value=ED.form.accL;document.getElementById("fAccLw").hidden=INLINE[ED.form.acc]===undefined;
   const ed=ED.editing!=null;document.getElementById("addTitle").textContent=ed?`Modifier T${ED.editing+1}`:"Ajouter un tronçon";document.getElementById("addBtn").textContent=ed?"Mettre à jour":"Ajouter";document.getElementById("cancelEdit").hidden=!ed;document.getElementById("undoBtn").hidden=ed;}
 function isoChanged(iso,now){Store.putIso(iso,now);isoRefresh();}
 function wireIso(){
@@ -1730,12 +2381,12 @@ function wireIso(){
     const d2=e.target.closest("[data-d2]");if(d2){ED.form.d2=d2.dataset.d2;renderD2();}});
   document.getElementById("fL").addEventListener("input",e=>{ED.form.L=e.target.value;});
   document.getElementById("fAccL").addEventListener("input",e=>{ED.form.accL=e.target.value;});
-  document.getElementById("fAcc").addEventListener("change",e=>{ED.form.acc=e.target.value;document.getElementById("fAccLw").hidden=!ED.form.acc;});
+  document.getElementById("fAcc").addEventListener("change",e=>{ED.form.acc=e.target.value;const il=INLINE[ED.form.acc];document.getElementById("fAccLw").hidden=il===undefined;if(il!==undefined){ED.form.accL=String(il);document.getElementById("fAccL").value=ED.form.accL;}});
   document.getElementById("addBtn").addEventListener("click",()=>{
     const iso=JSON.parse(JSON.stringify(curIso())),L=parseNum(ED.form.L),aL=parseNum(ED.form.accL);
     if(!(L>0)){toast("Indique une longueur.");document.getElementById("fL").focus();return;}
-    if(ED.form.acc&&!(aL>=0&&aL<L)){toast("L'accessoire doit être plus court que le tronçon.");return;}
-    const seg={d:ED.form.d,L};if(ED.form.d2)seg.d2=ED.form.d2;if(ED.form.acc){seg.acc=ED.form.acc;seg.accL=aL||0;}
+    if(ED.form.acc&&INLINE[ED.form.acc]!==undefined&&!(aL>=0&&aL<L)){toast("L'accessoire doit être plus court que le tronçon.");return;}
+    const seg={d:ED.form.d,L};if(ED.form.d2)seg.d2=ED.form.d2;seg.accs=ED.editing!=null?accList(iso.segs[ED.editing]).map(x=>Object.assign({},x,{pos:Math.min(x.pos,L)})):[];if(ED.form.acc)seg.accs.push({t:ED.form.acc,pos:L/2,L:INLINE[ED.form.acc]!==undefined?(aL||0):0});
     if(ED.editing!=null){seg.f=iso.segs[ED.editing].f;iso.segs[ED.editing]=seg;ED.sel=ED.editing;ED.editing=null;}
     else{seg.f=Math.min(ED.start,iso.segs.length);iso.segs.push(seg);ED.sel=iso.segs.length-1;ED.start=iso.segs.length;}
     ED.form.acc="";syncForm();isoChanged(iso);});
@@ -1762,10 +2413,18 @@ function wireIso(){
   svg.addEventListener("pointerup",up);svg.addEventListener("pointercancel",up);
   svg.addEventListener("wheel",e=>{e.preventDefault();ED.view.zoom=clamp(ED.view.zoom*(e.deltaY<0?1.12:1/1.12),0.3,8);redraw();},{passive:false});
   document.getElementById("selBox").addEventListener("click",e=>{const b=e.target.closest("[data-a]");if(!b)return;const iso=curIso(),i=ED.sel;if(i==null)return;
-    if(b.dataset.a==="edit"){const s=iso.segs[i];ED.editing=i;ED.form={d:s.d,d2:s.d2||"",L:String(s.L),acc:s.acc||"",accL:String(s.accL||150)};syncForm();document.getElementById("addBox").scrollIntoView({behavior:"smooth",block:"start"});}
+    if(b.dataset.a==="edit"){const s=iso.segs[i];ED.editing=i;ED.form={d:s.d,d2:s.d2||"",L:String(s.L),acc:"",accL:"150"};syncForm();document.getElementById("addBox").scrollIntoView({behavior:"smooth",block:"start"});}
     else if(b.dataset.a==="end"){ED.start=i+1;isoRefresh();toast(`Le prochain tronçon part de la fin de T${i+1}.`);}
     else if(b.dataset.a==="begin"){ED.start=iso.segs[i].f;isoRefresh();toast(`Le prochain tronçon part du début de T${i+1}.`);}
-    else if(b.dataset.a==="del"){if(ED.confirm!==i){ED.confirm=i;renderSel();return;}delSeg(i);}});
+    else if(b.dataset.a==="del"){if(ED.confirm!==i){ED.confirm=i;renderSel();return;}delSeg(i);}
+    else if(b.dataset.a==="addacc"){const c=JSON.parse(JSON.stringify(iso)),sg=c.segs[i],t=document.getElementById("aT").value,pos=parseNum(document.getElementById("aP").value),il=INLINE[t]!==undefined,L=il?parseNum(document.getElementById("aL").value):0;
+      if(!(pos>=0&&pos<=sg.L)){toast(`Position entre 0 et ${Math.round(sg.L)} mm.`);return;}
+      if(il&&!(L>=0&&pos-L/2>=0&&pos+L/2<=sg.L)){toast("L'accessoire dépasse du tronçon : change sa position ou sa longueur.");return;}
+      sg.accs=accList(sg).concat([{t,pos,L:L||0}]);delete sg.acc;delete sg.accL;isoChanged(c);toast(`${ACCN[t]} ajouté sur T${i+1}.`);}
+    else if(b.dataset.a==="delacc"){const c=JSON.parse(JSON.stringify(iso)),sg=c.segs[i];sg.accs=accList(sg);sg.accs.splice(+b.dataset.k,1);delete sg.acc;delete sg.accL;isoChanged(c);}});
+  document.getElementById("selBox").addEventListener("change",e=>{const el=e.target,node=el.dataset.endt||el.dataset.endl;if(node==null)return;const c=JSON.parse(JSON.stringify(curIso()));c.ends=c.ends||{};const cur=c.ends[node]||{t:"libre",L:0};
+    if(el.dataset.endt!=null)cur.t=el.value;else cur.L=Math.max(0,parseNum(el.value)||0);
+    if(cur.t==="libre")delete c.ends[node];else c.ends[node]=cur;isoChanged(c);});
   const setBox=document.getElementById("setBox");
   const readSet=()=>{const iso=JSON.parse(JSON.stringify(curIso())),num=(id,d)=>{const v=parseNum(document.getElementById(id).value);return isFinite(v)&&v>=0?v:d;};
     iso.name=document.getElementById("sName").value.trim()||"Ligne";iso.job=document.getElementById("sJob").value||null;iso.D=num("sD",iso.D);iso.R=num("sR",0);iso.tee=document.getElementById("sTee").value;iso.C=num("sC",0);iso.gap=num("sGap",0);iso.mat=document.getElementById("sMat").value;iso.dims=document.getElementById("sDims").value==="1";iso.nums=document.getElementById("sNums").value==="1";iso.page=document.getElementById("sPage").value;
@@ -1783,6 +2442,7 @@ function delSeg(i){
   const iso=JSON.parse(JSON.stringify(curIso()));
   if(iso.segs.some((s,j)=>j!==i&&s.f===i+1)){toast(`D'autres tronçons partent de la fin de T${i+1} : supprime-les d'abord.`);ED.confirm=null;renderSel();return;}
   const from=iso.segs[i].f;iso.segs.splice(i,1);iso.segs.forEach(s=>{if(s.f>i+1)s.f-=1;});
+  const ne={};Object.keys(iso.ends||{}).forEach(k=>{const n=+k;if(n===i+1)return;ne[n>i+1?n-1:n]=iso.ends[k];});iso.ends=ne;
   if(ED.start===i+1)ED.start=from;else if(ED.start>i+1)ED.start-=1;ED.start=Math.min(ED.start,iso.segs.length);
   ED.sel=null;ED.confirm=null;if(ED.editing!=null){ED.editing=null;syncForm();}
   isoChanged(iso);
@@ -1798,10 +2458,21 @@ function drawStage(){
 function renderSel(){
   const box=document.getElementById("selBox"),iso=curIso(),i=ED.sel;
   if(i==null||!iso.segs[i]){box.innerHTML="";return;}
-  const s=iso.segs[i],ps=ED.A.pieces.filter(p=>p.segs.includes(i));
+  const s=iso.segs[i],ps=ED.A.pieces.filter(p=>p.segs.includes(i)),acs=accList(s),A=ED.A;
+  const endSel=(node,label)=>{const nd=A.nodes[node];if(!nd||nd.type!=="libre")return "";const en=(iso.ends||{})[node]||{t:"libre",L:0};
+    return `<label class="fld"><span>${label}</span><select data-endt="${node}">${Object.keys(ENDN).map(k=>`<option value="${k}"${en.t===k?" selected":""}>${ENDN[k]}</option>`).join("")}</select></label><label class="fld"${en.t==="libre"?" hidden":""}><span>Longueur du raccord <em>mm</em></span><input data-endl="${node}" inputmode="decimal" value="${esc(en.L||0)}"></label>`;};
+  const ends=endSel(i+1,`Bout de T${i+1}`)+(s.f===0?endSel(0,"Départ (point A)"):"");
   box.innerHTML=`<div class="card selbar"><b style="font-family:var(--display);font-size:22px">T${i+1} · ${esc(segName(s))} · ${fmt(s.L,0)} mm</b>
-  <div class="lede">${s.acc?esc(ACCN[s.acc])+` (${fmt(s.accL,0)} mm) · `:""}${ps.map(p=>`${p.rep} à couper : <b style="color:var(--ink)">${fmt(p.len,0)} mm</b>`).join(" · ")}</div>
-  <div class="actions"><button class="btn small" data-a="edit">Modifier</button><button class="btn small" data-a="end">Partir de sa fin</button><button class="btn small" data-a="begin">Partir de son début</button><button class="btn small danger" data-a="del">${ED.confirm===i?"Confirmer":"Supprimer"}</button></div></div>`;
+  <div class="lede">${ps.map(p=>`${p.rep} à couper : <b style="color:var(--ink)">${fmt(p.len,0)} mm</b>`).join(" · ")}</div>
+  <div class="actions"><button class="btn small" data-a="edit">Modifier</button><button class="btn small" data-a="end">Partir de sa fin</button><button class="btn small" data-a="begin">Partir de son début</button><button class="btn small danger" data-a="del">${ED.confirm===i?"Confirmer":"Supprimer"}</button></div>
+  <div class="sublbl">Accessoires sur T${i+1}</div>
+  ${acs.length?`<dl class="rlist">${acs.map((x,k)=>`<div><dt>${esc(ACCN[x.t]||x.t)}<br><small>à ${fmt(x.pos,0)} mm du début${INLINE[x.t]!==undefined?` · long. ${fmt(x.L||0,0)} mm`:""}</small></dt><dd><button class="btn small" data-a="delacc" data-k="${k}">Retirer</button></dd></div>`).join("")}</dl>`:`<p class="lede" style="margin:0">Aucun accessoire sur ce tronçon.</p>`}
+  <div class="fields" style="margin-top:10px"><label class="fld wide"><span>Accessoire à ajouter</span><select id="aT">${accOptions(false)}</select></label>
+    <label class="fld"><span>Depuis le début <em>mm</em></span><input id="aP" inputmode="decimal" value="${Math.round(s.L/2)}"></label>
+    <label class="fld" id="aLw"><span>Longueur <em>mm</em></span><input id="aL" inputmode="decimal" value="150"></label></div>
+  <button class="btn" data-a="addacc" style="width:100%;margin-top:10px">Ajouter sur T${i+1}</button>
+  ${ends?`<div class="sublbl">Extrémités</div><div class="fields">${ends}</div>`:""}</div>`;
+  const aT=document.getElementById("aT"),upd=()=>{const il=INLINE[aT.value];document.getElementById("aLw").hidden=il===undefined;if(il!==undefined)document.getElementById("aL").value=il;};aT.addEventListener("change",upd);upd();
 }
 function isoRefresh(){
   const iso=curIso();if(!iso)return;ED.A=analyseIso(iso);const A=ED.A;
