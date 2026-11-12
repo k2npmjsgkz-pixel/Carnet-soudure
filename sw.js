@@ -1,13 +1,13 @@
 /* Carnet Soudeur : mise en cache pour fonctionner sans réseau */
-const VERSION = "atelier-v1";
-const SHELL = ["./", "./index.html"];
+const VERSION = "carnet-v2";
+const SHELL = ["./", "./index.html", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png", "./apple-touch-icon.png"];
 
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(VERSION).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));
 });
 
 self.addEventListener("activate", e => {
-  e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k.startsWith("atelier-") && k !== VERSION).map(k => caches.delete(k)))).then(() => self.clients.claim()));
+  e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== VERSION).map(k => caches.delete(k)))).then(() => self.clients.claim()));
 });
 
 // Réponse immédiate depuis le cache, puis mise à jour en arrière-plan quand le réseau est là.
